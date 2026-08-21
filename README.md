@@ -1,4 +1,4 @@
-# vLLM + Radeon PRO V620 — Working Recipe
+# vLLM + Radeon PRO V620 Linux Recipe
 
 **Copyright © 2026 Aron Hsiao. Licensed under the GNU General Public License v3.0 or later.**
 

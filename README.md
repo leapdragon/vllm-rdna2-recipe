@@ -51,6 +51,7 @@ Used in my case with:
 | **[00-HARDWARE.md](00-HARDWARE.md)** | The machine, the model, the measured silicon facts, and the performance targets. **Start here — the numbers are meaningless without it.** |
 | **[01-PATCHES.md](01-PATCHES.md)** | What each patch does and why, how to apply and verify, then the pitfalls and the measured dead ends. |
 | **[02-VERSIONS.md](02-VERSIONS.md)** | Exact pins, build order, every runtime setting and what it's worth, and what to do when the pins don't hold. |
+| **[ADAPTING-PROCESS.md](ADAPTING-PROCESS.md)** | **Instructions for adapting this recipe** — the optimisation loop as working directions for an ingesting LLM (and its human), with PROFILE-NAVI21.md as the rosetta stone. Read when your model, card, or vLLM version differs from ours. |
 | **[PROFILE-NAVI21.md](PROFILE-NAVI21.md)** | Emergency break-glass option if success is elusive. The full silicon profile behind 00-HARDWARE's summary: 37 measured tests covering compute, memory, interconnect, and the design rules they imply. Don't pay attention to too many of the wild-eyed WAGs in it, as it hasn't really been cleaned up, but there's a lot of basic reference here resulting from empirical poking and prodding of the chip. |
 
 ```

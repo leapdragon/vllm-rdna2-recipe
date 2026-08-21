@@ -297,6 +297,16 @@ The hardware does **not** need many workgroups to saturate memory. So the attent
 
 ## 10. Software stack ground truth
 
+- **Triton `num_stages` on gfx1030: use 1.** The default (3) and even 2 multiply the K/V tile
+  LDS footprint and halve occupancy at large head sizes; measured ~2× on prefill attention
+  (T32) and reconfirmed on two hand-written kernels (T33/T34). This is the single biggest
+  launch-parameter knob observed on this chip.
+- **Custom Triton prefill-attention kernels lose to vLLM's stock kernel here.** Two structures
+  measured (byte-sliced fused-dequant 0.70×, interleave-reconstructed deep-dot 0.58×, both
+  correct): at prefill shapes KV is Infinity-Cache-served and the stock kernel's scheduling
+  wins. The decode regime (no reuse, bandwidth-bound) is where custom kernels pay [T-A1/T23];
+  the prefill regime is not. [T33/T34]
+
 - Container: ROCm 7.2.3, torch 2.11.0+gitd0c8b1f, Triton 3.6.0, py3.12 (`vllm-gfx1030:0.27.1-patched`).
 - **No vendor stack ships gfx1030 kernels.** Everything fast was earned by source build + patches.
 - Upstream gates that exclude gfx1030 (all verified in source): vLLM `use_custom_allreduce()` → gfx94/95 only; QuickReduce → gfx94/95; `csrc/rocm/attention.cu` → gfx90a/942/950; RDNA GEMM files are `_rdna3` (WMMA); skinny-GEMM gate excludes gfx10x; AITER, CK flash-attn, FlashInfer: no RDNA2.

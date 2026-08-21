@@ -104,6 +104,14 @@ byte-identical. The wider-query-tile route (upstream's Blackwell fix) was measur
 - `verify/decode-rate.py` and `verify/prefill-rate.py` added; `longctx-decode.py` removed (its
   median-gap method mis-measures under speculative decoding).
 
+**2026-08-21 (later still) — prefill campaign closed at the practical ceiling.** Final:
+834/747/521 tok/s at 3.5k/15k/37k. Verified optimal and now documented as measured dead ends
+(see 01-PATCHES): two custom prefill-attention kernel structures (0.70× and 0.58× — at prefill,
+KV is cache-served and the stock kernel wins), chunk sizes other than 8192, and wider query
+tiles. The reusable rule that came out of it: **pass `num_stages=1` in every Triton kernel on
+this chip.** Full patch series re-verified: applied to pristine vLLM 0.27.1 it reproduces the
+running tree exactly.
+
 **2026-08-20 — initial publication.** Five patches, two plugins, 33.5 t/s @42k, no speculation.
 
 ## Licence and provenance

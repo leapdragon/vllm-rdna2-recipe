@@ -46,6 +46,13 @@ All in `config/serve-rdna2-tp2.sh`. Each is individually reversible.
 | `MTP` | **2** | +24% @41k, +36% @14k | Speculative decoding via the checkpoint's own MTP head; output-lossless. **Requires the shipped `fd_rdna2`** (batched verification) or it becomes a 3.6× regression. `MTP=0` disables. |
 | `TUNEOP_TUNING` | **0** | prevents minutes-long prefill stalls | TunableOp lookup-only; `1` re-enables autotuning for deliberate offline sessions only. See pitfalls in 01. |
 | `FD_MAXQ` | 4 | — | Widest verification batch the attention plugin takes; the batched kernel packs nq×8 columns into 32. |
+| `--max-num-batched-tokens` (`BATCHTOK`) | **8192** | swept optimum | 4096 and 16384 both measure worse at mid/long context. |
+
+**Note on the launcher's bind mounts:** `config/serve-rdna2-tp2.sh` mounts three patched source
+files (`rocm.py`, `triton_attn.py`, `triton_unified_attention.py`) over the image's copies —
+that is how this deployment picks up post-image-bake patch changes without rebuilding. If you
+bake the fully-patched source tree into your image, those mounts are redundant; adapt the
+absolute `/home/perfekt/...` paths either way.
 | `--tensor-parallel-size` | 2 | | Must be the two ×16-rooted cards. |
 | Card power cap | 232 W | **free** | Decode is bandwidth-bound; the ~30% clock throttling it causes does not slow decode. |
 
@@ -71,7 +78,7 @@ carry; the numbers will not.
 ```bash
 verify/validate.py --compare verify/baseline-rccl.json    # expect: identical=8 diverged=0 (MTP on or off)
 verify/decode-rate.py --ctx 4000,16000,43000              # MTP=2: ~43-51 / ~50 / ~41 t/s; MTP=0: ~37 / ~37 / ~33.5
-verify/prefill-rate.py --ctx 4000,16000,43000             # ~800 / ~600 / ~380 tok/s, and UNIFORM across trials
+verify/prefill-rate.py --ctx 4000,16000,37000             # ~834 / ~747 / ~521 tok/s, and UNIFORM across trials
 verify/soak.py --minutes 30 --conc 3                      # expect: SOAK CLEAN
 ```
 

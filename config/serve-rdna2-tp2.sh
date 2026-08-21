@@ -85,6 +85,7 @@ exec docker run -d --name "$NAME" --network=host \
   -e AR_RDNA2="${AR_RDNA2:-1}" -e AR_MAX_KB="${AR_MAX_KB:-512}" -e TORCH_EXTENSIONS_DIR=/ext-cache \
   -e PYTORCH_ROCM_ARCH=gfx1030 \
   -v /home/perfekt/repos/vllm-rdna2/vllm-0.27.1/vllm/v1/attention/backends/triton_attn.py:/app/vllm-src/vllm/v1/attention/backends/triton_attn.py:ro \
+  -v /home/perfekt/repos/vllm-rdna2/vllm-0.27.1/vllm/v1/attention/ops/triton_unified_attention.py:/app/vllm-src/vllm/v1/attention/ops/triton_unified_attention.py:ro \
   "${CAR_MOUNT[@]}" "${CAR_ENV[@]}" "${VERBOSE_ENV[@]}" \
   -e HSA_OVERRIDE_GFX_VERSION=10.3.0 \
   -e ROCR_VISIBLE_DEVICES="$DEVICES" \
@@ -94,8 +95,8 @@ exec docker run -d --name "$NAME" --network=host \
   -e VLLM_ROCM_USE_AITER=0 -e VLLM_ROCM_USE_AITER_MOE=0 \
   -e HIP_FORCE_DEV_KERNARG=1 \
   -e PYTORCH_ALLOC_CONF=expandable_segments:True \
-  -e GPU_MAX_HW_QUEUES="${HW_QUEUES:-4}" \
   -e VLLM_EXECUTE_MODEL_TIMEOUT_SECONDS="${EXEC_TIMEOUT:-300}" \
+  -e VLLM_LOG_STATS_INTERVAL="${STATS_INTERVAL:-10}" \
   -v /home/perfekt/repos/vllm-rdna2/profile/ws3-traces:/traces \
   -v /home/perfekt/repos/vllm-rdna2/.compile-cache:/compile-cache \
   "${DEV_MOUNT[@]}" \
@@ -108,7 +109,7 @@ exec docker run -d --name "$NAME" --network=host \
   -e TOKENIZERS_PARALLELISM=false -e OMP_NUM_THREADS=8 \
   -e VLLM_DISABLED_KERNELS=RDNA3W4A16LinearKernel,RDNAHybridW4A16LinearKernel,TritonW4A16LinearKernel,ConchLinearKernel \
   --entrypoint sh "$IMG" -c \
-  "${DEV_INSTALL}exec vllm serve $MODEL --served-model-name $SERVED \
+  "${DEV_INSTALL}exec vllm serve $MODEL --served-model-name $SERVED --enable-prompt-tokens-details \
     --port "$PORT" \
     ${SERVE_EXTRA} \
     ${SPEC_ARG} \

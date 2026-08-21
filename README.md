@@ -19,7 +19,9 @@ So I pointed Qwen 3.8 Max and Opus 5.0 at both and said let's build out support 
 This is the result. First actual generatable run (after LLMs consumed the above repos) netted 11-18 t/s generation with Qwen 27b. After all optimizations, the 2x v620
 combo running Qwen 3.8 27b is steady at &gt;32-34 t/s *before MTP* with the expected speed cost as context accumulates.
 
-We have not yet enabled out MTP, so I presume we'll be in the 40 t/s range once we do that. YMMV. 
+**Update 2026-08-21:** MTP is now enabled and the presumption held — **41.4 t/s at 41k context**
+and 50+ t/s at mid context, greedy outputs byte-identical to non-speculative. YMMV on acceptance
+rate (~58% per draft on this quant), so short-context numbers move with prompt content.
 
 ## What this is, and how to use it
 
@@ -77,7 +79,25 @@ and more distributable than this for the RDNA2 family cards (hell I would use it
   `rocm_base` plus one arch line) and built it as we went, retrospectively after each successful patch; nobody has yet run this recipe from scratch.
 - **The two plugins monkey-patch vLLM internals** and will need rework on any version bump — and
   they fail *silently*. See the pitfalls in 01-PATCHES.md.
-- **Speculative decoding (MTP) is untouched**, and is the largest remaining lever by some distance.
+- **Something intermittently hard-crashes the machine** (spontaneous reboot, no kernel trace).
+  Leading correlate is an `svm_range_restore_work [amdgpu]` storm under TunableOp tuning churn —
+  much rarer since tuning went lookup-only — but it is not yet proven resolved.
+
+## Changelog
+
+**2026-08-21 — MTP enabled; prefill stall fixed.**
+- `MTP=2` (the checkpoint's own multi-token-prediction head, `qwen3_5_mtp`) is now the default:
+  **41.4 t/s @41k (+24%), 50.4 @14k (+36%)**, output-lossless. This required extending the
+  `fd_rdna2` plugin to **batched multi-query verification** — without it, verification passes
+  silently fall to the stock attention kernel and MTP measures as a **3.6× regression**. The
+  plugin and MTP must be deployed together.
+- **TunableOp now runs lookup-only** (`PYTORCH_TUNABLEOP_TUNING=0`). Tuning mode autotunes every
+  never-seen GEMM shape mid-request, and prefill M is prompt-length-dependent — fresh prompts
+  paid minutes-long stalls (bimodal 771 vs 37 tok/s at identical sizes). See pitfalls in 01.
+- `verify/decode-rate.py` and `verify/prefill-rate.py` added; `longctx-decode.py` removed (its
+  median-gap method mis-measures under speculative decoding).
+
+**2026-08-20 — initial publication.** Five patches, two plugins, 33.5 t/s @42k, no speculation.
 
 ## Licence and provenance
 

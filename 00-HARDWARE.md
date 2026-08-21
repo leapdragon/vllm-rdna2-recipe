@@ -55,16 +55,19 @@ short of a different quantisation moves it. We reach 33.5 t/s, i.e. ~61% of the 
 
 TP=2 on the two ×16 V620s, int8 KV, `max_model_len=131072`, single stream, greedy:
 
-| Context | Stock vLLM + gfx1030 patches | **With this repo's full set** |
-|---:|---:|---:|
-| ~3.7k | 27.8 t/s | **37.4 t/s** |
-| ~15k | 24.5 t/s | **36.9 t/s** |
-| ~42k | 18.4 t/s | **33.5 t/s** |
+| Context | Stock vLLM + gfx1030 patches | Full set, `MTP=0` | **Full set with `MTP=2`** |
+|---:|---:|---:|---:|
+| ~3.5k | 27.8 t/s | 37.4 t/s | **43–51 t/s** |
+| ~14k | 24.5 t/s | 36.9 t/s | **50.4 t/s** |
+| ~41k | 18.4 t/s | 33.5 t/s | **41.4 t/s** |
+
+MTP figures move with draft acceptance (~58% per draft on this quant), so short-context numbers
+spread with prompt content. Prefill (cold prompts): **~800 tok/s @3.4k, 608 @15k, 386 @37k**.
 
 Context slope 0.4879 → **0.0805 µs/ctx-token** (6.06× flatter).
 
-For scale: llama.cpp on the same model and machine reaches 31–40 t/s at 45k *with 2-draft MTP
-speculative decoding*. The figures above use **no speculative decoding at all**.
+For scale: llama.cpp on the same model and machine reaches 31–40 t/s at 45k with 2-draft MTP.
+The `MTP=2` column uses the same technique (the checkpoint's own MTP head) and passes that band.
 
 ## Scope — read this before assuming it transfers
 

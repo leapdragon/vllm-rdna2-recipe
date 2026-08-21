@@ -145,6 +145,11 @@ tuning mode perturbs greedy outputs (breaks byte-identical validation), and on t
 allocation churn correlated with an `svm_range_restore_work [amdgpu]` kernel storm that preceded
 two hard system crashes.
 
+**Triton's default `num_stages` costs ~2× on this chip.** Triton defaults to 3-stage software
+pipelining, which multiplies each kernel's K/V tile footprint in LDS; at head_size 256 that
+halves occupancy. Pass `num_stages=1` explicitly in every Triton kernel you write for gfx1030 —
+this single knob was worth 2× on prefill attention and was reconfirmed on two further kernels.
+
 **A plugin can load, log nothing, and be completely inert.** `init_logger("name")` creates a
 logger outside vLLM's configured `vllm.*` namespace, so every INFO record is discarded. The server
 boots, serves correct text, and gives no sign either way. Use `init_logger("vllm.yourname")` and
@@ -196,3 +201,6 @@ measurement. A missing fan controller once made this machine look 3× slower tha
 | More all-reduce work | In-server comms is ~2.35 ms/token total; our collective already took 0.7 of it. |
 | `GPU_MAX_HW_QUEUES=8` | **32% regression** vs 4. Four is the optimum. |
 | Hoisting the attention range-mask behind a full-tile branch | **71% slower** — duplicating the loop body costs more than the selects it removes. |
+| Custom Triton PREFILL attention kernels (two structures) | Byte-sliced fused-dequant: **0.70×** the stock kernel; interleave-reconstructed deep-dot: **0.58×**. Both correct. At prefill shapes KV is served from Infinity Cache, so the decode kernel's load-path wins don't apply and the stock kernel's scheduling wins. Custom kernels pay at *decode* (no reuse, bandwidth-bound), not prefill. |
+| Prefill chunk size ≠ 8192 (`--max-num-batched-tokens`) | 4096 and 16384 both measurably worse at mid/long context. 8192 is the optimum. |
+| Wider prefill query tiles (BLOCK_M 32–128) | Uniformly worse — the fp32 accumulator is BLOCK_M×256 per program; register pressure beats amortisation. Upstream ships this as a *fix* for Blackwell; on gfx1030 it is a regression. |

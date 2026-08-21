@@ -80,8 +80,9 @@ and more distributable than this for the RDNA2 family cards (hell I would use it
   `rocm_base` plus one arch line) and built it as we went, retrospectively after each successful patch; nobody has yet run this recipe from scratch.
 - **The two plugins monkey-patch vLLM internals** and will need rework on any version bump — and
   they fail *silently*. See the pitfalls in 01-PATCHES.md.
-- **Something intermittently hard-crashes the machine** (spontaneous reboot, no kernel trace).
+- **Something intermittently was hard-crashing my inference machine** (spontaneous reboot, no kernel trace).
   Leading correlate is an `svm_range_restore_work [amdgpu]` storm under TunableOp tuning churn. We produced this pretty reliably after enabling MTP with autotuning on; turning it off doesn't seem to have hurt performance and we have not seen a crash since, though it's early days yet.
+- **Prefill/PP is hit hard by a high quadratic coefficient because we reduced the tile size for v620 but didn't actually do anything yet to optimize prefill for the cards, just generation. So it starts fast but slows fast. We'll work on that next.
 
 ## Changelog
 

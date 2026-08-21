@@ -8,7 +8,7 @@ But hopefully the good kind. I bought 4x Radeon Pro v620 cards because they're d
 performant for 32GB PCIe x4 cards, but I was perennially unsatisfied with llama.cpp's cache handling
 for agentic work, especially for models that push up against the cards' practically productive limits.
 
-Trying to deploy vLLM by hand didn't work out well and consulting with LLMs I got the ansewr that
+Trying to deploy vLLM by hand didn't work out well and consulting with LLMs I got the answer that
 RDNA2/NAVI21 was unsupported and unlikely to ever be supported; there is no vendor-supported path and
 no vendor ships gfx1030 kernels in any vLLM wheel or image.
 

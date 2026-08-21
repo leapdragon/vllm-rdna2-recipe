@@ -51,6 +51,7 @@ Used in my case with:
 | **[00-HARDWARE.md](00-HARDWARE.md)** | The machine, the model, the measured silicon facts, and the performance targets. **Start here — the numbers are meaningless without it.** |
 | **[01-PATCHES.md](01-PATCHES.md)** | What each patch does and why, how to apply and verify, then the pitfalls and the measured dead ends. |
 | **[02-VERSIONS.md](02-VERSIONS.md)** | Exact pins, build order, every runtime setting and what it's worth, and what to do when the pins don't hold. |
+| **[PROFILE-NAVI21.md](PROFILE-NAVI21.md)** | The full silicon profile behind 00-HARDWARE's summary: 37 measured tests covering compute, memory, interconnect, and the design rules they imply. The reference for anyone writing their own kernels for this chip. |
 
 ```
 patches/    five patches, 182 lines, against pristine vLLM 0.27.1

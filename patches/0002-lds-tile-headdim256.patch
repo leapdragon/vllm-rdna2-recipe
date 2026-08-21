@@ -1,0 +1,23 @@
+--- a/vllm/v1/attention/ops/triton_unified_attention.py
++++ b/vllm/v1/attention/ops/triton_unified_attention.py
+@@ -987,6 +987,20 @@
+     if tuned_large_head:
+         TILE_SIZE_PREFILL = 128
+ 
++    # RDNA2 (gfx10xx, e.g. gfx1030) has a 64 KiB LDS limit. With
++    # head_size >= 256 the default TILE 32 plus multi-stage K/V
++    # pipelining overflows shared memory (~136 KiB required) and kills
++    # the engine on the first forward pass. Shrink the KV tile and cap
++    # the pipeline depth to fit. Same failure class as the gemma-4
++    # workaround (vllm#38918).
++    if current_platform.is_rocm():
++        from vllm.platforms.rocm import on_gfx10x
++
++        if on_gfx10x() and head_size >= 256:
++            TILE_SIZE_PREFILL = min(TILE_SIZE_PREFILL, 16)
++            TILE_SIZE_DECODE = min(TILE_SIZE_DECODE, 16)
++            launch_num_stages = min(launch_num_stages or 2, 2)
++
+     # USE_TD requires BLOCK_SIZE % TILE_SIZE == 0 (enforced by a
+     # ``tl.static_assert`` in the kernel).  The default prefill tile
+     # size (32) is larger than a common ``block_size=16``, so clamp it

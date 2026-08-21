@@ -1,0 +1,32 @@
+--- a/vllm/v1/attention/backends/triton_attn.py
++++ b/vllm/v1/attention/backends/triton_attn.py
+@@ -152,6 +152,29 @@
+             )
+ 
+         self.num_par_softmax_segments = NUM_PAR_SOFTMAX_SEGMENTS
++        # gfx10x (RDNA2) tuning: the 3D decode path launches a grid of
++        # num_seqs x num_heads_kv x num_par_softmax_segments.  On a model with
++        # few KV heads split across TP ranks (Qwen3.8-27B: 4 KV heads, 2 per
++        # rank at TP=2) a single-sequence decode gives 1 x 2 x 16 = 32
++        # workgroups on a 36-CU card -- one per CU, with nothing to hide memory
++        # latency behind.  Scale the segment count so a single-sequence decode
++        # still reaches MIN_LAUNCH_GRID_SIZE_2D, the launch size this file
++        # already treats as adequate for the 2D path.
++        #
++        # Measured, gfx1030 / 43k context / int8 KV, one attention layer:
++        #   segments 16 (grid  32) -> 1.37 ms,  32.2 GB/s
++        #   segments 32 (grid  64) -> 0.82 ms,  53.6 GB/s
++        #   segments 64 (grid 128) -> 0.52 ms,  85.3 GB/s   <- plateau
++        #   segments 128(grid 256) -> 0.53 ms,  82.5 GB/s
++        # Capped at 64: beyond the plateau it only costs scratch memory.
++        if current_platform.is_rocm():
++            from vllm.platforms.rocm import on_gfx10x
++
++            if on_gfx10x() and self.num_heads_kv > 0:
++                needed = -(-MIN_LAUNCH_GRID_SIZE_2D // self.num_heads_kv)
++                self.num_par_softmax_segments = max(
++                    NUM_PAR_SOFTMAX_SEGMENTS, min(needed, 64)
++                )
+         headdim_padded = next_power_of_2(self.headdim)
+         self.softmax_segm_output = torch.empty(
+             (

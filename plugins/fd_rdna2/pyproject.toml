@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "fd-rdna2-gfx1030"
+version = "0.1.0"
+license = "GPL-3.0-or-later"
+authors = [{name = "Aron Hsiao"}]
+description = "WS1 flash-decode attention override for gfx1030"
+[project.entry-points."vllm.general_plugins"]
+fd_rdna2 = "fd_rdna2:register"
+[tool.setuptools]
+packages = ["fd_rdna2"]

@@ -1,0 +1,101 @@
+--- a/vllm/platforms/rocm.py
++++ b/vllm/platforms/rocm.py
+@@ -204,6 +204,7 @@
+ _GCN_ARCH = _get_gcn_arch()
+ 
+ _ON_GFX1X = any(arch in _GCN_ARCH for arch in ["gfx11", "gfx12"])
++_ON_GFX10X = any(arch in _GCN_ARCH for arch in ["gfx10"])
+ _ON_GFX11 = "gfx11" in _GCN_ARCH
+ _ON_GFX1100 = "gfx1100" in _GCN_ARCH
+ _ON_GFX1151 = "gfx1151" in _GCN_ARCH
+@@ -295,6 +296,10 @@
+     return _ON_GFX1X and not _ON_CDNA
+ 
+ 
++def on_gfx10x() -> bool:
++    return _ON_GFX10X
++
++
+ def on_gfx11() -> bool:
+     return _ON_GFX11
+ 
+@@ -408,7 +413,7 @@
+ 
+ @cache
+ def flash_attn_triton_available() -> bool:
+-    if not on_gfx1x():
++    if not (on_gfx1x() or on_gfx10x()):
+         return False
+     try:
+         from importlib.util import find_spec
+@@ -705,9 +710,9 @@
+             logger.info_once("Using Flash Attention backend for ViT model.")
+             return AttentionBackendEnum.FLASH_ATTN
+ 
+-        # RDNA3/RDNA4 (gfx11xx/gfx12xx): Use Flash Attention Triton backend
++        # RDNA2/RDNA3/RDNA4 (gfx10xx/gfx11xx/gfx12xx): Use Flash Attention Triton backend
+         if (
+-            on_gfx1x()
++            (on_gfx1x() or on_gfx10x())
+             and flash_attn_triton_available()
+             and (dtype == torch.float16 or dtype == torch.bfloat16)
+         ):
+@@ -935,7 +940,18 @@
+     @classmethod
+     def use_custom_allreduce(cls) -> bool:
+         # We only enable custom allreduce for MI300 series
+-        return any(gfx in _GCN_ARCH for gfx in ["gfx94", "gfx95"])
++        if any(gfx in _GCN_ARCH for gfx in ["gfx94", "gfx95"]):
++            return True
++        # RDNA opt-in (off by default, identical behaviour unless requested).
++        # gfx1030 has no XGMI, but PCIe P2P here is direct and complete:
++        # peer read/write from kernels and peer atomicAdd/CAS all verified on
++        # devices 1+3 of this host (14.04 GB/s, 28.4 us @ 10KB) — and peer
++        # atomics are what the one-shot all-reduce barrier needs.
++        # See projects/vllm-rdna2/OPTIMIZATION-PHASE.md section 1a.
++        import os
++        if os.getenv("VLLM_ROCM_FORCE_CUSTOM_ALLREDUCE", "0") == "1":
++            return "gfx1" in _GCN_ARCH
++        return False
+ 
+     @classmethod
+     def opaque_attention_op(cls) -> bool:
+--- a/vllm/model_executor/kernels/linear/mixed_precision/triton_w4a16.py
++++ b/vllm/model_executor/kernels/linear/mixed_precision/triton_w4a16.py
+@@ -209,9 +209,9 @@
+     zeros_ptr = qzeros if has_zp else b_q
+ 
+     if current_platform.is_rocm():
+-        from vllm.platforms.rocm import on_gfx1x
++        from vllm.platforms.rocm import on_gfx1x, on_gfx10x
+ 
+-        if on_gfx1x():
++        if on_gfx1x() or on_gfx10x():
+             # Tuned for RDNA 3.5 (gfx1151, 40 CUs, 32-wide wavefronts).
+             if M <= 32:
+                 BLOCK_M, BLOCK_N, BLOCK_K = 32, 32, 64
+--- a/vllm/third_party/flash_linear_attention/ops/chunk_scaled_dot_kkt.py
++++ b/vllm/third_party/flash_linear_attention/ops/chunk_scaled_dot_kkt.py
+@@ -23,9 +23,9 @@
+ # to k's native storage dtype (bf16/fp16) so fast WMMA is used instead.
+ _CAST_DOT_TO_K_DTYPE = False
+ if current_platform.is_rocm():
+-    from vllm.platforms.rocm import on_gfx1x
++    from vllm.platforms.rocm import on_gfx1x, on_gfx10x
+ 
+-    _CAST_DOT_TO_K_DTYPE = on_gfx1x()
++    _CAST_DOT_TO_K_DTYPE = on_gfx1x() or on_gfx10x()
+ 
+ 
+ @triton.heuristics(
+--- a/docs/getting_started/installation/gpu.rocm.inc.md
++++ b/docs/getting_started/installation/gpu.rocm.inc.md
+@@ -13,7 +13,7 @@
+ --8<-- [end:installation]
+ --8<-- [start:requirements]
+ 
+-- GPU: MI200s (gfx90a), MI300 (gfx942), MI350 (gfx950), Radeon RX 7900 series (gfx1100/1101), Radeon RX 9000 series (gfx1200/1201), Ryzen AI MAX / AI 300 Series (gfx1151/1150)
++- GPU: MI200s (gfx90a), MI300 (gfx942), MI350 (gfx950), Radeon PRO V620 / RX 6800/6900 series (gfx1030), Radeon RX 7900 series (gfx1100/1101), Radeon RX 9000 series (gfx1200/1201), Ryzen AI MAX / AI 300 Series (gfx1151/1150)
+ - ROCm 6.3 or above
+     - MI350 requires ROCm 7.0 or above
+     - Ryzen AI MAX / AI 300 Series requires ROCm 7.0.2 or above

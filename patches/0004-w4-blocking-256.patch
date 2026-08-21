@@ -1,0 +1,15 @@
+--- a/csrc/libtorch_stable/quantization/gptq/q_gemm.cu
++++ b/csrc/libtorch_stable/quantization/gptq/q_gemm.cu
+@@ -21,7 +21,11 @@
+ namespace vllm {
+ namespace gptq {
+ 
+-#define BLOCK_KN_SIZE 128
++// gfx1030: 256 measured better than 128 across this model's shapes (mean 400.0 vs 364.8 GB/s;
++// down_proj +20%, qkv +20%). Bigger blocks win -- 8 waves and a shallower K-split, so less
++// atomic traffic -- while 64 is much worse and 512 collapses on small shapes. See
++// dev/ws3-weights/results/ws3.4-w4-shape-map.md
++#define BLOCK_KN_SIZE 256
+ #define BLOCK_M_SIZE_MAX 8
+ #define MAX_GROUPS_IN_BLOCK (BLOCK_KN_SIZE / 32)
+ #define MAX_Q_GEMM_ROWS 50

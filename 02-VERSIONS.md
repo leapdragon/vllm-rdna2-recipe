@@ -7,7 +7,7 @@ Copyright © 2026 Aron Hsiao · GPL-3.0-or-later (see LICENSE)
 | Component | Pin | Notes |
 |---|---|---|
 | vLLM | **0.27.1** | Patches target this tag. |
-| ROCm | **7.2.3**, in-container | **Never mount host ROCm.** Host here is a mixed apt-7.1 + TheRock-7.14 install; mounting it caused page faults. |
+| ROCm | **7.2.3**, in-container | HIP 7.2.53211-c2d9476115, AMD clang 22.0.0git (`roc-7.2.3`). **Never mount host ROCm.** Host here is a mixed apt-7.1 + TheRock-7.14 install; mounting it caused page faults. |
 | PyTorch | **2.11.0+gitd0c8b1f**, built from source for gfx1030 | Built by vLLM's own `docker/Dockerfile.rocm_base` with patch 0005 applied. |
 | Triton | ships with that torch | The attention plugin is Triton; no separate pin. |
 | Model | `btbtyler09/Qwen3.8-27B-GPTQ-4bit` | GPTQ 4-bit, group_size 32, symmetric. |
@@ -26,8 +26,9 @@ Copyright © 2026 Aron Hsiao · GPL-3.0-or-later (see LICENSE)
 ⚠️ **We did not rebuild the base image from scratch to verify step 1.** Our working base was built
 by hand before this recipe existed; we later identified that vLLM's own `rocm_base` recipe plus
 the one-line arch change is what produces it. The reasoning is sound and the patch is trivial, but
-**you will be the first to run it end to end.** Budget accordingly, and if it diverges, the thing
-to check is the torch build arch list (`torch.cuda.get_arch_list()` must include `gfx1030`).
+**you will be the first to run it end to end.** Budget accordingly, and if it diverges, check the
+torch build arch list — `torch.cuda.get_arch_list()` must include `gfx1030` — **with GPU devices
+attached to the container**, or it returns an empty list with no error and tells you nothing.
 
 ## Runtime configuration and what each setting is worth
 

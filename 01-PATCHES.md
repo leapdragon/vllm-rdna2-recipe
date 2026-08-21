@@ -81,7 +81,18 @@ was exactly backwards.** Measure before you assume.
 Without this you get `HIP error: invalid device function` on the first matmul. **This one line is
 the difference between "vLLM cannot run on this card" and "vLLM runs on this card."**
 
-**Verify:** `python -c "import torch;print(torch.cuda.get_arch_list())"` includes `gfx1030`.
+**Verify:** with GPU devices attached to the container —
+```bash
+docker run --rm --device /dev/kfd --device /dev/dri --group-add render --group-add video \
+  -e HSA_OVERRIDE_GFX_VERSION=10.3.0 <image> python3 -c \
+  'import torch; print(torch.cuda.get_arch_list()); print(torch.cuda.get_device_properties(0).gcnArchName)'
+```
+Expect `['gfx1030']` and `gfx1030`.
+
+⚠️ **Run this with the devices attached.** Without `--device /dev/kfd --device /dev/dri`, torch
+cannot initialise HIP and `get_arch_list()` returns an empty list **with no error** — which looks
+exactly like a failed arch patch on a perfectly good build. This is the pitfall pattern in this
+repo in miniature: a check that fails open teaches you the wrong thing.
 
 ---
 

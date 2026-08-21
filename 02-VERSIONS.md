@@ -43,6 +43,9 @@ All in `config/serve-rdna2-tp2.sh`. Each is individually reversible.
 | `AR_RDNA2` | 1 | +1.9% | All-reduce plugin. |
 | `--kv-cache-dtype` | `int8_per_token_head` | large at long context | |
 | `VLLM_DISABLED_KERNELS` | forces Exllama | ~4 t/s → ~10 t/s class | See pitfalls in 01. |
+| `MTP` | **2** | +24% @41k, +36% @14k | Speculative decoding via the checkpoint's own MTP head; output-lossless. **Requires the shipped `fd_rdna2`** (batched verification) or it becomes a 3.6× regression. `MTP=0` disables. |
+| `TUNEOP_TUNING` | **0** | prevents minutes-long prefill stalls | TunableOp lookup-only; `1` re-enables autotuning for deliberate offline sessions only. See pitfalls in 01. |
+| `FD_MAXQ` | 4 | — | Widest verification batch the attention plugin takes; the batched kernel packs nq×8 columns into 32. |
 | `--tensor-parallel-size` | 2 | | Must be the two ×16-rooted cards. |
 | Card power cap | 232 W | **free** | Decode is bandwidth-bound; the ~30% clock throttling it causes does not slow decode. |
 
@@ -66,10 +69,16 @@ carry; the numbers will not.
 ## Verifying you arrived
 
 ```bash
-verify/validate.py --compare verify/baseline-rccl.json   # expect: identical=8 diverged=0
-verify/longctx-decode.py --ctx 200,4000,16000,43000      # expect: ~37 / ~37 / ~37 / ~33.5 t/s
-verify/soak.py --minutes 30 --conc 3                     # expect: SOAK CLEAN
+verify/validate.py --compare verify/baseline-rccl.json    # expect: identical=8 diverged=0 (MTP on or off)
+verify/decode-rate.py --ctx 4000,16000,43000              # MTP=2: ~43-51 / ~50 / ~41 t/s; MTP=0: ~37 / ~37 / ~33.5
+verify/prefill-rate.py --ctx 4000,16000,43000             # ~800 / ~600 / ~380 tok/s, and UNIFORM across trials
+verify/soak.py --minutes 30 --conc 3                      # expect: SOAK CLEAN
 ```
+
+Do not measure speculative decoding with median inter-token-gap tools (stream deltas can carry
+several tokens) or with total-wall ÷ tokens (charges the partial-block re-prefill to decode) —
+both mis-measured MTP as a regression here before `decode-rate.py`. If prefill rates are wildly
+non-uniform across trials, TunableOp tuning is on: see the pitfalls in 01.
 
 `baseline-rccl.json` holds greedy outputs from a known-good run. **8/8 identical is a hard gate**
 for every change in this repo except one: none of these optimisations alter numerics, so any

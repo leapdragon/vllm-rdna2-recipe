@@ -20,6 +20,19 @@ SERVE_EXTRA=""
 # The optimisation set (W4 blocking, both plugins) is baked into the -v2 image. DEV=1 instead
 # mounts the working plugin trees and installs them at start, for iterating without a rebuild.
 IMG="${IMG:-vllm-gfx1030:0.27.1-patched-v2}"
+# Model under test. Defaults to the GPTQ quant every recorded number was measured on;
+# override for experiments, e.g. MODEL=amd/Qwen3.8-27B-Quark-AWQ-MXFP4 QUANT=quark.
+MODEL="${MODEL:-btbtyler09/Qwen3.8-27B-GPTQ-4bit}"
+SERVED="${SERVED:-qwen38-27b-gptq}"
+QUANT="${QUANT:-gptq}"
+DTYPE="${DTYPE:-float16}"
+# MTP speculative decoding. MTP=2 drafts two tokens per step; the head ships with the
+# checkpoint (15 BF16 tensors, ~850 MB) and vLLM auto-detects qwen3_5 -> qwen3_5_mtp.
+# Default 2 (validated 8/8, +24% @41k, T30); MTP=0 disables. Verification attention rides our
+# batched multi-query kernel; without it (or with the pre-fix plugin) MTP is a 3.6x REGRESSION.
+MTP="${MTP:-2}"
+SPEC_ARG=""
+[ "${MTP}" != "0" ] && SPEC_ARG="--speculative-config {\\\"method\\\":\\\"qwen3_5_mtp\\\",\\\"num_speculative_tokens\\\":${MTP}}"
 DEV_MOUNT=(); DEV_INSTALL=""
 if [ "${DEV:-0}" = "1" ]; then
   DEV_MOUNT=(-v /home/perfekt/repos/vllm-rdna2/dev/ws1-attention/src/fd_plugin:/app/patches/fd_plugin
@@ -67,7 +80,7 @@ exec docker run -d --name "$NAME" --network=host \
   --restart=no \
   -v /home/perfekt/repos/vllm-rdna2/hf-cache:/root/.cache/huggingface \
   -v /home/perfekt/repos/vllm-rdna2/tunableop:/tuning \
-  -e FD_RDNA2="${FD_RDNA2:-1}" -e FD_CHUNK="${FD_CHUNK:-512}" -e FD_TILE="${FD_TILE:-32}" -e FD_WARPS="${FD_WARPS:-8}" \
+  -e FD_RDNA2="${FD_RDNA2:-1}" -e FD_MAXQ="${FD_MAXQ:-4}" -e FD_CHUNK="${FD_CHUNK:-512}" -e FD_TILE="${FD_TILE:-32}" -e FD_WARPS="${FD_WARPS:-8}" \
   -v /home/perfekt/repos/vllm-rdna2/.ext-cache:/ext-cache \
   -e AR_RDNA2="${AR_RDNA2:-1}" -e AR_MAX_KB="${AR_MAX_KB:-512}" -e TORCH_EXTENSIONS_DIR=/ext-cache \
   -e PYTORCH_ROCM_ARCH=gfx1030 \
@@ -82,6 +95,7 @@ exec docker run -d --name "$NAME" --network=host \
   -e HIP_FORCE_DEV_KERNARG=1 \
   -e PYTORCH_ALLOC_CONF=expandable_segments:True \
   -e GPU_MAX_HW_QUEUES="${HW_QUEUES:-4}" \
+  -e VLLM_EXECUTE_MODEL_TIMEOUT_SECONDS="${EXEC_TIMEOUT:-300}" \
   -v /home/perfekt/repos/vllm-rdna2/profile/ws3-traces:/traces \
   -v /home/perfekt/repos/vllm-rdna2/.compile-cache:/compile-cache \
   "${DEV_MOUNT[@]}" \
@@ -89,18 +103,20 @@ exec docker run -d --name "$NAME" --network=host \
   "${PROF_ARGS[@]}" \
   -e VLLM_WORKER_MULTIPROC_METHOD=spawn \
   -e PYTORCH_TUNABLEOP_ENABLED=1 -e PYTORCH_TUNABLEOP_HIPBLASLT_ENABLED=0 \
+  -e PYTORCH_TUNABLEOP_TUNING="${TUNEOP_TUNING:-0}" \
   -e PYTORCH_TUNABLEOP_FILENAME=/tuning/tunableop_results.csv \
   -e TOKENIZERS_PARALLELISM=false -e OMP_NUM_THREADS=8 \
   -e VLLM_DISABLED_KERNELS=RDNA3W4A16LinearKernel,RDNAHybridW4A16LinearKernel,TritonW4A16LinearKernel,ConchLinearKernel \
   --entrypoint sh "$IMG" -c \
-  "${DEV_INSTALL}exec vllm serve btbtyler09/Qwen3.8-27B-GPTQ-4bit --served-model-name qwen38-27b-gptq \
+  "${DEV_INSTALL}exec vllm serve $MODEL --served-model-name $SERVED \
     --port "$PORT" \
     ${SERVE_EXTRA} \
-    --dtype float16 --quantization gptq --attention-backend TRITON_ATTN \
+    ${SPEC_ARG} \
+    --dtype $DTYPE --quantization $QUANT --attention-backend TRITON_ATTN \
     --tensor-parallel-size "$TP" $AR_FLAG $VERBOSE_FLAGS \
     --max-model-len "$MAXLEN" --gpu-memory-utilization "$GPUUTIL" \
     --kv-cache-dtype "$KVDTYPE" \
-    --max-num-seqs "$MAXSEQS" --max-num-batched-tokens 8192 \
+    --max-num-seqs "$MAXSEQS" --max-num-batched-tokens "${BATCHTOK:-8192}" \
     --enable-chunked-prefill --enable-prefix-caching \
     --enable-auto-tool-choice --tool-call-parser qwen3_xml --reasoning-parser qwen3 \
     --language-model-only --skip-mm-profiling \

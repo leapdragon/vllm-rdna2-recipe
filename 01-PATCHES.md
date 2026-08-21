@@ -106,8 +106,13 @@ Both register through vLLM's `vllm.general_plugins` entry point and are **off un
 
 | | env | what it does | worth |
 |---|---|---|---|
-| `fd_rdna2` | `FD_RDNA2=1` | replaces decode attention with a flash-decode kernel using byte-sliced `tl.dot` over the int8 KV layout | context slope **6.06× flatter** |
+| `fd_rdna2` | `FD_RDNA2=1` | replaces decode attention with a flash-decode kernel using byte-sliced `tl.dot` over the int8 KV layout; **also handles speculative-verification batches** (`max_seqlen_q` ≤ `FD_MAXQ`=4) by packing all query positions into one KV pass | context slope **6.06× flatter**; makes MTP a win instead of a 3.6× loss |
 | `ar_rdna2` | `AR_RDNA2=1` | replaces the TP=2 all-reduce with a push-based one-shot collective | +1.9% |
+
+⚠️ **If you enable MTP, you need this exact `fd_rdna2`.** Speculative verification carries
+multiple query tokens per step; an attention override that only gates on `q == 1` silently
+delegates every verification pass to the stock kernel — whose context slope is ~6× worse — and
+MTP measures as a large regression while looking perfectly healthy.
 
 **Honest note on mechanism:** delivery is idiomatic (entry points), but once loaded each one
 *monkey-patches* a vLLM function — `triton_attn.unified_attention` and
@@ -120,6 +125,17 @@ any vLLM upgrade**, and see the pitfall below about silent inertness.
 # Pitfalls — the things that look like something else
 
 Each of these cost us hours. They are the real content of this repo.
+
+**TunableOp's tuning mode stalls prefill for minutes, unpredictably.** `PYTORCH_TUNABLEOP_ENABLED=1`
+with tuning active autotunes every never-seen GEMM shape by timing many rocBLAS algorithms
+mid-request — and prefill M is prompt-length-dependent, so nearly **every fresh prompt is a new
+shape**. We measured identical ~3.4k prompts at 771 tok/s and then 37 tok/s back to back; one
+logged search chose `Default` after minutes of work. Run production with
+`PYTORCH_TUNABLEOP_TUNING=0` (lookup-only; tuned shapes use the csv, unseen shapes take the
+default instantly) and re-enable tuning only for deliberate offline sessions. Two more reasons:
+tuning mode perturbs greedy outputs (breaks byte-identical validation), and on this machine its
+allocation churn correlated with an `svm_range_restore_work [amdgpu]` kernel storm that preceded
+two hard system crashes.
 
 **A plugin can load, log nothing, and be completely inert.** `init_logger("name")` creates a
 logger outside vLLM's configured `vllm.*` namespace, so every INFO record is discarded. The server

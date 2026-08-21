@@ -35,7 +35,7 @@ def register():
     from vllm.logger import init_logger
     import vllm.v1.attention.backends.triton_attn as ta
     from vllm.v1.kv_cache_interface import KVQuantMode
-    from .fd_kernel2 import fd2_decode, permute_q
+    from .fd_kernel2 import fd2_decode, permute_q, fd2_decode_mq, permute_q_mq
 
     global _log
     logger = _log = init_logger("vllm.fd_rdna2")
@@ -46,16 +46,22 @@ def register():
     CHUNK = int(os.getenv("FD_CHUNK", "512"))
     TILE = int(os.getenv("FD_TILE", "32"))
     WARPS = int(os.getenv("FD_WARPS", "8"))
+    MAXQ = int(os.getenv("FD_MAXQ", "4"))   # batched path packs nq*8 columns into NQP=32, so 4 max
     _ws = {}
 
     def patched(**kw):
         q = kw.get("q")
         try:
             ok = (
-                kw.get("max_seqlen_q") == 1                       # pure decode
+                # q == 1 is plain decode; q up to MAXQ is a speculative verification pass
+                # (MTP drafts + 1 bonus token). Before this, q>1 delegated to the stock kernel,
+                # which made MTP a 3.6x regression at long context -- the stock attention slope
+                # is ~6x ours, and with speculation it ran on every step that matters.
+                1 <= (kw.get("max_seqlen_q") or 0) <= MAXQ
                 and kw.get("kv_quant_mode") == KVQuantMode.INT8_PER_TOKEN_HEAD
                 and q is not None and q.dim() == 3
-                and q.shape[0] == 1                               # batch 1 (v1 scope)
+                and q.shape[0] == kw.get("max_seqlen_q")          # single sequence
+                and q.shape[0] <= MAXQ
                 and q.shape[2] == 256                             # head_size
                 and bool(kw.get("causal"))
                 and kw.get("sinks") is None
@@ -110,24 +116,55 @@ def register():
                 return orig(**kw)
             dev = q.device
             PAD = 8   # GQA is 6; tl.dot accepts N=8 on this backend and 8 beats 16 by 1.6x
-            m = torch.empty(gchunks * n_kv * PAD, dtype=torch.float32, device=dev)
+            NQP = 32  # widest column count: batched verification packs nq*PAD columns
+            m = torch.empty(gchunks * n_kv * NQP, dtype=torch.float32, device=dev)
             buf = (m, torch.empty_like(m),
-                   torch.empty(gchunks * n_kv * PAD * 256, dtype=torch.float32, device=dev),
-                   torch.empty(q.shape[1], 256, dtype=torch.float16, device=dev),
-                   torch.zeros(n_kv, 4, 64, PAD, dtype=torch.float16, device=dev))
+                   torch.empty(gchunks * n_kv * NQP * 256, dtype=torch.float32, device=dev),
+                   torch.empty(4 * q.shape[1], 256, dtype=torch.float16, device=dev),
+                   torch.zeros(n_kv, 4, 64, PAD, dtype=torch.float16, device=dev),
+                   torch.zeros(n_kv, 4, 64, 16, dtype=torch.float16, device=dev),
+                   torch.zeros(n_kv, 4, 64, 32, dtype=torch.float16, device=dev))
             _ws[(gchunks, n_kv)] = buf
             logger.info("fd_rdna2: buffers for max_ctx=%d (%d chunks of %d)",
                         max_ctx, gchunks, CHUNK)
-        m, l, a, out_buf, qbuf = buf
+        m, l, a, out_buf, qbuf, qbuf_mq16, qbuf_mq32 = buf
 
-        qs = (q[0] * kw["softmax_scale"]).to(torch.float16)       # (n_q, 256)
-        qp = permute_q(qs, GQA=6, KVH=n_kv, out=qbuf)
-        fd2_decode(qp, i32, f32, bt, 0, BS=bs, CHUNK=CHUNK,
-                   TILE=TILE, GQA=6, KVH=n_kv, num_warps=WARPS,
-                   workspace=(m, l, a), strides=(s_blk, s_kvh, s_tok),
-                   seq_ptr=kw["seqused_k"], grid_chunks=gchunks, out=out_buf)
-        kw["out"][0].copy_(out_buf.view(q.shape[1], 256))
+        nq = q.shape[0]
+        if nq > 1:
+            # Batched verification: every position rides in the dot's column dimension,
+            # so KV is read ONCE per tile instead of once per position. NQP=16 covers
+            # nq=2; 32 covers nq=3..4.
+            NQP = 16 if nq == 2 else 32
+            qs = (q * kw["softmax_scale"]).to(torch.float16)       # (nq, n_heads, 256)
+            qp = permute_q_mq(qs, nq, GQA=6, KVH=n_kv, PAD=8,
+                              out=(qbuf_mq16 if NQP == 16 else qbuf_mq32), NQP=NQP)
+            fd2_decode_mq(qp, i32, f32, bt, kw["seqused_k"], gchunks, (m, l, a),
+                          out_buf, nq, BS=bs, CHUNK=CHUNK, TILE=TILE, GQA=6, KVH=n_kv,
+                          PAD=8, NQP=NQP, num_warps=WARPS, strides=(s_blk, s_kvh, s_tok))
+            kw["out"][:nq].copy_(out_buf[: nq * q.shape[1]].view(nq, q.shape[1], 256))
+            _stats["fast"] += 1
+            key = f"fast batched q={nq}"
+            _stats["reason"][key] = _stats["reason"].get(key, 0) + 1
+            if _log is not None and _stats["reason"][key] == 1:
+                _log.info("fd_rdna2: batched fast path for q=%d (one KV pass)", nq)
+            return None
+        for qi in range(nq):
+            # token qi of the verification block attends to (total - (nq-1) + qi) keys.
+            # Passing that as an offset keeps the launch graph-safe: it is constant for a
+            # captured shape, unlike reading the length on the host.
+            qs = (q[qi] * kw["softmax_scale"]).to(torch.float16)   # (n_q_heads, 256)
+            qp = permute_q(qs, GQA=6, KVH=n_kv, out=qbuf)
+            fd2_decode(qp, i32, f32, bt, 0, BS=bs, CHUNK=CHUNK,
+                       TILE=TILE, GQA=6, KVH=n_kv, num_warps=WARPS,
+                       workspace=(m, l, a), strides=(s_blk, s_kvh, s_tok),
+                       seq_ptr=kw["seqused_k"], grid_chunks=gchunks, out=out_buf,
+                       seq_delta=qi - (nq - 1))
+            kw["out"][qi].copy_(out_buf[: q.shape[1]])
         _stats["fast"] += 1
+        if nq > 1:
+            _stats["reason"][f"fast q={nq}"] = _stats["reason"].get(f"fast q={nq}", 0) + 1
+            if _log is not None and _stats["reason"][f"fast q={nq}"] == 1:
+                _log.info("fd_rdna2: taking the fast path for q=%d (speculative verification)", nq)
         return None
 
     ta.unified_attention = patched

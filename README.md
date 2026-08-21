@@ -63,13 +63,13 @@ verify/     correctness, performance and soak checks with expected results
 A bunch of work was done to profile the v620 hardware in detailed fashion and implement a working solution;
 some or all of the optimizations are likely to be v620-specific.
 
-Some of it is also architectural and should may to other gfx1030 cards — the 64 KiB LDS fix, the
+Some of it is also architectural and may apply to other gfx1030 cards — the 64 KiB LDS fix, the
 gfx10x platform recognition, the attention kernel. gfx1031 and below (RX 6700 XT and friends) are
 untested and differ in CU count and cache.
 
-If you try this on other RDNA2 hardware we'd genuinely like to hear how far you get, and see resahring back out to the world.
+If you try this on other RDNA2 hardware we'd genuinely like to hear how far you get, and see resharing back out to the world.
 Also, feel free to take, fork, and rebake. Would love to see someone implement something more formal, more easily usable,
-and more distributable than this for the RDNA2 family cards, but in the meantime here we are.
+and more distributable than this for the RDNA2 family cards (hell I would use it) but in the meantime here we are.
 
 ## What is honestly not solved
 

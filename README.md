@@ -86,6 +86,12 @@ and more distributable than this for the RDNA2 family cards (hell I would use it
 
 ## Changelog
 
+**2026-08-21 (later) — prefill +35% at long context.** Patch 0002 now also sets
+`num_stages=1` for the gfx10x attention branch: pipelining was halving occupancy at
+head_dim 256. Prefill 834/747/521 tok/s at 3.5k/15k/37k (was 816/608/386), outputs
+byte-identical. The wider-query-tile route (upstream's Blackwell fix) was measured and is
+*worse* on this chip — see 01-PATCHES.
+
 **2026-08-21 — MTP enabled; prefill stall fixed.**
 - `MTP=2` (the checkpoint's own multi-token-prediction head, `qwen3_5_mtp`) is now the default:
   **41.4 t/s @41k (+24%), 50.4 @14k (+36%)**, output-lossless. This required extending the

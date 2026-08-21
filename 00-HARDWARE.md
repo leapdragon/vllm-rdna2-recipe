@@ -62,7 +62,7 @@ TP=2 on the two ×16 V620s, int8 KV, `max_model_len=131072`, single stream, gree
 | ~41k | 18.4 t/s | 33.5 t/s | **41.4 t/s** |
 
 MTP figures move with draft acceptance (~58% per draft on this quant), so short-context numbers
-spread with prompt content. Prefill (cold prompts): **~800 tok/s @3.4k, 608 @15k, 386 @37k**.
+spread with prompt content. Prefill (cold prompts): **834 tok/s @3.5k, 747 @15k, 521 @37k**.
 
 Context slope 0.4879 → **0.0805 µs/ctx-token** (6.06× flatter).
 

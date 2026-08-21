@@ -35,15 +35,23 @@ layers fail on a dtype mismatch.
 
 ---
 
-## 0002 — LDS tile fix for `head_dim ≥ 256` · *mandatory*
+## 0002 — LDS tile fix + prefill tuning for `head_dim ≥ 256` · *mandatory*
 
-**What:** reduces the attention kernel's LDS tile so it fits Navi 21's 64 KiB workgroup limit.
+**What:** two things in the same gfx10x branch. (a) Reduces the attention kernel's LDS tile so
+it fits Navi 21's 64 KiB workgroup limit — without this the kernel will not launch at
+`head_dim=256`. (b) Sets `num_warps=4, num_stages=1` for the same branch: **stages=1 is ~2× on
+prefill-attention throughput** (software pipelining doubles the K/V LDS footprint and halves
+occupancy at this head size). Worth **+35% end-to-end prefill at 37k context** (521 vs 386
+tok/s), greedy outputs byte-identical.
 
-**Why:** Qwen3.8-27B has `head_dim=256`. The upstream tile overflows 64 KiB and the kernel will
-not launch. **This is a hard architectural cap, not a tuning knob.**
+**A measured dead end inside this patch's territory:** widening the query tile (BLOCK_M
+32–128; upstream ships exactly this fix for Blackwell as `tuned_large_head`) is uniformly
+*worse* on gfx1030 — the fp32 accumulator is `BLOCK_M × 256` per program and register pressure
+beats FlashAttention amortisation. Measured, not theorised; do not re-try it.
 
-**Verify:** the server boots and serves a request. Without it you get a launch failure at the
-first attention call.
+**Verify:** the server boots (without the LDS part you get a launch failure at the first
+attention call), and cold-prompt prefill at ~15k context reaches ~750 tok/s on the reference
+hardware (~600 indicates the stages fix is missing).
 
 ---
 

@@ -1,6 +1,6 @@
 --- a/vllm/v1/attention/ops/triton_unified_attention.py
 +++ b/vllm/v1/attention/ops/triton_unified_attention.py
-@@ -987,6 +987,20 @@
+@@ -987,6 +987,29 @@
      if tuned_large_head:
          TILE_SIZE_PREFILL = 128
  
@@ -16,7 +16,16 @@
 +        if on_gfx10x() and head_size >= 256:
 +            TILE_SIZE_PREFILL = min(TILE_SIZE_PREFILL, 16)
 +            TILE_SIZE_DECODE = min(TILE_SIZE_DECODE, 16)
-+            launch_num_stages = min(launch_num_stages or 2, 2)
++            # Swept 2026-08-21 (T32): num_stages=1 is ~2x on prefill-attention
++            # throughput vs the previous 2 (software pipelining doubles the K/V
++            # LDS footprint, and at head_size 256 that halves occupancy). Wider
++            # query tiles (BLOCK_M 32-128) are uniformly WORSE -- the fp32
++            # accumulator is BLOCK_M x 256 per program and register pressure
++            # beats FlashAttention amortization on this chip. warps=4 explicit.
++            # Numerics validated: greedy outputs byte-identical to the previous
++            # config (validate.py 8/8).
++            launch_num_warps = 4
++            launch_num_stages = 1
 +
      # USE_TD requires BLOCK_SIZE % TILE_SIZE == 0 (enforced by a
      # ``tl.static_assert`` in the kernel).  The default prefill tile

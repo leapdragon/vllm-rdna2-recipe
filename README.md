@@ -5,7 +5,7 @@
 This is AI slop.
 
 But hopefully the good kind. I bought 4x Radeon Pro v620 cards because they're dirt cheap and pretty
-performant for 32GB PCIe x4 cards, but I was perennially unsatisfied with llama.cpp's cache handling
+performant for the price being 32GB PCIe x4 cards, but I was perennially unsatisfied with llama.cpp's cache handling
 for agentic work, especially for models that push up against the cards' practically productive limits.
 
 Trying to deploy vLLM by hand didn't work out well and consulting with LLMs I got the answer that

@@ -12,7 +12,7 @@ Trying to deploy vLLM by hand didn't work out well and consulting with LLMs I go
 RDNA2/NAVI21 was unsupported and unlikely to ever be supported; there is no vendor-supported path and
 no vendor ships gfx1030 kernels in any vLLM wheel or image.
 
-- There is another project, (https://github.com/sebastianmechno-sys/vllm-rocm-windows-rdna2)[https://github.com/sebastianmechno-sys/vllm-rocm-windows-rdna2], but I'm on Linux, not Windows
+- There is another project, [https://github.com/sebastianmechno-sys/vllm-rocm-windows-rdna2](https://github.com/sebastianmechno-sys/vllm-rocm-windows-rdna2), but I'm on Linux, not Windows
 - There is also llama.cpp, which supports these cards in a relatively performant way
 
 So I pointed Qwen 3.8 Max and Opus 5.0 at both and said let's build out support and optimize it.

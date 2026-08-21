@@ -16,8 +16,8 @@ no vendor ships gfx1030 kernels in any vLLM wheel or image.
 - There is also llama.cpp, which supports these cards in a relatively performant way
 
 So I pointed Qwen 3.8 Max and Opus 5.0 at both and said let's build out support and optimize it.
-This is the result. First run success netted 11-18 t/s generation. After all optimizations, the 2x v620
-combo runnint Qwen 3.8 27b is a steady 29-34 t/s with the expected speed cost as context accumulates.
+This is the result. First actual generatable run (after LLMs consumed the above repos) netted 11-18 t/s generation with Qwen 27b. After all optimizations, the 2x v620
+combo running Qwen 3.8 27b is steady at &gt;32-34 t/s *before MTP* with the expected speed cost as context accumulates.
 
 We have not yet enabled out MTP, so I presume we'll be in the 40 t/s range once we do that. YMMV. 
 

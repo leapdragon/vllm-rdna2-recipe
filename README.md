@@ -16,14 +16,16 @@ no vendor ships gfx1030 kernels in any vLLM wheel or image.
 - There is also llama.cpp, which supports these cards in a relatively performant way
 
 So I pointed Qwen 3.8 Max and Opus 5.0 at both and said let's build out support and optimize it.
-This is the result. First actual generatable run (after LLMs consumed the above repos) netted 11-18 t/s generation with Qwen 27b. After all optimizations, the 2x v620
-combo running Qwen 3.8 27b is steady at &gt;32-34 t/s *before MTP* with the expected speed cost as context accumulates.
+This is the result. First actual generatable run (after LLMs consumed the above repos) netted 11-18 t/s generation with a Qwen 27b Q4 quant.
+After all optimizations, I got the the 2x v620 combo running Qwen 3.8 27b up to 42 t/s at 41k context.
 
-**Update 2026-08-21:** MTP is now enabled and the presumption held — **41.4 t/s at 41k context**
-and 50+ t/s at mid context, greedy outputs byte-identical to non-speculative. YMMV on acceptance
-rate (~58% per draft on this quant), so short-context numbers move with prompt content.
+Since then, I've optimized also for a second model (another Q4 quant, but more performant and with a better architecture that
+should be less lossy) and implmented a builds/ tree that will contain the optimizations for every model I try. 
 
-## What this is, and how to use it
+Each optimization/configuration run for a new model takes 2-3 hours for the agent to complete, but is generally a hands-off
+process. Hopefully others who try this will have the same experience.
+
+## What's in this repo, and how to use it
 
 This is **not** a fork, a distribution, or an installable package. It is a **recipe**: six small
 patches against pristine vLLM 0.27.1, two standalone plugin packages, a serving configuration

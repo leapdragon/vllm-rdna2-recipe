@@ -26,7 +26,7 @@ APU formats do not perform well, and in some cases perform catastrophically.
 Each optimization/configuration run for a new model takes 2-3 hours for the agent to complete, but is generally a hands-off
 process. Hopefully others who try this will have the same experience.
 
-At this point I have put a number of hours of work in with vLLM powering the sessions, all seems well. YMMV.
+At this point I have done a number of hours of real work powered by vLLM and all seems well. YMMV.
 
 ## What's in this repo really, and how to use it
 
@@ -106,7 +106,7 @@ and more distributable than this for the RDNA2 family cards (hell I would use it
 - **The two plugins monkey-patch vLLM internals** and will need rework on any version bump — and
   they fail *silently*. See the pitfalls in 01-PATCHES.md.
 - **Something intermittently was hard-crashing my inference machine** (spontaneous reboot, no kernel trace).
-  Leading correlate is an `svm_range_restore_work [amdgpu]` storm under TunableOp tuning churn. We produced this pretty reliably after enabling MTP with autotuning on; keep running through intermittent crashes to try to get complete results or bypass and guess.  Tricky because this is a part of the optimization path, but if you have crashes, it may be that a particular model is not playing nice with the tuner and the v620 hardware.
+  Leading correlate is an `svm_range_restore_work [amdgpu]` storm under TunableOp tuning churn. We produced this pretty reliably after enabling MTP with autotuning on; keep running through intermittent crashes to try to get complete results or bypass and guess.  Tricky because this is a part of the optimization path, but if you have crashes, it may be that a particular model is not playing nice with the vLLM auto-tuner and the v620 hardware.
 - **Multi-stream decode on the AWQ/asymmetric path is unmeasured.** The HIP skinny GEMV that
   gives the hybrid kernel its decode speed covers batches of ≤5 rows; concurrent MTP streams
   exceed that and fall to a slower path. Single-stream numbers are solid; batch serving on that

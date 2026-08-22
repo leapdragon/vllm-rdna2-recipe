@@ -26,7 +26,9 @@ APU formats do not perform well, and in some cases perform catastrophically.
 Each optimization/configuration run for a new model takes 2-3 hours for the agent to complete, but is generally a hands-off
 process. Hopefully others who try this will have the same experience.
 
-## What's in this repo, and how to use it
+At this point I have put a number of hours of work in with vLLM powering the sessions, all seems well. YMMV.
+
+## What's in this repo really, and how to use it
 
 This is **not** a fork, a distribution, or an installable package. It is a **recipe book**: two standalone plugins that
 are shared for v620 model use, and then for each optimized model (see 'builds/'), needed patches or configuration items to

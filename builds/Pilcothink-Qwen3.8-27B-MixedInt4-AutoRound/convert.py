@@ -24,10 +24,14 @@ Idempotent; safe to re-run. Re-run after any re-download of the snapshot.
 """
 import glob
 import json
+import os
 import re
 import sys
 
-CACHE = "/home/perfekt/repos/vllm-rdna2/hf-cache/hub"
+# HF hub cache: env override first, then the standard location (which is also
+# where the recipe launcher's HF_CACHE mount appears inside the container).
+CACHE = os.environ.get("HF_HUB_CACHE") or os.path.expanduser(
+    "~/.cache/huggingface/hub")
 SNAP = glob.glob(
     f"{CACHE}/models--Pilcothink--Qwen3.8-27B-MixedInt4-AutoRound/snapshots/*"
 )

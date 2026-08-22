@@ -52,11 +52,15 @@ All in `config/serve-rdna2-tp2.sh`. Each is individually reversible.
 | `FD_MAXQ` | 4 | — | Widest verification batch the attention plugin takes; the batched kernel packs nq×8 columns into 32. |
 | `--max-num-batched-tokens` (`BATCHTOK`) | **8192** | swept optimum | 4096 and 16384 both measure worse at mid/long context. |
 
-**Note on the launcher's bind mounts:** `config/serve-rdna2-tp2.sh` mounts three patched source
-files (`rocm.py`, `triton_attn.py`, `triton_unified_attention.py`) over the image's copies —
-that is how this deployment picks up post-image-bake patch changes without rebuilding. If you
-bake the fully-patched source tree into your image, those mounts are redundant; adapt the
-absolute `/home/perfekt/...` paths either way.
+**Note on the launcher's paths and bind mounts:** every host path in
+`config/serve-rdna2-tp2.sh` is an environment variable with a sensible default —
+`RECIPE_ROOT` (auto-detected from the script's own location; plugins and state dirs live
+under it), `HF_CACHE`, `TUNEOP_DIR`, and `STATE_DIR` (compile/extension caches, created on
+demand). The one with no default is `VLLM_SRC`: point it at your patched vLLM 0.27.1
+checkout and the launcher bind-mounts the most-edited source files (`rocm.py`, attention,
+the W4A16 kernels) over the image's copies, so post-bake patch changes deploy without a
+rebuild. Leave it unset and the image's baked copies run — correct whenever your image was
+built from the fully-patched tree.
 | `--tensor-parallel-size` | 2 | | Must be the two ×16-rooted cards. |
 | Card power cap | 232 W | **free** | Decode is bandwidth-bound; the ~30% clock throttling it causes does not slow decode. |
 

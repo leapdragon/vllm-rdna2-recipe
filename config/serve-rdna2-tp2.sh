@@ -13,6 +13,40 @@
 #        Fall back with CUSTOM_AR=0 if it misbehaves.
 set -euo pipefail
 
+# ---------------------------------------------------------------------------
+# Paths — every host path below is overridable via environment variables.
+#
+#   RECIPE_ROOT  this repo's root (auto-detected from this script's location);
+#                holds the plugins and, by default, the writable state dirs
+#   VLLM_SRC     your patched vLLM 0.27.1 checkout (the tree the image was
+#                built from). OPTIONAL: when set, the key patched source files
+#                are bind-mounted over the image so source edits deploy
+#                without a rebuild; when unset, the image's baked copies run
+#   HF_CACHE     HuggingFace cache holding the model weights
+#   TUNEOP_DIR   TunableOp GEMM-tuning csv store
+#   STATE_DIR    compile cache, torch extension cache, profiler traces
+# ---------------------------------------------------------------------------
+RECIPE_ROOT="${RECIPE_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
+VLLM_SRC="${VLLM_SRC:-}"
+HF_CACHE="${HF_CACHE:-$RECIPE_ROOT/hf-cache}"
+TUNEOP_DIR="${TUNEOP_DIR:-$RECIPE_ROOT/tunableop}"
+STATE_DIR="${STATE_DIR:-$RECIPE_ROOT/.state}"
+mkdir -p "$HF_CACHE" "$TUNEOP_DIR" \
+         "$STATE_DIR/compile-cache" "$STATE_DIR/ext-cache" "$STATE_DIR/traces"
+
+# When VLLM_SRC is set, overlay the patched source files that change most often
+# (attention, W4A16 kernels, platform gates) over the image's copies.
+SRC_MOUNT=()
+if [ -n "$VLLM_SRC" ]; then
+  for _f in vllm/platforms/rocm.py \
+            vllm/v1/attention/backends/triton_attn.py \
+            vllm/v1/attention/ops/triton_unified_attention.py \
+            vllm/model_executor/kernels/linear/mixed_precision/triton_w4a16.py \
+            vllm/model_executor/kernels/linear/mixed_precision/rdna_hybrid_w4a16.py; do
+    SRC_MOUNT+=(-v "$VLLM_SRC/$_f:/app/vllm-src/$_f:ro")
+  done
+fi
+
 NAME="${NAME:-vllm-qwen38-tp2}"
 TP="${TP:-2}"
 DEVICES="${DEVICES:-1,3}"                 # the two x16-rooted V620s
@@ -35,8 +69,8 @@ SPEC_ARG=""
 [ "${MTP}" != "0" ] && SPEC_ARG="--speculative-config {\\\"method\\\":\\\"qwen3_5_mtp\\\",\\\"num_speculative_tokens\\\":${MTP}}"
 DEV_MOUNT=(); DEV_INSTALL=""
 if [ "${DEV:-0}" = "1" ]; then
-  DEV_MOUNT=(-v /home/perfekt/repos/vllm-rdna2/builds/shared/plugins/fd_rdna2:/app/patches/fd_plugin
-             -v /home/perfekt/repos/vllm-rdna2/builds/shared/plugins/ar_rdna2:/app/patches/ar_plugin)
+  DEV_MOUNT=(-v "$RECIPE_ROOT/builds/shared/plugins/fd_rdna2:/app/patches/fd_plugin"
+             -v "$RECIPE_ROOT/builds/shared/plugins/ar_rdna2:/app/patches/ar_plugin")
   DEV_INSTALL="pip install --no-deps -q /app/patches/fd_plugin /app/patches/ar_plugin >/dev/null 2>&1; "
 fi
 CMODE="${CMODE:-3}"                       # 0 NONE, 1 stock compile, 2 dynamo-trace-once, 3 VLLM_COMPILE
@@ -59,12 +93,11 @@ if [ "$VERBOSE" = "1" ]; then
 fi
 
 AR_FLAG=""
-CAR_MOUNT=(); CAR_ENV=()
+CAR_ENV=()
 if [ "$CUSTOM_AR" = "1" ]; then
   # vLLM hard-gates custom all-reduce to MI300 (gfx94/gfx95) in
-  # RocmPlatform.use_custom_allreduce(). gfx1030-custom-allreduce.patch adds an
-  # opt-in RDNA branch; mount the patched file over the image's editable source.
-  CAR_MOUNT=(-v /home/perfekt/repos/vllm-rdna2/vllm-0.27.1/vllm/platforms/rocm.py:/app/vllm-src/vllm/platforms/rocm.py:ro)
+  # RocmPlatform.use_custom_allreduce(); patch 0001's rocm.py adds an opt-in
+  # RDNA branch (baked into the image, or overlaid via VLLM_SRC above).
   CAR_ENV=(-e VLLM_ROCM_FORCE_CUSTOM_ALLREDUCE=1)
 else
   AR_FLAG="--disable-custom-all-reduce"
@@ -78,17 +111,13 @@ exec docker run -d --name "$NAME" --network=host \
   --device /dev/kfd --device /dev/dri --group-add 991 --group-add 44 \
   --ipc=host --cap-add SYS_PTRACE --security-opt seccomp=unconfined --ulimit memlock=-1 \
   --restart=no \
-  -v /home/perfekt/repos/vllm-rdna2/hf-cache:/root/.cache/huggingface \
-  -v /home/perfekt/repos/vllm-rdna2/tunableop:/tuning \
+  -v "$HF_CACHE:/root/.cache/huggingface" \
+  -v "$TUNEOP_DIR:/tuning" \
   -e FD_RDNA2="${FD_RDNA2:-1}" -e FD_MAXQ="${FD_MAXQ:-4}" -e FD_CHUNK="${FD_CHUNK:-512}" -e FD_TILE="${FD_TILE:-32}" -e FD_WARPS="${FD_WARPS:-8}" \
-  -v /home/perfekt/repos/vllm-rdna2/.ext-cache:/ext-cache \
+  -v "$STATE_DIR/ext-cache:/ext-cache" \
   -e AR_RDNA2="${AR_RDNA2:-1}" -e AR_MAX_KB="${AR_MAX_KB:-512}" -e TORCH_EXTENSIONS_DIR=/ext-cache \
   -e PYTORCH_ROCM_ARCH=gfx1030 \
-  -v /home/perfekt/repos/vllm-rdna2/vllm-0.27.1/vllm/v1/attention/backends/triton_attn.py:/app/vllm-src/vllm/v1/attention/backends/triton_attn.py:ro \
-  -v /home/perfekt/repos/vllm-rdna2/vllm-0.27.1/vllm/v1/attention/ops/triton_unified_attention.py:/app/vllm-src/vllm/v1/attention/ops/triton_unified_attention.py:ro \
-  -v /home/perfekt/repos/vllm-rdna2/vllm-0.27.1/vllm/model_executor/kernels/linear/mixed_precision/triton_w4a16.py:/app/vllm-src/vllm/model_executor/kernels/linear/mixed_precision/triton_w4a16.py:ro \
-  -v /home/perfekt/repos/vllm-rdna2/vllm-0.27.1/vllm/model_executor/kernels/linear/mixed_precision/rdna_hybrid_w4a16.py:/app/vllm-src/vllm/model_executor/kernels/linear/mixed_precision/rdna_hybrid_w4a16.py:ro \
-  "${CAR_MOUNT[@]}" "${CAR_ENV[@]}" "${VERBOSE_ENV[@]}" \
+  "${SRC_MOUNT[@]}" "${CAR_ENV[@]}" "${VERBOSE_ENV[@]}" \
   -e HSA_OVERRIDE_GFX_VERSION=10.3.0 \
   -e ROCR_VISIBLE_DEVICES="$DEVICES" \
   -e VLLM_TARGET_DEVICE=rocm \
@@ -99,8 +128,8 @@ exec docker run -d --name "$NAME" --network=host \
   -e PYTORCH_ALLOC_CONF=expandable_segments:True \
   -e VLLM_EXECUTE_MODEL_TIMEOUT_SECONDS="${EXEC_TIMEOUT:-300}" \
   -e VLLM_LOG_STATS_INTERVAL="${STATS_INTERVAL:-10}" \
-  -v /home/perfekt/repos/vllm-rdna2/profile/ws3-traces:/traces \
-  -v /home/perfekt/repos/vllm-rdna2/.compile-cache:/compile-cache \
+  -v "$STATE_DIR/traces:/traces" \
+  -v "$STATE_DIR/compile-cache:/compile-cache" \
   "${DEV_MOUNT[@]}" \
   -e VLLM_CACHE_ROOT=/compile-cache \
   "${PROF_ARGS[@]}" \

@@ -3,3 +3,7 @@ __pycache__/
 *.egg-info/
 build/
 runlogs/
+# runtime state created by config/serve-rdna2-tp2.sh (overridable via env)
+hf-cache/
+tunableop/
+.state/

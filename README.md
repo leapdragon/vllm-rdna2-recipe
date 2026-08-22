@@ -99,7 +99,7 @@ and more distributable than this for the RDNA2 family cards (hell I would use it
 - **The two plugins monkey-patch vLLM internals** and will need rework on any version bump — and
   they fail *silently*. See the pitfalls in 01-PATCHES.md.
 - **Something intermittently was hard-crashing my inference machine** (spontaneous reboot, no kernel trace).
-  Leading correlate is an `svm_range_restore_work [amdgpu]` storm under TunableOp tuning churn. We produced this pretty reliably after enabling MTP with autotuning on; turning it off doesn't seem to have hurt performance and we have not seen a crash since, though it's early days yet.
+  Leading correlate is an `svm_range_restore_work [amdgpu]` storm under TunableOp tuning churn. We produced this pretty reliably after enabling MTP with autotuning on; keep running through intermittent crashes to try to get complete results or bypass and guess.  Tricky because this is a part of the optimization path, but if you have crashes, it may be that a particular model is not playing nice with the tuner and the v620 hardware.
 - **Multi-stream decode on the AWQ/asymmetric path is unmeasured.** The HIP skinny GEMV that
   gives the hybrid kernel its decode speed covers batches of ≤5 rows; concurrent MTP streams
   exceed that and fall to a slower path. Single-stream numbers are solid; batch serving on that

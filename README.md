@@ -27,17 +27,18 @@ process. Hopefully others who try this will have the same experience.
 
 ## What's in this repo, and how to use it
 
-This is **not** a fork, a distribution, or an installable package. It is a **recipe**: six small
-patches against pristine vLLM 0.27.1, two standalone plugin packages, a serving configuration
-(with a ready-made, already-optimized per-model configuration for each model we've brought up —
-see `builds/`), and
-— most importantly — **a written record of what was measured, what was implemented, and what's
-not worth pursuing.**
+This is **not** a fork, a distribution, or an installable package. It is a **recipe book**: two standalone plugins that
+are shared for v620 model use, and then for each optimized model (see 'builds/'), needed patches or configuration items to
+enable support and/or optimize performance when applied against pristine vLLM 0.27.1, along with:
 
-It is deliberately shaped to be handed to your LLM along with instructions to consume and then build similar.
-This repo should contain enough detail for a good LLM harness to reconstruct a working deployment: version pins, patches with stated
-*intent* (so they can be re-derived when they no longer apply cleanly), the traps that look like
-other problems, and falsifiable targets so you can tell whether you actually arrived.
+- Achieved performance data across two v620 cards on my system (so far I haven't tried any 3x or 4x configs)
+- Summaries of what was done foreach model
+
+This project is deliberately shaped to be handed to your LLM along with instructions to consume and then build and/or optimize your
+compatible but not yet supported model of choice on v620 hardware. This repo should contain enough detail for a good model+harness to
+reconstruct a working deployment: version pins, patches with stated *intent* (so they can be re-derived when they no longer apply cleanly),
+the traps that look like other problems, and lightweight tools and testing/optimizing loop that a model can execute to get to a working
+configuration for your model. Hopefully. :-D
 
 Used in my case with:
 

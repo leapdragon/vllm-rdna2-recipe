@@ -72,6 +72,8 @@ builds/shared/plugins/
             two net-new pip-installable packages (attention kernel, all-reduce)
 config/     the shared serving launcher with every tuned default
 verify/     correctness, performance and soak checks with expected results
+tools/      operational conveniences: watch.py, a llama-server-style live
+            monitor (per-second PREFILL/DECODE state, rates, cache hits)
 ```
 
 **The `builds/` tree is the fastest path if your model is already in it.** Each directory is a

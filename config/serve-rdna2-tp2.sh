@@ -35,8 +35,8 @@ SPEC_ARG=""
 [ "${MTP}" != "0" ] && SPEC_ARG="--speculative-config {\\\"method\\\":\\\"qwen3_5_mtp\\\",\\\"num_speculative_tokens\\\":${MTP}}"
 DEV_MOUNT=(); DEV_INSTALL=""
 if [ "${DEV:-0}" = "1" ]; then
-  DEV_MOUNT=(-v /home/perfekt/repos/vllm-rdna2/dev/ws1-attention/src/fd_plugin:/app/patches/fd_plugin
-             -v /home/perfekt/repos/vllm-rdna2/dev/ws2-allreduce/src/ar_plugin:/app/patches/ar_plugin)
+  DEV_MOUNT=(-v /home/perfekt/repos/vllm-rdna2/builds/shared/plugins/fd_rdna2:/app/patches/fd_plugin
+             -v /home/perfekt/repos/vllm-rdna2/builds/shared/plugins/ar_rdna2:/app/patches/ar_plugin)
   DEV_INSTALL="pip install --no-deps -q /app/patches/fd_plugin /app/patches/ar_plugin >/dev/null 2>&1; "
 fi
 CMODE="${CMODE:-3}"                       # 0 NONE, 1 stock compile, 2 dynamo-trace-once, 3 VLLM_COMPILE
@@ -86,6 +86,8 @@ exec docker run -d --name "$NAME" --network=host \
   -e PYTORCH_ROCM_ARCH=gfx1030 \
   -v /home/perfekt/repos/vllm-rdna2/vllm-0.27.1/vllm/v1/attention/backends/triton_attn.py:/app/vllm-src/vllm/v1/attention/backends/triton_attn.py:ro \
   -v /home/perfekt/repos/vllm-rdna2/vllm-0.27.1/vllm/v1/attention/ops/triton_unified_attention.py:/app/vllm-src/vllm/v1/attention/ops/triton_unified_attention.py:ro \
+  -v /home/perfekt/repos/vllm-rdna2/vllm-0.27.1/vllm/model_executor/kernels/linear/mixed_precision/triton_w4a16.py:/app/vllm-src/vllm/model_executor/kernels/linear/mixed_precision/triton_w4a16.py:ro \
+  -v /home/perfekt/repos/vllm-rdna2/vllm-0.27.1/vllm/model_executor/kernels/linear/mixed_precision/rdna_hybrid_w4a16.py:/app/vllm-src/vllm/model_executor/kernels/linear/mixed_precision/rdna_hybrid_w4a16.py:ro \
   "${CAR_MOUNT[@]}" "${CAR_ENV[@]}" "${VERBOSE_ENV[@]}" \
   -e HSA_OVERRIDE_GFX_VERSION=10.3.0 \
   -e ROCR_VISIBLE_DEVICES="$DEVICES" \
@@ -107,7 +109,7 @@ exec docker run -d --name "$NAME" --network=host \
   -e PYTORCH_TUNABLEOP_TUNING="${TUNEOP_TUNING:-0}" \
   -e PYTORCH_TUNABLEOP_FILENAME=/tuning/tunableop_results.csv \
   -e TOKENIZERS_PARALLELISM=false -e OMP_NUM_THREADS=8 \
-  -e VLLM_DISABLED_KERNELS=RDNA3W4A16LinearKernel,RDNAHybridW4A16LinearKernel,TritonW4A16LinearKernel,ConchLinearKernel \
+  -e VLLM_DISABLED_KERNELS="${DISABLED_KERNELS:-RDNA3W4A16LinearKernel,RDNAHybridW4A16LinearKernel,TritonW4A16LinearKernel,ConchLinearKernel}" \
   --entrypoint sh "$IMG" -c \
   "${DEV_INSTALL}exec vllm serve $MODEL --served-model-name $SERVED --enable-prompt-tokens-details \
     --port "$PORT" \

@@ -25,8 +25,10 @@ rate (~58% per draft on this quant), so short-context numbers move with prompt c
 
 ## What this is, and how to use it
 
-This is **not** a fork, a distribution, or an installable package. It is a **recipe**: five small
-patches against pristine vLLM 0.27.1, two standalone plugin packages, a serving configuration, and
+This is **not** a fork, a distribution, or an installable package. It is a **recipe**: six small
+patches against pristine vLLM 0.27.1, two standalone plugin packages, a serving configuration
+(with a ready-made, already-optimized per-model configuration for each model we've brought up —
+see `builds/`), and
 — most importantly — **a written record of what was measured, what was implemented, and what's
 not worth pursuing.**
 
@@ -55,11 +57,23 @@ Used in my case with:
 | **[PROFILE-NAVI21.md](PROFILE-NAVI21.md)** | Emergency break-glass option if success is elusive. The full silicon profile behind 00-HARDWARE's summary: 37 measured tests covering compute, memory, interconnect, and the design rules they imply. Don't pay attention to too many of the wild-eyed WAGs in it, as it hasn't really been cleaned up, but there's a lot of basic reference here resulting from empirical poking and prodding of the chip. |
 
 ```
-patches/    five patches, 182 lines, against pristine vLLM 0.27.1
-plugins/    two net-new pip-installable packages (attention kernel, all-reduce)
-config/     the serving launcher with every tuned default
+patches/    six patches against pristine vLLM 0.27.1
+builds/     one directory per model we've actually brought up and optimized,
+            named for the Hugging Face model id — each contains BUILD.md
+            (model, measured numbers, working configuration) and serve.sh
+            (a ready-to-run launcher wrapper with that model's settings)
+builds/shared/plugins/
+            two net-new pip-installable packages (attention kernel, all-reduce)
+config/     the shared serving launcher with every tuned default
 verify/     correctness, performance and soak checks with expected results
 ```
+
+**The `builds/` tree is the fastest path if your model is already in it.** Each directory is a
+known-good, already-optimized configuration: read its `BUILD.md` for what to expect and run its
+`serve.sh` to get it. The directory name is the model id with `/` replaced by `-`, so
+`builds/cyankiwi-Qwen3.8-27B-AWQ-INT4/` serves `cyankiwi/Qwen3.8-27B-AWQ-INT4`. When you bring
+up a model that isn't there, the process in ADAPTING-PROCESS.md is the path — and the convention
+is to start by copying the closest existing build and adapting it.
 
 ## Scope — Radeon Pro v620 (narrowly)
 
@@ -83,9 +97,26 @@ and more distributable than this for the RDNA2 family cards (hell I would use it
   they fail *silently*. See the pitfalls in 01-PATCHES.md.
 - **Something intermittently was hard-crashing my inference machine** (spontaneous reboot, no kernel trace).
   Leading correlate is an `svm_range_restore_work [amdgpu]` storm under TunableOp tuning churn. We produced this pretty reliably after enabling MTP with autotuning on; turning it off doesn't seem to have hurt performance and we have not seen a crash since, though it's early days yet.
-- **Prefill/PP slows quickly** and is hit hard by a high quadratic coefficient because we reduced the tile size for v620 but didn't actually do anything yet to optimize prefill for the cards, just generation. So it starts fast but slows fast. We'll work on that next.
+- **Multi-stream decode on the AWQ/asymmetric path is unmeasured.** The HIP skinny GEMV that
+  gives the hybrid kernel its decode speed covers batches of ≤5 rows; concurrent MTP streams
+  exceed that and fall to a slower path. Single-stream numbers are solid; batch serving on that
+  build needs measuring first.
 
 ## Changelog
+
+**2026-08-22 — per-model builds/ tree; second model (AWQ) at full speed; patch 0006.**
+- The repo now mirrors our working layout: `builds/<model-id>/` holds a ready-made optimized
+  configuration per model (`BUILD.md` + `serve.sh`); plugins moved to `builds/shared/plugins/`.
+- **`cyankiwi/Qwen3.8-27B-AWQ-INT4`** (compressed-tensors, *asymmetric* W4 g32 — same bytes as
+  the GPTQ reference) is brought up at parity or better: decode 49.8/49.0/43.9 t/s at
+  3.8k/15k/41k, prefill 753/736/524 at 3.8k/7.5k/35k. Asymmetric uint4 is outside Exllama's
+  types, which forces a different kernel route entirely — new **patch 0006** extends vLLM's HIP
+  skinny int4 GEMV from its gfx11/gfx12 guard down to gfx1030 (wave32/LDS/v_dot2 envelope is
+  identical) and adds a dequant-to-dense + rocBLAS prefill route. Two transferable lessons in
+  01-PATCHES: check arch guards before assuming a "gfx11+" kernel is off-limits, and a fused-
+  dequant Triton GEMM loses ~3× to dequantize-then-rocBLAS at prefill shapes.
+- The shared launcher gained a `DISABLED_KERNELS` override so per-model builds can pick their
+  weights kernel.
 
 **2026-08-21 (later) — prefill +35% at long context.** Patch 0002 now also sets
 `num_stages=1` for the gfx10x attention branch: pipelining was halving occupancy at

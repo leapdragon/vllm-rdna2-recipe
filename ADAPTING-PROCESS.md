@@ -30,6 +30,21 @@ method executable, in two ways:
    are guesses; on our machine, the gap between spec and measured was the difference between
    a correct plan and a wasted workstream.
 
+## Phase -1 — check builds/ before adapting anything
+
+Adaptation may already be done for you. Each directory under `builds/` is a model we brought
+up and optimized end-to-end, named for its Hugging Face id (`/` → `-`): read its `BUILD.md`
+for the measured numbers and working configuration, run its `serve.sh`, and you are at the
+end of this document without executing the loop.
+
+If your model is *not* there but is close to one that is (same architecture, different quant;
+same quant family, different size), **start by copying the closest build's configuration and
+adapting it** — that is the convention we use ourselves. The BUILD.md of the donor tells you
+which assumptions you are inheriting; the quant format is the one to check first (symmetric
+vs asymmetric W4 selects a different kernel route entirely — see patch 0006 and the kernel
+pitfall in 01-PATCHES.md). When your adaptation works, record it as a new `builds/<model-id>/`
+directory with its own `serve.sh` and `BUILD.md`, so the next reader starts where you finished.
+
 ## Phase 0 — get to a boot before optimising anything
 
 With `00-HARDWARE.md`, `01-PATCHES.md`, `02-VERSIONS.md`, and `PROFILE-NAVI21.md` ingested:
@@ -37,7 +52,7 @@ With `00-HARDWARE.md`, `01-PATCHES.md`, `02-VERSIONS.md`, and `PROFILE-NAVI21.md
 1. **Build the base image** with your GPU architecture in the compile target list. Patch 0005
    is the one-line shape of this. Verify with the device attached (`torch.cuda.get_arch_list()`
    returns an empty list *silently* when no GPU is visible — do not debug a healthy build).
-2. **Apply the five patches.** When one fails to apply — expected on any vLLM newer than
+2. **Apply the six patches.** When one fails to apply — expected on any vLLM newer than
    0.27.1 — do not force fuzzy hunks. Each patch's section in `01-PATCHES.md` states its
    *intent* and a verification line: re-implement the intent in the moved code, then run the
    verification. A fuzzy hunk that lands in the wrong place fails silently, which is worse

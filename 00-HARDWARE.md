@@ -37,6 +37,9 @@ Navi 21 / gfx1030, measured on this hardware — not vendor specifications:
 ## The model
 
 **`btbtyler09/Qwen3.8-27B-GPTQ-4bit`** — the targets below are for this quant specifically.
+(A second quant of the same model, `cyankiwi/Qwen3.8-27B-AWQ-INT4` — asymmetric W4 at identical
+bytes, which forces a different kernel route via patch 0006 — is brought up at parity or better;
+see `builds/cyankiwi-Qwen3.8-27B-AWQ-INT4/BUILD.md` for its numbers.)
 
 | | |
 |---|---|

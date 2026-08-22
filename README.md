@@ -63,8 +63,10 @@ Used in my case with:
 patches/    six patches against pristine vLLM 0.27.1
 builds/     one directory per model we've actually brought up and optimized,
             named for the Hugging Face model id — each contains BUILD.md
-            (model, measured numbers, working configuration) and serve.sh
-            (a ready-to-run launcher wrapper with that model's settings)
+            (the document of record: the model's structure, its quantization
+            details, the measured numbers, and the *why* behind every
+            configuration choice) and serve.sh (a ready-to-run launcher
+            wrapper with that model's settings)
 builds/shared/plugins/
             two net-new pip-installable packages (attention kernel, all-reduce)
 config/     the shared serving launcher with every tuned default

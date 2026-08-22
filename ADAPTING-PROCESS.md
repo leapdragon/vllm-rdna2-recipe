@@ -43,7 +43,10 @@ adapting it** — that is the convention we use ourselves. The BUILD.md of the d
 which assumptions you are inheriting; the quant format is the one to check first (symmetric
 vs asymmetric W4 selects a different kernel route entirely — see patch 0006 and the kernel
 pitfall in 01-PATCHES.md). When your adaptation works, record it as a new `builds/<model-id>/`
-directory with its own `serve.sh` and `BUILD.md`, so the next reader starts where you finished.
+directory with its own `serve.sh` and `BUILD.md` — and write the BUILD.md as a document of
+record, not a settings dump: the model's structure, its quantization details, and *why* each
+of those forced the configuration choices it did (the two existing BUILD.md files are the
+template). The next reader starts where you finished.
 
 ## Phase 0 — get to a boot before optimising anything
 

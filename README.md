@@ -109,6 +109,16 @@ and more distributable than this for the RDNA2 family cards (hell I would use it
 
 ## Changelog
 
+**2026-08-22 (later) — third build: AutoRound mixed-precision.**
+`builds/Pilcothink-Qwen3.8-27B-MixedInt4-AutoRound/` — W4 g32 symmetric with int8 on 17
+sensitivity-selected projections. Needs two scripted one-time checkpoint conversions (in the
+build dir): vLLM has no "auto-round" quant method, so the config is rewritten to GPTQ with
+the mixed-bits table as `dynamic` overrides, and the int4 MTP head is dequantized to dense
+(vLLM builds MTP predictors unquantized). Decode 47.0/49.8/41.6 t/s, prefill 856/827/670 —
+reference parity or better. A worked example of adapting a checkpoint whose *metadata*, not
+tensors, is the incompatibility.
+
+
 **2026-08-22 — per-model builds/ tree; second model (AWQ) at full speed; patch 0006.**
 - The repo now mirrors our working layout: `builds/<model-id>/` holds a ready-made optimized
   configuration per model (`BUILD.md` + `serve.sh`); plugins moved to `builds/shared/plugins/`.

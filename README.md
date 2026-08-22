@@ -20,7 +20,7 @@ This is the result. First actual generatable run (after LLMs consumed the above 
 After all optimizations, I got the the 2x v620 combo running Qwen 3.8 27b up to 42 t/s at 41k context.
 
 Since then I've built out optimization examples for more models, so now we have GPTQ, AWQ, and Autoround, all Int4, and I'll
-probably do around of 8s before all is said and done just so we have a full set of examples. Note that most FP formats and boutique
+probably do a round of 8s before all is said and done just so we have a full set of examples. Note that most FP formats and boutique
 APU formats do not perform well, and in some cases perform catastrophically.
 
 Each optimization/configuration run for a new model takes 2-3 hours for the agent to complete, but is generally a hands-off

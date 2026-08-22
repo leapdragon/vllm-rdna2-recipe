@@ -44,6 +44,15 @@ guarantees target-model outputs.)
    Draft quality is therefore "int4-quality weights in fp16 containers"; measured acceptance
    is healthy (decode at reference rates).
 
+**What these conversions do and do not touch**: the model proper — all 64 layers, every
+weight the outputs depend on — stays bit-for-bit untouched. `convert.py` changes zero
+weights (a JSON dialect translation). `mtp_to_dense.py` changes the *representation* of the
+7 draft-head tensors, not their values — it computes exactly the numbers the int4 encoding
+already specified and stores them densely; and the draft head can never influence output
+content, only token arrival rate. Everything applies to the local cached copy only; the
+upstream checkpoint is untouched. If your vLLM is newer, with native auto-round and
+quantized-MTP support, both scripts may be unnecessary — try a plain boot first.
+
 **Both scripts run inside the container** (the snapshot blobs are root-owned) and must be
 re-run after any re-download of the snapshot — the conversion edits the HF cache in place.
 

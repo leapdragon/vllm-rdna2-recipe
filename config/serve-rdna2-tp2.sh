@@ -49,6 +49,7 @@ fi
 
 NAME="${NAME:-vllm-qwen38-tp2}"
 TP="${TP:-2}"
+PP="${PP:-1}"                             # pipeline-parallel stages (layer split); 1 = off
 DEVICES="${DEVICES:-1,3}"                 # the two x16-rooted V620s
 SERVE_EXTRA=""
 # The optimisation set (W4 blocking, both plugins) is baked into the -v2 image. DEV=1 instead
@@ -103,6 +104,14 @@ else
   AR_FLAG="--disable-custom-all-reduce"
 fi
 
+# Optional tuned fused-MoE config: MOE_CFG="<host json path>:<configs filename>"
+# mounts the file into vLLM's fused_moe configs dir (the boot log names the
+# exact filename it looks for when it warns about a missing config).
+MOE_MOUNT=()
+if [ -n "${MOE_CFG:-}" ]; then
+  MOE_MOUNT=(-v "${MOE_CFG%%:*}:/app/vllm-src/vllm/model_executor/layers/fused_moe/configs/${MOE_CFG##*:}:ro")
+fi
+
 # Do not leave a stale container behind (the previous --rm setup vanished on exit,
 # taking its exit status with it).
 docker rm -f "$NAME" >/dev/null 2>&1 || true
@@ -130,7 +139,7 @@ exec docker run -d --name "$NAME" --network=host \
   -e VLLM_LOG_STATS_INTERVAL="${STATS_INTERVAL:-10}" \
   -v "$STATE_DIR/traces:/traces" \
   -v "$STATE_DIR/compile-cache:/compile-cache" \
-  "${DEV_MOUNT[@]}" \
+  "${DEV_MOUNT[@]}" "${MOE_MOUNT[@]}" \
   -e VLLM_CACHE_ROOT=/compile-cache \
   "${PROF_ARGS[@]}" \
   -e VLLM_WORKER_MULTIPROC_METHOD=spawn \
@@ -145,7 +154,7 @@ exec docker run -d --name "$NAME" --network=host \
     ${SERVE_EXTRA} \
     ${SPEC_ARG} \
     --dtype $DTYPE --quantization $QUANT --attention-backend TRITON_ATTN \
-    --tensor-parallel-size "$TP" $AR_FLAG $VERBOSE_FLAGS \
+    --tensor-parallel-size "$TP" --pipeline-parallel-size "$PP" $AR_FLAG $VERBOSE_FLAGS \
     --max-model-len "$MAXLEN" --gpu-memory-utilization "$GPUUTIL" \
     --kv-cache-dtype "$KVDTYPE" \
     --max-num-seqs "$MAXSEQS" --max-num-batched-tokens "${BATCHTOK:-8192}" \

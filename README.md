@@ -114,6 +114,18 @@ and more distributable than this for the RDNA2 family cards (hell I would use it
 
 ## Changelog
 
+**2026-08-23 — first model beyond two cards: Qwen3.5-122B-A10B at PP=3.**
+`builds/Qwen-Qwen3.5-122B-A10B-GPTQ-Int4/` — the official GPTQ 122B MoE across three V620s
+via pipeline parallelism (TP=3 is arithmetically impossible: 2 KV heads). New launcher
+knobs: `PP` (pipeline stages) and `MOE_CFG` (mounts a tuned fused-MoE config JSON; the
+build dir carries one swept offline on gfx1030, worth +75% prefill). Working and validated:
+prefill 558–721 t/s; decode 7.1 t/s, bound by vLLM's Triton fused-MoE overhead at batch-1
+(~45× off bandwidth — the CUDA moe_wna16 kernel that handles this regime is is_cuda()-gated
+out of ROCm builds; porting it is the open campaign). Read the BUILD.md's quantization
+section before extrapolating: only the experts are int4, the bf16 backbone caps decode
+at ~28 t/s.
+
+
 **2026-08-22 (later) — third build: AutoRound mixed-precision.**
 `builds/Pilcothink-Qwen3.8-27B-MixedInt4-AutoRound/` — W4 g32 symmetric with int8 on 17
 sensitivity-selected projections. Needs two scripted one-time checkpoint conversions (in the

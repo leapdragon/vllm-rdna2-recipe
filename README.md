@@ -123,6 +123,14 @@ and more distributable than this for the RDNA2 family cards (hell I would use it
 
 ## Changelog
 
+**2026-08-23 (later still) — MTP pays: 39.7–41 t/s on the 122B.** Two finishing moves on
+top of patch 0009: `fd_rdna2` generalized from the 27B's GQA 6 to any GQA ≤ 16 (the Triton
+kernels were already parameterized; the wrapper wasn't), and offline TunableOp rows for the
+fp16 lm_head shapes (the ROCm skinny-gemm fast path is CDNA-gated; the default Tensile pick
+cost 10.6 ms per verification step). 122B decode with MTP=2: 39.7–41 / 33.4 / 21.9 t/s at
+3.5k/13k/40k — vLLM now beats llama.cpp on this model on these cards. Verification harness
+for the plugin geometries in `verify/fd_gqa_test.py`.
+
 **2026-08-23 (later) — patch 0009: MTP under pipeline parallelism (V2 runner).** Backport
 of upstream PR #46994 plus our own V1-runner guards. The finding that matters: MTP under PP
 requires `VLLM_USE_V2_MODEL_RUNNER=1` (the V1 drafter path page-faults under PP — upstream

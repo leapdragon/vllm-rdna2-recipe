@@ -17,10 +17,13 @@ pays a penalized GEMV path. Metadata inspection (no download needed) showed Inte
 covers the backbone too: every attention/GDN linear int4, only the **shared expert (+gate)
 kept fp16** (144 modules), MTP head entirely bf16 and outside the quantize list. Result:
 
-| | official GPTQ | this checkpoint (v4) | **+ skinny MoE kernel (v5, T38)** |
-|---|---|---|---|
-| **Decode** | 7.1 t/s | 15.7 / 15.0 | **26.9 / 25.4 / 21.8 t/s** (3.5k/14k/42k) |
-| **Prefill** | 558 / 721 t/s | 566 / 741 | 569 / 763 t/s |
+| | official GPTQ | this checkpoint (v4) | + skinny MoE kernel (v5, T38) | **+ MTP=2 (v6, T40)** |
+|---|---|---|---|---|
+| **Decode** | 7.1 t/s | 15.7 / 15.0 | 26.9 / 25.4 / 21.8 (3.5k/14k/42k) | **39.7–41 / 33.4 / 21.9 t/s** |
+| **Prefill** | 558 / 721 t/s | 566 / 741 | 569 / 763 t/s | (unchanged at MTP=0) |
+
+At 39.7+ t/s short-context, vLLM on these cards now **beats llama-server's 30+** on the
+same model — the gap this campaign started from is closed and inverted.
 
 Factual spot-checks PASS; `baseline.json` is this model's own.
 
@@ -49,27 +52,57 @@ config; `VLLM_ROCM_MOE_SKINNY=0` disables). Decode now sits at llama-server pari
 short context (26.9 vs their 30+); the remaining lever is profiling the ~22 ms of
 router/GDN/PP overhead.
 
-## MTP under PP: works, not yet profitable (T39, patch 0009)
+## MTP under PP: the production config (patch 0009 + plugin update)
 
 The old "PP forbids speculation" wall is down (upstream PR #46994 backport + our V1
 guards + the draft packing above), **but only on the V2 model runner**
 (`VLLM_USE_V2_MODEL_RUNNER=1`) — the V1 runner's drafter path page-faults under PP, an
-upstream-untested bug (their entire PP validation ran V2). Validated here: correct greedy
-output, **81% acceptance at K=2** (mean 2.39 tokens/step — the RTN draft proposes well),
-zero faults. Measured: MTP=2 decode **regresses** (20.9/12.9/4.9 t/s vs 27.0/25.7/22.1 at
-MTP=0) — verification attention (q_len=3) rides the context-proportional prefill-class
-kernel path, T29's disease at new shapes (2 KV heads, head_dim 256). Until a batched-MQ
-kernel covers those shapes, **production stays `MTP=0` on the V1 runner** — V2 at MTP=0
-measures identically to V1 (decode and prefill), so the future MTP campaign carries no
-platform tax. To boot the MTP config: `MTP=2 PP_PARTITION=17,17,14
-EXTRA_ENV=VLLM_USE_V2_MODEL_RUNNER=1` after running `quantize_mtp.py`, with the patch-0009
-files in the image (or mounted).
+upstream-untested bug (their entire PP validation ran V2). V2 itself is free: at MTP=0 it
+measures identically to V1 on decode and prefill.
+
+Getting MTP from correct-but-slower to the headline numbers took two more findings (T40):
+
+1. **Verification attention** (q_len ≤ 4) was riding the context-proportional
+   prefill-class kernel path — T29's disease at new shapes. Fixed by generalizing the
+   `fd_rdna2` flash-decode plugin from the 27B's GQA 6 to any GQA ≤ 16 (the kernels were
+   already parameterized; the wrapper derived `n_kv` from an assumed GQA). nq=2 rides the
+   one-KV-pass batched path; nq=3–4 take per-position passes of the same fast kernel.
+   The drafter's own propose attention rides it too. Offline test:
+   `bench/attn/fd_gqa_test.py` (16/16 correctness vs fp32 reference).
+2. **The logits GEMM** (fp16 lm_head, 3072×151936) ran an untuned Tensile pick at ~87 GB/s
+   — 10.6 ms *per verify step* at M=3, plus the draft's M=1 calls.
+   `vllm::rocm_unquantized_gemm`'s skinny fast path is CDNA-gated, and in-server TunableOp
+   tuning never reached these calls. Fix: tune the shapes **offline** and merge the rows
+   into the per-rank CSVs (409/379 GB/s → ~2.3–2.5 ms):
+
+   ```bash
+   docker run --rm -i --entrypoint python3 --device /dev/kfd --device /dev/dri \
+     --group-add 991 --group-add 44 -e HSA_OVERRIDE_GFX_VERSION=10.3.0 \
+     -e PYTORCH_TUNABLEOP_ENABLED=1 -e PYTORCH_TUNABLEOP_TUNING=1 \
+     -e PYTORCH_TUNABLEOP_HIPBLASLT_ENABLED=0 \
+     -e PYTORCH_TUNABLEOP_FILENAME=/tuning/probe.csv \
+     -v <repo>/tunableop:/tuning <image> - <<'PY'
+   import torch
+   W = torch.randn(151936, 3072, dtype=torch.float16, device="cuda")
+   for M in (1, 3, 4):
+       torch.nn.functional.linear(torch.randn(M, 3072, dtype=torch.float16,
+                                              device="cuda"), W)
+   PY
+   # then append probe0.csv's tn_151936_* rows to tunableop_results{0,1,2}.csv
+   ```
+
+Config of record (this directory's `serve.sh`): `MTP=2
+PP_PARTITION=17,17,14 EXTRA_ENV=VLLM_USE_V2_MODEL_RUNNER=1 FD_RDNA2=1`, after
+`convert.py` + `quantize_mtp.py`. Acceptance ~2.2–2.4 tokens/step (81% at K=2), greedy
+6/8 identical to the V1-recorded baseline (2 prose formatting divergences from V2
+numerics; factual spot-checks pass). At 40k context MTP is parity, not a win — the
+remaining context-proportional term is the verify passes themselves (~13 ms/step at 40k,
+already near kernel bandwidth); long-context batch workloads can run `MTP=0`.
 
 ## Working configuration
 
-Inherited from the predecessor unchanged: `TP=1 PP=3 DEVICES=0,1,3`, image v5 (skinny MoE
-GEMV, T38, on top of the moe_wna16
-port), `GPUUTIL=0.95 MAXSEQS=4`, `MTP=0` (speculation works only on the V2 runner and is
-currently a decode regression — see the MTP section above), `FD_RDNA2=0 AR_RDNA2=0`,
-MOE_CFG → the swept fused-MoE config. Watch item also inherited: flaky load-time worker
-death (~2-in-7 boots; plain retry works).
+`TP=1 PP=3 DEVICES=0,1,3`, an image with all nine patches + the current (GQA-general) fd_rdna2 plugin, `MTP=2 PP_PARTITION=17,17,14` on the V2 runner
+(`EXTRA_ENV=VLLM_USE_V2_MODEL_RUNNER=1`), `FD_RDNA2=1 AR_RDNA2=0`, `GPUUTIL=0.95
+MAXSEQS=4`, MOE_CFG → the swept fused-MoE config, TunableOp lm_head rows merged (see MTP
+section). Fallback config in serve.sh's header comment (v5/V1/MTP=0). Watch item
+inherited: flaky load-time worker death (~2-in-7 boots; plain retry works).

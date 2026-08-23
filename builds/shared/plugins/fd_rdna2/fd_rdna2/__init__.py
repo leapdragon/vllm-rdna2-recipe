@@ -79,9 +79,17 @@ def register():
             return orig(**kw)
 
         k = kw["k"]                    # (blocks, block_size, n_kv, 260) int8 view
-        n_kv = q.shape[1] // 6
-        if k.dtype != torch.int8 or q.shape[1] % 6 != 0 or n_kv != k.shape[2]:
+        # Shapes come from the cache, not from an assumed GQA: the 27B is
+        # 24q/4kv (GQA 6, padded to 8 dot columns), the 122B is 32q/2kv
+        # (GQA 16, natively dot-width).
+        n_kv = k.shape[2]
+        if k.dtype != torch.int8 or n_kv == 0 or q.shape[1] % n_kv != 0:
             _reject("layout")
+            return orig(**kw)
+        GQA = q.shape[1] // n_kv
+        PAD = 8 if GQA <= 8 else 16
+        if GQA > PAD:
+            _reject(f"gqa {GQA} unsupported")
             return orig(**kw)
 
         # int32/fp32 handles over the same storage
@@ -107,7 +115,7 @@ def register():
         # longest sequence the block table can address, not the current one.
         max_ctx = bt.shape[-1] * bs
         gchunks = (max_ctx + CHUNK - 1) // CHUNK
-        buf = _ws.get((gchunks, n_kv))
+        buf = _ws.get((gchunks, n_kv, PAD))
         if buf is None:
             if torch.cuda.is_current_stream_capturing():
                 # Allocating here would bind the buffers to one graph's private
@@ -115,7 +123,6 @@ def register():
                 _reject("capture before warmup")
                 return orig(**kw)
             dev = q.device
-            PAD = 8   # GQA is 6; tl.dot accepts N=8 on this backend and 8 beats 16 by 1.6x
             NQP = 32  # widest column count: batched verification packs nq*PAD columns
             m = torch.empty(gchunks * n_kv * NQP, dtype=torch.float32, device=dev)
             buf = (m, torch.empty_like(m),
@@ -124,23 +131,26 @@ def register():
                    torch.zeros(n_kv, 4, 64, PAD, dtype=torch.float16, device=dev),
                    torch.zeros(n_kv, 4, 64, 16, dtype=torch.float16, device=dev),
                    torch.zeros(n_kv, 4, 64, 32, dtype=torch.float16, device=dev))
-            _ws[(gchunks, n_kv)] = buf
-            logger.info("fd_rdna2: buffers for max_ctx=%d (%d chunks of %d)",
-                        max_ctx, gchunks, CHUNK)
+            _ws[(gchunks, n_kv, PAD)] = buf
+            logger.info("fd_rdna2: buffers for max_ctx=%d (%d chunks of %d, PAD=%d)",
+                        max_ctx, gchunks, CHUNK, PAD)
         m, l, a, out_buf, qbuf, qbuf_mq16, qbuf_mq32 = buf
 
         nq = q.shape[0]
-        if nq > 1:
+        if nq > 1 and nq * PAD <= 32:
             # Batched verification: every position rides in the dot's column dimension,
-            # so KV is read ONCE per tile instead of once per position. NQP=16 covers
-            # nq=2; 32 covers nq=3..4.
-            NQP = 16 if nq == 2 else 32
+            # so KV is read ONCE per tile instead of once per position. NQP is the
+            # next power of two >= nq*PAD, capped at 32 (the proven accumulator
+            # footprint); wider combinations (nq>=3 at GQA 16) take the per-position
+            # loop below instead — nq KV passes of the fast kernel, still far off
+            # the stock prefill-class slope.
+            NQP = 16 if nq * PAD <= 16 else 32
             qs = (q * kw["softmax_scale"]).to(torch.float16)       # (nq, n_heads, 256)
-            qp = permute_q_mq(qs, nq, GQA=6, KVH=n_kv, PAD=8,
+            qp = permute_q_mq(qs, nq, GQA=GQA, KVH=n_kv, PAD=PAD,
                               out=(qbuf_mq16 if NQP == 16 else qbuf_mq32), NQP=NQP)
             fd2_decode_mq(qp, i32, f32, bt, kw["seqused_k"], gchunks, (m, l, a),
-                          out_buf, nq, BS=bs, CHUNK=CHUNK, TILE=TILE, GQA=6, KVH=n_kv,
-                          PAD=8, NQP=NQP, num_warps=WARPS, strides=(s_blk, s_kvh, s_tok))
+                          out_buf, nq, BS=bs, CHUNK=CHUNK, TILE=TILE, GQA=GQA, KVH=n_kv,
+                          PAD=PAD, NQP=NQP, num_warps=WARPS, strides=(s_blk, s_kvh, s_tok))
             kw["out"][:nq].copy_(out_buf[: nq * q.shape[1]].view(nq, q.shape[1], 256))
             _stats["fast"] += 1
             key = f"fast batched q={nq}"
@@ -153,12 +163,12 @@ def register():
             # Passing that as an offset keeps the launch graph-safe: it is constant for a
             # captured shape, unlike reading the length on the host.
             qs = (q[qi] * kw["softmax_scale"]).to(torch.float16)   # (n_q_heads, 256)
-            qp = permute_q(qs, GQA=6, KVH=n_kv, out=qbuf)
+            qp = permute_q(qs, GQA=GQA, KVH=n_kv, out=qbuf, PAD=PAD)
             fd2_decode(qp, i32, f32, bt, 0, BS=bs, CHUNK=CHUNK,
-                       TILE=TILE, GQA=6, KVH=n_kv, num_warps=WARPS,
+                       TILE=TILE, GQA=GQA, KVH=n_kv, num_warps=WARPS,
                        workspace=(m, l, a), strides=(s_blk, s_kvh, s_tok),
                        seq_ptr=kw["seqused_k"], grid_chunks=gchunks, out=out_buf,
-                       seq_delta=qi - (nq - 1))
+                       seq_delta=qi - (nq - 1), PAD=PAD)
             kw["out"][qi].copy_(out_buf[: q.shape[1]])
         _stats["fast"] += 1
         if nq > 1:

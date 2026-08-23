@@ -216,13 +216,17 @@ crashing, and makes V2 work. First V2 boots on gfx1030 measured **identical** to
 MTP=0 (decode and prefill), so the runner switch itself is free.
 
 **Measured on Qwen3.5-122B-A10B (Intel AutoRound, PP=3, packed MTP head)**: correct greedy
-output, 81% draft acceptance at K=2 (mean 2.39 tokens/step) — and a decode **regression**
-(20.9/12.9/4.9 t/s vs 27.0/25.7/22.1 at MTP=0): verification attention (q_len=3) rides the
-context-proportional prefill-class kernel path on this chip. Adopt this patch for the
-plumbing; leave MTP=0 in production until a batched-multi-query kernel covers your model's
-verification shapes. MoE MTP heads shipped dense also need the checkpoint-side treatment in
-`builds/Intel-.../convert.py` (+`quantize_mtp.py`) — the draft otherwise builds quantized
-against dense tensors, or starves the last stage's KV.
+output, 81% draft acceptance at K=2 — and with the two companion fixes, **39.7–41 / 33.4 /
+21.9 t/s at 3.5k/13k/40k vs 27.0/25.7/22.1 at MTP=0** (past llama.cpp on the same cards).
+The companions matter as much as the patch: (1) the fd_rdna2 plugin generalized to GQA ≤ 16
+so verification (q ≤ 4) and drafter attention ride the flash-decode kernel — without it,
+verification runs the context-proportional prefill-class path and MTP *regresses*; (2)
+TunableOp rows for the fp16 lm_head shapes (`vllm::rocm_unquantized_gemm`'s skinny path is
+CDNA-gated, and the default Tensile pick runs the M ≤ 4 logits GEMM ~4× slow; in-server
+tuning never reaches the shape — tune it offline, one-liner in the Intel BUILD.md). MoE MTP
+heads shipped dense also need the checkpoint-side treatment in `builds/Intel-.../convert.py`
+(+`quantize_mtp.py`) — the draft otherwise builds quantized against dense tensors, or
+starves the last stage's KV.
 
 ---
 

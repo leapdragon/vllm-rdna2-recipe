@@ -1,6 +1,6 @@
+#!/usr/bin/env python3
 # Copyright (C) 2026 Aron Hsiao
 # SPDX-License-Identifier: GPL-3.0-or-later
-#!/usr/bin/env python3
 """Convert the Intel 122B auto-round checkpoint config to vLLM-loadable GPTQ.
 
 The tensors are already GPTQ-packed (packing_format "auto_round:auto_gptq");
@@ -27,10 +27,25 @@ import json
 import re
 import sys
 
-CACHE = "/home/perfekt/repos/vllm-rdna2/hf-cache/hub"
+import os
+
+CACHE = os.environ.get(
+    "HF_CACHE",
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "hf-cache"),
+) + "/hub"
 SNAP = glob.glob(
     f"{CACHE}/models--Intel--Qwen3.5-122B-A10B-int4-AutoRound/snapshots/*"
 )
+
+# The MTP head ships dense bf16 (outside the exporter's quantize list), but the
+# global gptq quant_method would make vLLM build the draft's modules quantized
+# and then fail loading dense tensors into them. vLLM's Qwen3.5 MTP model has a
+# purpose-built escape: any "-:" dynamic key containing "mtp" makes it build
+# the whole MTP layer stack unquantized, and the draft's fc layer (prefix
+# "mtp.fc", built outside that branch) is unquantized by this same pattern
+# through the ordinary dynamic-skip path. re.match anchors at the string start,
+# so "mtp\." can never touch the target model's "model.*" / "lm_head" modules.
+MTP_SKIP = r"-:mtp\..*"
 
 FUSE = {"in_proj_qkv": "in_proj_qkvz", "in_proj_z": "in_proj_qkvz",
         "in_proj_b": "in_proj_ba", "in_proj_a": "in_proj_ba",
@@ -53,6 +68,14 @@ def to_pattern(name: str) -> str:
     return r".*" + r"\.".join(re.escape(p) for p in parts) + "$"
 
 
+def _mtp_is_packed() -> bool:
+    """True once quantize_mtp.py has int4-packed the MTP head (the skip must
+    then stay absent so vLLM builds the draft quantized)."""
+    idx = json.load(open(f"{SNAP[0]}/model.safetensors.index.json"))
+    return any(k.startswith("mtp.") and k.endswith(".qweight")
+               for k in idx["weight_map"])
+
+
 def main() -> None:
     if not SNAP:
         sys.exit("snapshot not downloaded yet")
@@ -60,7 +83,13 @@ def main() -> None:
     cfg = json.load(open(cfg_path))
     q = cfg["quantization_config"]
     if q.get("quant_method") == "gptq" and "dynamic" in q:
-        print("already converted"); return
+        if MTP_SKIP not in q["dynamic"] and not _mtp_is_packed():
+            q["dynamic"][MTP_SKIP] = {}
+            json.dump(cfg, open(cfg_path, "w"), indent=2)
+            print("already converted; added MTP skip pattern")
+        else:
+            print("already converted")
+        return
     assert q["quant_method"] == "auto-round" and q["sym"] is True
 
     dynamic: dict[str, dict] = {}
@@ -75,7 +104,9 @@ def main() -> None:
         else:
             sys.exit(f"unhandled override {name}: {override}")
     # this checkpoint leaves the whole MTP head out of block_name_to_quantize,
-    # so no mtp entries are expected in the dynamic table
+    # so no mtp entries come from extra_config; the skip is our addition (see
+    # MTP_SKIP above) so vLLM builds the draft unquantized for MTP-under-PP
+    dynamic[MTP_SKIP] = {}
 
     cfg["quantization_config"] = {
         "quant_method": "gptq",

@@ -1,0 +1,403 @@
+diff --git a/vllm/model_executor/models/deepseek_mtp.py b/vllm/model_executor/models/deepseek_mtp.py
+index 35cfce3..c1573ad 100644
+--- a/vllm/model_executor/models/deepseek_mtp.py
++++ b/vllm/model_executor/models/deepseek_mtp.py
+@@ -37,9 +37,11 @@ from .deepseek_v2 import (
+     DeepseekV2MoE,
+     _try_load_fp8_indexer_wk,
+ )
++from .interfaces import SupportsPP
+ from .utils import (
+     get_pp_missing_layer_names,
+     get_spec_layer_idx_from_weight_name,
++    make_empty_intermediate_tensors_factory,
+     maybe_prefix,
+ )
+ 
+@@ -227,7 +229,7 @@ class DeepSeekMultiTokenPredictor(nn.Module):
+ 
+ 
+ @support_torch_compile
+-class DeepSeekMTP(nn.Module, DeepseekV2MixtureOfExperts):
++class DeepSeekMTP(nn.Module, DeepseekV2MixtureOfExperts, SupportsPP):
+     def __init__(self, *, vllm_config: VllmConfig, prefix: str = ""):
+         super().__init__()
+         self.config = vllm_config.model_config.hf_config
+@@ -237,6 +239,12 @@ class DeepSeekMTP(nn.Module, DeepseekV2MixtureOfExperts):
+         )
+         # Set MoE hyperparameters
+         self.set_moe_parameters()
++        # PP support: the MTP draft runs only on the last PP stage (the runner gates
++        # drafter construction on get_pp_group().is_last_rank), so it never actually
++        # consumes PP intermediate tensors — but SupportsPP requires this factory.
++        self.make_empty_intermediate_tensors = make_empty_intermediate_tensors_factory(
++            ["hidden_states", "residual"], self.config.hidden_size
++        )
+ 
+     def set_moe_parameters(self):
+         self.num_moe_layers = self.config.num_nextn_predict_layers
+@@ -321,6 +329,24 @@ class DeepSeekMTP(nn.Module, DeepseekV2MixtureOfExperts):
+         for name, loaded_weight in weights:
+             if "rotary_emb.inv_freq" in name:
+                 continue
++            # Load the draft's own embed_tokens. The MTP module embeds the
++            # tokens it drafts via its own embed_tokens, but the checkpoint
++            # stores embed_tokens as a single top-level (shared/tied) weight
++            # whose spec_layer is None -- so the loop below skips it. Under
++            # pipeline parallelism the target model's embed_tokens is a
++            # PPMissingLayer on the draft's last stage, so the draft cannot
++            # borrow it and MUST load its own copy here, or it embeds tokens
++            # with uninitialized weights and produces garbage drafts.
++            if "embed_tokens" in name:
++                param = params_dict.get(name)
++                if param is not None:
++                    weight_loader = getattr(param, "weight_loader", None)
++                    if weight_loader is not None:
++                        weight_loader(param, loaded_weight)
++                    else:
++                        param.data.copy_(loaded_weight)
++                    loaded_params.add(name)
++                continue
+             spec_layer = get_spec_layer_idx_from_weight_name(self.config, name)
+             if spec_layer is None:
+                 continue
+diff --git a/vllm/model_executor/models/qwen3_5_mtp.py b/vllm/model_executor/models/qwen3_5_mtp.py
+index 6421c8b..b9fab80 100644
+--- a/vllm/model_executor/models/qwen3_5_mtp.py
++++ b/vllm/model_executor/models/qwen3_5_mtp.py
+@@ -36,6 +36,7 @@ from vllm.transformers_utils.configs.qwen3_5_moe import Qwen3_5MoeTextConfig
+ from .interfaces import (
+     MultiModalEmbeddings,
+     SupportsMultiModal,
++    SupportsPP,
+     _require_is_multimodal,
+ )
+ from .utils import (
+@@ -145,7 +146,13 @@ class Qwen3_5MultiTokenPredictor(nn.Module):
+         inputs_embeds: torch.Tensor | None = None,
+         spec_step_idx: int = 0,
+     ) -> torch.Tensor:
+-        if get_pp_group().is_first_rank:
++        pp_group = get_pp_group()
++        if pp_group.is_first_rank or pp_group.is_last_rank:
++            # The drafter is only built on the last PP stage, so the target's
++            # hidden states are available locally there and the fc projection
++            # applies exactly as it does at PP=1. Without the last-rank case the
++            # draft would fall through to the intermediate-tensor path and
++            # project uninitialized state.
+             if inputs_embeds is None:
+                 inputs_embeds = self.embed_input_ids(input_ids)
+             assert hidden_states.shape[-1] == inputs_embeds.shape[-1]
+@@ -155,6 +162,7 @@ class Qwen3_5MultiTokenPredictor(nn.Module):
+             hidden_states = self.fc(hidden_states)
+             residual = None
+         else:
++            # Middle PP rank: use intermediate tensors from previous rank.
+             assert intermediate_tensors is not None
+             hidden_states = intermediate_tensors["hidden_states"]
+             residual = intermediate_tensors["residual"]
+@@ -209,7 +217,7 @@ class Qwen3_5MultiTokenPredictor(nn.Module):
+         "hidden_states": 0,
+     }
+ )
+-class Qwen3_5MTP(LocalArgmaxMixin, nn.Module, SupportsMultiModal):
++class Qwen3_5MTP(LocalArgmaxMixin, nn.Module, SupportsMultiModal, SupportsPP):
+     packed_modules_mapping = {
+         "qkv_proj": [
+             "q_proj",
+@@ -252,6 +260,10 @@ class Qwen3_5MTP(LocalArgmaxMixin, nn.Module, SupportsMultiModal):
+ 
+         self.logits_processor = LogitsProcessor(config.vocab_size)
+ 
++        self.make_empty_intermediate_tensors = (
++            self.model.make_empty_intermediate_tensors
++        )
++
+     def embed_input_ids(
+         self,
+         input_ids: torch.Tensor,
+diff --git a/vllm/v1/worker/gpu/model_runner.py b/vllm/v1/worker/gpu/model_runner.py
+index cea735c..da80372 100644
+--- a/vllm/v1/worker/gpu/model_runner.py
++++ b/vllm/v1/worker/gpu/model_runner.py
+@@ -253,6 +253,9 @@ class GPUModelRunner(LoRAModelRunnerMixin):
+                 max_num_reqs=self.max_num_reqs,
+                 num_speculative_steps=self.num_speculative_steps,
+                 device=self.device,
++                # Only a speculator proposes draft tokens to relay. Diffusion LLMs
++                # also set num_speculative_steps > 0 but have no speculator.
++                relay_draft_tokens=self.speculative_config is not None,
+             )
+ 
+         # Samplers and decode_query_len created in load_model() after
+@@ -835,7 +838,18 @@ class GPUModelRunner(LoRAModelRunnerMixin):
+         if self.pp_handler is not None:
+             outputs = self.pp_handler.get_prev_sampled_outputs()
+             if outputs is not None:
++                # Spec decode: scatter the relayed proposed draft tokens into this
++                # rank's state so the next step's combine_sampled_and_draft_tokens
++                # reads real values. Pop before postprocess_sampled (which does not
++                # accept this kwarg). idx_mapping has -1 for excluded/freed reqs.
++                draft_tokens = outputs.pop("draft_tokens", None)
++                idx_mapping = outputs["idx_mapping"]
+                 self.postprocess_sampled(**outputs)
++                if draft_tokens is not None:
++                    valid = idx_mapping >= 0
++                    self.req_states.draft_tokens[idx_mapping[valid]] = draft_tokens[
++                        valid
++                    ]
+ 
+     def add_requests(self, scheduler_output: SchedulerOutput) -> None:
+         for new_req_data in scheduler_output.scheduled_new_reqs:
+@@ -1535,7 +1549,13 @@ class GPUModelRunner(LoRAModelRunnerMixin):
+         )
+ 
+         mm_inputs: tuple[list[torch.Tensor], torch.Tensor] | None = None
+-        if self.speculator is not None and self.speculator.supports_mm_inputs:
++        # The encoder runner exists only on the first PP rank, so later ranks
++        # have no cached embeddings to gather.
++        if (
++            self.speculator is not None
++            and self.speculator.supports_mm_inputs
++            and self.model_state.supports_mm_inputs
++        ):
+             # Get cached multimodal embeddings for draft forward.
+             # NOTE: This is done here because postprocess updates
+             # num_computed_prefill_tokens.
+@@ -1584,6 +1604,11 @@ class GPUModelRunner(LoRAModelRunnerMixin):
+                 mm_inputs=mm_inputs,
+             )
+             self.req_states.draft_tokens[input_batch.idx_mapping] = draft_tokens
++            if self.pp_handler is not None:
++                # Relay the proposed draft tokens to non-last PP ranks so their
++                # next-step combine_sampled_and_draft_tokens reads real values
++                # instead of zero-init (otherwise spec acceptance ~= 0 / garbage).
++                self.pp_handler.broadcast_draft(draft_tokens, input_batch)
+ 
+         if self.num_speculative_steps > 0:
+             # Spec-decode and diffusion LLMs both use draft tokens but the latter does
+diff --git a/vllm/v1/worker/gpu/pp_utils.py b/vllm/v1/worker/gpu/pp_utils.py
+index 9b1786c..1b482ed 100644
+--- a/vllm/v1/worker/gpu/pp_utils.py
++++ b/vllm/v1/worker/gpu/pp_utils.py
+@@ -30,6 +30,10 @@ class PendingRecv:
+     # Snapshot of slot generation counters at receive time, used to
+     # detect requests aborted since then.
+     gen_at_receive_np: np.ndarray  # [num_reqs]
++    # Spec decode: proposed draft tokens relayed from the last rank, scattered
++    # into the non-last rank's req_states.draft_tokens on consume. None when the
++    # last rank has no speculator to relay from (see `relay_draft_tokens`).
++    draft_tokens: torch.Tensor | None = None  # [num_reqs, max_sample_len - 1]
+ 
+ 
+ def compute_need_sampled_mask(input_batch: InputBatch) -> np.ndarray | None:
+@@ -60,11 +64,21 @@ class PPHandler:
+     """
+ 
+     def __init__(
+-        self, max_num_reqs: int, num_speculative_steps: int, device: torch.device
++        self,
++        max_num_reqs: int,
++        num_speculative_steps: int,
++        device: torch.device,
++        relay_draft_tokens: bool = False,
+     ):
+         self.is_last_rank = get_pp_group().is_last_rank
+         self.last_rank = get_pp_group().last_rank
+         self.max_sample_len = num_speculative_steps + 1
++        # Whether the last rank relays proposed draft tokens (`broadcast_draft`).
++        # Must be derived from config, not from `self.speculator`, so that every
++        # rank agrees on the per-step broadcast count. `num_speculative_steps > 0`
++        # is NOT equivalent: diffusion LLMs use draft tokens without a speculator,
++        # so the last rank would never send the third broadcast the others expect.
++        self.relay_draft_tokens = relay_draft_tokens
+         self.device = device
+         self.main_stream = torch.cuda.current_stream(device)
+         self.broadcast_stream = torch.cuda.Stream(device)
+@@ -121,6 +135,7 @@ class PPHandler:
+             num_sampled=slot.num_sampled,
+             num_rejected=slot.num_rejected,
+             idx_mapping=idx_mapping,
++            draft_tokens=slot.draft_tokens,
+         )
+ 
+     def receive(self, input_batch: InputBatch) -> bool:
+@@ -149,12 +164,28 @@ class PPHandler:
+             torch.distributed.broadcast(
+                 combined, src=self.last_rank, group=self.broadcast_group
+             )
++            # Spec decode: 3rd broadcast on this group — the proposed draft tokens
++            # relayed by the last rank (matches broadcast_draft's order). NCCL
++            # matches by op order on the communicator; the deferred event covers it.
++            draft_tokens = None
++            if self.relay_draft_tokens:
++                draft_tokens = torch.empty(
++                    num_reqs,
++                    self.max_sample_len - 1,
++                    dtype=torch.int64,
++                    device=self.device,
++                )
++                torch.distributed.broadcast(
++                    draft_tokens, src=self.last_rank, group=self.broadcast_group
++                )
+             event = self.broadcast_stream.record_event()
+             num_sampled, num_rejected = combined.unbind(dim=0)
+             # Must record_stream since these were allocated on broadcast stream but
+             # later used on the main stream.
+             sampled_tokens.record_stream(self.main_stream)
+             combined.record_stream(self.main_stream)
++            if draft_tokens is not None:
++                draft_tokens.record_stream(self.main_stream)
+         self.queue[-1] = PendingRecv(
+             event,
+             sampled_tokens,
+@@ -164,6 +195,7 @@ class PPHandler:
+             input_batch.idx_mapping_np,
+             need_sampled_mask,
+             gen_at_receive_np,
++            draft_tokens,
+         )
+         return bool(need_sampled_mask.all())
+ 
+@@ -180,6 +212,22 @@ class PPHandler:
+             return
+ 
+         assert sampled_token_ids.dtype == torch.int64
++        # The receiver always posts a [num_reqs, max_sample_len] buffer, but under
++        # spec decode the sampler emits width 1 on any step with no draft tokens
++        # (prefill, first decode) and width (num_spec+1) only once rejection
++        # sampling has run. Pad to max_sample_len so the NCCL broadcast element
++        # count matches the receiver on EVERY step (an unpadded width-1 send vs a
++        # width-(num_spec+1) recv is a count mismatch that deadlocks the receiver).
++        # Trailing -1 columns are placeholders ignored by post_update, which
++        # advances each request by its per-request num_sampled valid count.
++        width = sampled_token_ids.shape[-1]
++        if width != self.max_sample_len:
++            assert width < self.max_sample_len
++            padded = sampled_token_ids.new_full(
++                (sampled_token_ids.shape[0], self.max_sample_len), -1
++            )
++            padded[:, :width] = sampled_token_ids
++            sampled_token_ids = padded
+ 
+         if current_platform.is_xpu():
+             self.main_stream.synchronize()
+@@ -197,3 +245,28 @@ class PPHandler:
+             )
+             for tensor in (sampled_token_ids, num_sampled, num_rejected):
+                 tensor.record_stream(self.broadcast_stream)
++
++    def broadcast_draft(
++        self, draft_tokens: torch.Tensor, input_batch: InputBatch
++    ) -> None:
++        """Relay the proposed draft tokens (spec decode) from the last rank to the
++        non-last ranks. Issued AFTER propose(), so it is the 3rd broadcast on this
++        group for the step (sampled, combined, draft) — matching the order in which
++        `receive` posts its recvs. Gated identically to `broadcast` so op counts
++        stay matched across ranks. Without this, non-last ranks verify against a
++        zero-init req_states.draft_tokens (near-zero acceptance, corrupt output)."""
++        assert self.is_last_rank
++        if not self.relay_draft_tokens:
++            return
++        if compute_need_sampled_mask(input_batch) is None:
++            # No request needs sampled outputs next step; `broadcast` skipped too,
++            # so skip here to keep the per-step broadcast count matched.
++            return
++        draft_tokens = draft_tokens.to(torch.int64).contiguous()
++        with torch.cuda.stream(self.broadcast_stream):
++            # wait_stream so the side-stream broadcast sees propose()'s output.
++            self.broadcast_stream.wait_stream(self.main_stream)
++            torch.distributed.broadcast(
++                draft_tokens, src=self.last_rank, group=self.broadcast_group
++            )
++            draft_tokens.record_stream(self.broadcast_stream)
+diff --git a/vllm/v1/worker/gpu_model_runner.py b/vllm/v1/worker/gpu_model_runner.py
+index 859cec2..757d14e 100644
+--- a/vllm/v1/worker/gpu_model_runner.py
++++ b/vllm/v1/worker/gpu_model_runner.py
+@@ -577,6 +577,10 @@ class GPUModelRunner(
+ 
+         self.use_aux_hidden_state_outputs = False
+         # Set up speculative decoding.
++        # Under PP the drafter exists only on the last rank; the other ranks
++        # keep None so the shared paths (profile/dummy runs, attn-metadata
++        # isinstance dispatch) can still read the attribute.
++        self.drafter = None
+         # NOTE(Jiayi): currently we put the entire draft model on
+         # the last PP rank. This is not ideal if there are many
+         # layers in the draft model.
+@@ -5328,7 +5332,7 @@ class GPUModelRunner(
+                     self.model = self.load_lora_model(
+                         self.model, self.vllm_config, self.device
+                     )
+-                if hasattr(self, "drafter"):
++                if getattr(self, "drafter", None) is not None:
+                     logger.info_once("Loading drafter model...")
+                     if hasattr(self.drafter, "load_model"):
+                         self.drafter.load_model(self.model)
+@@ -6166,10 +6170,15 @@ class GPUModelRunner(
+             else:
+                 hidden_states = outputs
+ 
+-            if self.speculative_config and (
+-                self.speculative_config.use_eagle()
+-                or self.speculative_config.uses_draft_model()
+-                or self.speculative_config.uses_extract_hidden_states()
++            if (
++                self.speculative_config
++                # PP: non-last ranks have no drafter to dummy-run.
++                and self.drafter is not None
++                and (
++                    self.speculative_config.use_eagle()
++                    or self.speculative_config.uses_draft_model()
++                    or self.speculative_config.uses_extract_hidden_states()
++                )
+             ):
+                 assert isinstance(
+                     self.drafter,
+@@ -7148,9 +7157,14 @@ class GPUModelRunner(
+         self.calculate_reorder_batch_threshold()
+ 
+         # Initialize drafter attention backend
+-        if self.speculative_config and (
+-            self.speculative_config.use_eagle()
+-            or self.speculative_config.uses_draft_model()
++        # (self.drafter is None on non-last PP ranks)
++        if (
++            self.speculative_config
++            and self.drafter is not None
++            and (
++                self.speculative_config.use_eagle()
++                or self.speculative_config.uses_draft_model()
++            )
+         ):
+             assert isinstance(
+                 self.drafter,
+@@ -7202,10 +7216,15 @@ class GPUModelRunner(
+         )
+ 
+         # Initialize drafter's cudagraph dispatcher if using spec decode.
+-        if self.speculative_config and (
+-            self.speculative_config.use_eagle()
+-            or self.speculative_config.uses_draft_model()
+-            or self.speculative_config.uses_extract_hidden_states()
++        # (self.drafter is None on non-last PP ranks)
++        if (
++            self.speculative_config
++            and self.drafter is not None
++            and (
++                self.speculative_config.use_eagle()
++                or self.speculative_config.uses_draft_model()
++                or self.speculative_config.uses_extract_hidden_states()
++            )
+         ):
+             assert isinstance(
+                 self.drafter,
+@@ -7662,6 +7681,7 @@ class GPUModelRunner(
+ 
+         if (
+             self.speculative_config
++            and self.drafter is not None
+             and self.speculative_config.uses_extract_hidden_states()
+         ):
+             assert isinstance(self.drafter, ExtractHiddenStatesProposer)

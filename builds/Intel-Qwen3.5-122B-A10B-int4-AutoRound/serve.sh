@@ -6,12 +6,15 @@
 # config, but this checkpoint quantizes the BACKBONE too (attention/GDN int4;
 # only the shared expert stays fp16), removing ~30 ms/token of bf16 streaming.
 #
+# Patches 0007 AND 0008 (MoE kernels) must be in your image.
+#
 # REQUIRES the one-time conversion in this directory (convert.py: auto-round
-# config -> gptq + dynamic skips) after any download. MTP head is bf16 and
-# unused (PP forbids speculation). MoE config JSON carries the gfx1030 sweep
-# winners (same E=256/N=1024 shapes as the predecessor build).
+# config -> gptq + dynamic skips) after any download. MTP=0: speculation under
+# PP works only on the V2 runner (patch 0009 + quantize_mtp.py, see BUILD.md)
+# and currently regresses decode pending verification-attention kernel work.
+# MoE config JSON carries the gfx1030 sweep winners (same E=256/N=1024 shapes
+# as the predecessor build).
 MOE_CFG="${MOE_CFG:-$(cd "$(dirname "$0")" && pwd)/moe-config-gfx1030.json:E=256,N=1024,device_name=AMD_RADEON_PRO_V620_Azure,dtype=int4_w4a16.json}" \
-# patches 0007 AND 0008 (MoE kernels) must be in your image \
 MODEL="Intel/Qwen3.5-122B-A10B-int4-AutoRound" \
 SERVED="qwen35-122b-autoround" \
 QUANT="gptq" \

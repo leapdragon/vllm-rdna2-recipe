@@ -55,7 +55,7 @@ With `00-HARDWARE.md`, `01-PATCHES.md`, `02-VERSIONS.md`, and `PROFILE-NAVI21.md
 1. **Build the base image** with your GPU architecture in the compile target list. Patch 0005
    is the one-line shape of this. Verify with the device attached (`torch.cuda.get_arch_list()`
    returns an empty list *silently* when no GPU is visible — do not debug a healthy build).
-2. **Apply the eight patches.** When one fails to apply — expected on any vLLM newer than
+2. **Apply the nine patches.** When one fails to apply — expected on any vLLM newer than
    0.27.1 — do not force fuzzy hunks. Each patch's section in `01-PATCHES.md` states its
    *intent* and a verification line: re-implement the intent in the moved code, then run the
    verification. A fuzzy hunk that lands in the wrong place fails silently, which is worse

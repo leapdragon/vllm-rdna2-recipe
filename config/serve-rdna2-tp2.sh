@@ -50,6 +50,11 @@ fi
 NAME="${NAME:-vllm-qwen38-tp2}"
 TP="${TP:-2}"
 PP="${PP:-1}"                             # pipeline-parallel stages (layer split); 1 = off
+# Optional uneven layer split, e.g. PP_PARTITION=17,17,14 (must sum to the layer
+# count). Use to unload the last stage when it carries extra weight — the MTP
+# draft model lives entirely on the last PP rank.
+PP_PART_ENV=()
+[ -n "${PP_PARTITION:-}" ] && PP_PART_ENV=(-e VLLM_PP_LAYER_PARTITION="${PP_PARTITION}")
 DEVICES="${DEVICES:-1,3}"                 # the two x16-rooted V620s
 SERVE_EXTRA=""
 # The optimisation set (W4 blocking, both plugins) is baked into the -v2 image. DEV=1 instead
@@ -66,8 +71,12 @@ DTYPE="${DTYPE:-float16}"
 # Default 2 (validated 8/8, +24% @41k, T30); MTP=0 disables. Verification attention rides our
 # batched multi-query kernel; without it (or with the pre-fix plugin) MTP is a 3.6x REGRESSION.
 MTP="${MTP:-2}"
+# SPEC_EAGER=1 runs only the DRAFTER eager (target keeps its cudagraphs) —
+# isolates drafter-cudagraph interplay without changing the target's compile.
 SPEC_ARG=""
-[ "${MTP}" != "0" ] && SPEC_ARG="--speculative-config {\\\"method\\\":\\\"qwen3_5_mtp\\\",\\\"num_speculative_tokens\\\":${MTP}}"
+SPEC_EAGER_FIELD=""
+[ "${SPEC_EAGER:-0}" = "1" ] && SPEC_EAGER_FIELD=",\\\"enforce_eager\\\":true"
+[ "${MTP}" != "0" ] && SPEC_ARG="--speculative-config {\\\"method\\\":\\\"qwen3_5_mtp\\\",\\\"num_speculative_tokens\\\":${MTP}${SPEC_EAGER_FIELD}}"
 DEV_MOUNT=(); DEV_INSTALL=""
 if [ "${DEV:-0}" = "1" ]; then
   DEV_MOUNT=(-v "$RECIPE_ROOT/builds/shared/plugins/fd_rdna2:/app/patches/fd_plugin"
@@ -77,6 +86,9 @@ fi
 CMODE="${CMODE:-3}"                       # 0 NONE, 1 stock compile, 2 dynamo-trace-once, 3 VLLM_COMPILE
 CGMODE="${CGMODE:-FULL_DECODE_ONLY}"
 [ "${PROFILE:-0}" = "1" ] && SERVE_EXTRA="--profiler-config.profiler=torch --profiler-config.torch_profiler_dir=/traces --profiler-config.torch_profiler_with_stack=false"
+# V1 async scheduling assumes width-1 sampled-token broadcasts between PP ranks,
+# which speculative decoding violates — run MTP-under-PP with ASYNC_SCHED=0.
+[ "${ASYNC_SCHED:-1}" = "0" ] && SERVE_EXTRA="$SERVE_EXTRA --no-async-scheduling"
 CUSTOM_AR="${CUSTOM_AR:-1}"               # 1 = custom all-reduce (P2P), 0 = RCCL fallback
 MAXLEN="${MAXLEN:-131072}"
 KVDTYPE="${KVDTYPE:-auto}"          # auto|int8_per_token_head|int4_per_token_head|fp8_e5m2|fp8_e4m3
@@ -117,6 +129,13 @@ if [ -n "${EXTRA_MOUNT:-}" ]; then
   IFS=',' read -ra _EXTRA <<< "${EXTRA_MOUNT}"
   for _em in "${_EXTRA[@]}"; do MOE_MOUNT+=(-v "${_em}:ro"); done
 fi
+# Generic extra environment for experiments/diagnostics, e.g.
+# EXTRA_ENV="VLLM_USE_V2_MODEL_RUNNER=1"
+EXTRA_ENV_ARGS=()
+if [ -n "${EXTRA_ENV:-}" ]; then
+  IFS=',' read -ra _EENV <<< "${EXTRA_ENV}"
+  for _ee in "${_EENV[@]}"; do EXTRA_ENV_ARGS+=(-e "${_ee}"); done
+fi
 
 # Do not leave a stale container behind (the previous --rm setup vanished on exit,
 # taking its exit status with it).
@@ -132,7 +151,7 @@ exec docker run -d --name "$NAME" --network=host \
   -v "$STATE_DIR/ext-cache:/ext-cache" \
   -e AR_RDNA2="${AR_RDNA2:-1}" -e AR_MAX_KB="${AR_MAX_KB:-512}" -e TORCH_EXTENSIONS_DIR=/ext-cache \
   -e PYTORCH_ROCM_ARCH=gfx1030 \
-  "${SRC_MOUNT[@]}" "${CAR_ENV[@]}" "${VERBOSE_ENV[@]}" \
+  "${SRC_MOUNT[@]}" "${CAR_ENV[@]}" "${VERBOSE_ENV[@]}" "${PP_PART_ENV[@]}" \
   -e HSA_OVERRIDE_GFX_VERSION=10.3.0 \
   -e ROCR_VISIBLE_DEVICES="$DEVICES" \
   -e VLLM_TARGET_DEVICE=rocm \
@@ -145,7 +164,7 @@ exec docker run -d --name "$NAME" --network=host \
   -e VLLM_LOG_STATS_INTERVAL="${STATS_INTERVAL:-10}" \
   -v "$STATE_DIR/traces:/traces" \
   -v "$STATE_DIR/compile-cache:/compile-cache" \
-  "${DEV_MOUNT[@]}" "${MOE_MOUNT[@]}" \
+  "${DEV_MOUNT[@]}" "${MOE_MOUNT[@]}" "${EXTRA_ENV_ARGS[@]}" \
   -e VLLM_CACHE_ROOT=/compile-cache \
   "${PROF_ARGS[@]}" \
   -e VLLM_WORKER_MULTIPROC_METHOD=spawn \

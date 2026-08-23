@@ -63,7 +63,7 @@ Used in my case with:
 | **[PROFILE-NAVI21.md](PROFILE-NAVI21.md)** | Emergency break-glass option if success is elusive. The full silicon profile behind 00-HARDWARE's summary: 37 measured tests covering compute, memory, interconnect, and the design rules they imply. Don't pay attention to too many of the wild-eyed WAGs in it, as it hasn't really been cleaned up, but there's a lot of basic reference here resulting from empirical poking and prodding of the chip. |
 
 ```
-patches/    eight patches against pristine vLLM 0.27.1
+patches/    nine patches against pristine vLLM 0.27.1
 builds/     one directory per model we've actually brought up and optimized,
             named for the Hugging Face model id — each contains BUILD.md
             (the document of record: the model's structure, its quantization
@@ -105,14 +105,33 @@ and more distributable than this for the RDNA2 family cards (hell I would use it
   `rocm_base` plus one arch line) and built it as we went, retrospectively after each successful patch; nobody has yet run this recipe from scratch.
 - **The two plugins monkey-patch vLLM internals** and will need rework on any version bump — and
   they fail *silently*. See the pitfalls in 01-PATCHES.md.
-- **Something intermittently was hard-crashing my inference machine** (spontaneous reboot, no kernel trace).
-  Leading correlate is an `svm_range_restore_work [amdgpu]` storm under TunableOp tuning churn. We produced this pretty reliably after enabling MTP with autotuning on; keep running through intermittent crashes to try to get complete results or bypass and guess.  Tricky because this is a part of the optimization path, but if you have crashes, it may be that a particular model is not playing nice with the vLLM auto-tuner and the v620 hardware.
+- **Hard host crashes under kernel-launch churn — largely tamed 2026-08-23.** The machine
+  used to spontaneously freeze (no kernel trace) under launch storms: TunableOp tuning
+  churn, and later, cold Triton/inductor compiles across 3 GPUs — dramatically amplified by
+  `AMD_SERIALIZE_KERNEL/HIP_LAUNCH_BLOCKING` (never set those on multi-GPU cold-compile
+  boots). Two kernel-line changes stopped the crashes here:
+  `amdgpu.ppfeaturemask=0xfff77fff` (driver default + OverDrive for fan control, with
+  GFXOFF and GFX_DCS off — the idle↔burst power-state churn suspects) and
+  `amdgpu.gpu_recovery=0` (reset attempts with busy P2P peers wedged the whole box;
+  recovery off converts hangs into a dead process instead of a dead machine). A crash
+  mid-compile can leave a truncated artifact in the compile cache
+  (`module ... has no attribute 'triton_poi_...'`) — wipe the cache directory.
 - **Multi-stream decode on the AWQ/asymmetric path is unmeasured.** The HIP skinny GEMV that
   gives the hybrid kernel its decode speed covers batches of ≤5 rows; concurrent MTP streams
   exceed that and fall to a slower path. Single-stream numbers are solid; batch serving on that
   build needs measuring first.
 
 ## Changelog
+
+**2026-08-23 (later) — patch 0009: MTP under pipeline parallelism (V2 runner).** Backport
+of upstream PR #46994 plus our own V1-runner guards. The finding that matters: MTP under PP
+requires `VLLM_USE_V2_MODEL_RUNNER=1` (the V1 drafter path page-faults under PP — upstream
+never tested it), and the V2 runner measures identical to V1 on gfx1030 at MTP=0, so the
+switch is free. On the 122B, speculation is *correct* (81% acceptance at K=2, draft head
+RTN-packed to int4 by `quantize_mtp.py`) but currently a decode regression — verification
+attention (q_len=3) rides the context-proportional prefill path; production stays MTP=0
+until a batched-MQ kernel covers those shapes. Launcher gains `PP_PARTITION`, `ASYNC_SCHED`,
+`SPEC_EAGER`, `EXTRA_ENV`.
 
 **2026-08-23 (night) — patch 0008: the MoE decode skinny GEMV.** The kernel the 122B was
 waiting for: wave-per-row expert GEMV at 432 GB/s effective (the tile-based MoE kernels

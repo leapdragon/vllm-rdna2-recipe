@@ -2,7 +2,7 @@
 
 Copyright © 2026 Aron Hsiao · GPL-3.0-or-later (see LICENSE)
 
-Eight patches against **pristine vLLM 0.27.1**. Plus two net-new plugin
+Nine patches against **pristine vLLM 0.27.1**. Plus two net-new plugin
 packages under `builds/shared/plugins/`, which patch nothing — they install and register themselves.
 
 ## Applying
@@ -13,7 +13,7 @@ tar xzf /tmp/vllm-0.27.1.tar.gz -C /tmp && cd /tmp/vllm-0.27.1
 for p in /path/to/recipe/patches/*.patch; do patch -p1 < "$p"; done
 ```
 
-All five apply cleanly to unmodified 0.27.1 (verified with `patch --dry-run`). If one fails
+All nine apply cleanly to unmodified 0.27.1 (verified with `patch --dry-run`). If one fails
 because you are on a different vLLM version, **do not force it** — read what it accomplishes below
 and re-implement, then run its verification line. A fuzzy-applied hunk that lands in the wrong
 place is worse than no patch, because it fails silently.
@@ -191,6 +191,38 @@ near-identical bodies in the same file. A dispatch hook in the former is silentl
 WNA16 models — no error, no log, no change. If your hook "doesn't fire", overlay a
 one-shot debug print (the launcher's `EXTRA_MOUNT` knob exists for exactly this) before
 assuming your kernel is at fault.
+
+---
+
+## 0009 — MTP speculative decoding under pipeline parallelism · *for MTP models served with PP > 1; requires the V2 model runner*
+
+**What:** five Python files that make MTP drafting work when the model is layer-split
+across GPUs. Two are a backport of upstream PR #46994 (author eastwood-c, snapshot at head
+`bee2011` while still open): `qwen3_5_mtp.py`/`deepseek_mtp.py` gain `SupportsPP` (without
+it the engine refuses to even build the draft under PP) and a last-rank branch in
+`forward` (the drafter lives entirely on the last PP stage, where the target's hidden
+states are local — without the branch it projects uninitialized intermediate tensors).
+Two more carry the PR's V2-runner PP fixes (`gpu/pp_utils.py` verbatim, one relay hunk
+hand-ported into `gpu/model_runner.py`): sampled-token broadcasts padded to a fixed width,
+and proposed draft tokens relayed to non-last ranks. The fifth (`gpu_model_runner.py`, the
+V1 runner) only guards `self.drafter` accesses so V1 PP boots stop crashing in
+profile/KV/cudagraph init. Python-only — no extension rebuild.
+
+**The hard-won constraint: MTP under PP requires `VLLM_USE_V2_MODEL_RUNNER=1`.** The V1
+runner's drafter path page-faults under PP (reproduced on two models, dense and MoE, with
+cudagraphs off and on, int8 and fp16 KV) — upstream has zero V1 PP+spec test coverage;
+every PP row in the PR's validation ran V2. This patch makes V1 fail *cleanly* instead of
+crashing, and makes V2 work. First V2 boots on gfx1030 measured **identical** to V1 at
+MTP=0 (decode and prefill), so the runner switch itself is free.
+
+**Measured on Qwen3.5-122B-A10B (Intel AutoRound, PP=3, packed MTP head)**: correct greedy
+output, 81% draft acceptance at K=2 (mean 2.39 tokens/step) — and a decode **regression**
+(20.9/12.9/4.9 t/s vs 27.0/25.7/22.1 at MTP=0): verification attention (q_len=3) rides the
+context-proportional prefill-class kernel path on this chip. Adopt this patch for the
+plumbing; leave MTP=0 in production until a batched-multi-query kernel covers your model's
+verification shapes. MoE MTP heads shipped dense also need the checkpoint-side treatment in
+`builds/Intel-.../convert.py` (+`quantize_mtp.py`) — the draft otherwise builds quantized
+against dense tensors, or starves the last stage's KV.
 
 ---
 

@@ -63,7 +63,7 @@ Used in my case with:
 | **[PROFILE-NAVI21.md](PROFILE-NAVI21.md)** | Emergency break-glass option if success is elusive. The full silicon profile behind 00-HARDWARE's summary: 37 measured tests covering compute, memory, interconnect, and the design rules they imply. Don't pay attention to too many of the wild-eyed WAGs in it, as it hasn't really been cleaned up, but there's a lot of basic reference here resulting from empirical poking and prodding of the chip. |
 
 ```
-patches/    seven patches against pristine vLLM 0.27.1
+patches/    eight patches against pristine vLLM 0.27.1
 builds/     one directory per model we've actually brought up and optimized,
             named for the Hugging Face model id — each contains BUILD.md
             (the document of record: the model's structure, its quantization
@@ -113,6 +113,16 @@ and more distributable than this for the RDNA2 family cards (hell I would use it
   build needs measuring first.
 
 ## Changelog
+
+**2026-08-23 (night) — patch 0008: the MoE decode skinny GEMV.** The kernel the 122B was
+waiting for: wave-per-row expert GEMV at 432 GB/s effective (the tile-based MoE kernels
+stream weights across the wrong axis and sit 10×+ off bandwidth at batch-1). Decode on the
+Intel 122B: 15.6 → **26.9 t/s** — short-context parity with llama.cpp on the same three
+cards, and the day's cumulative on this model is 7.1 → 26.9. The launcher also gains
+`EXTRA_MOUNT` (comma-separated bind overlays) — born as a debugging tool for the
+twin-apply-method pitfall documented in 01-PATCHES, kept because rebuild-free iteration on
+any baked file is generally useful.
+
 
 **2026-08-23 (evening) — 122B build replaced: backbone-quantized checkpoint doubles decode.**
 `builds/Intel-Qwen3.5-122B-A10B-int4-AutoRound/` supersedes the official-GPTQ build. The

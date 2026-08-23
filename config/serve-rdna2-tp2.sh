@@ -111,6 +111,12 @@ MOE_MOUNT=()
 if [ -n "${MOE_CFG:-}" ]; then
   MOE_MOUNT=(-v "${MOE_CFG%%:*}:/app/vllm-src/vllm/model_executor/layers/fused_moe/configs/${MOE_CFG##*:}:ro")
 fi
+# Generic extra bind mounts for iteration:
+# EXTRA_MOUNT="<host>:<container>[,<host>:<container>...]"
+if [ -n "${EXTRA_MOUNT:-}" ]; then
+  IFS=',' read -ra _EXTRA <<< "${EXTRA_MOUNT}"
+  for _em in "${_EXTRA[@]}"; do MOE_MOUNT+=(-v "${_em}:ro"); done
+fi
 
 # Do not leave a stale container behind (the previous --rm setup vanished on exit,
 # taking its exit status with it).

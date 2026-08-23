@@ -18,7 +18,7 @@ Copyright © 2026 Aron Hsiao · GPL-3.0-or-later (see LICENSE)
 
 1. **Base image** — vLLM's `docker/Dockerfile.rocm_base` **with patch 0005**. Builds PyTorch from
    source for gfx1030. **Hours, not minutes.** This is the step that makes the card work at all.
-2. **vLLM image** — patched 0.27.1 source (all seven patches; 0006 touches a `.cu`, so it is
+2. **vLLM image** — patched 0.27.1 source (all eight patches; 0006 touches a `.cu`, so it is
    part of this compile), `pip install -e .` with `VLLM_TARGET_DEVICE=rocm`,
    `PYTORCH_ROCM_ARCH=gfx1030`. ~10 minutes for the extensions. Adding a patch later only
    needs an incremental `python3 setup.py build_ext --inplace` (~4 min), not a rebuild.

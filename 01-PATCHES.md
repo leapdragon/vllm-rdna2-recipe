@@ -2,7 +2,7 @@
 
 Copyright © 2026 Aron Hsiao · GPL-3.0-or-later (see LICENSE)
 
-Seven patches against **pristine vLLM 0.27.1**. Plus two net-new plugin
+Eight patches against **pristine vLLM 0.27.1**. Plus two net-new plugin
 packages under `builds/shared/plugins/`, which patch nothing — they install and register themselves.
 
 ## Applying
@@ -165,6 +165,32 @@ W4 MoE work on this platform.
 inside the container → `True`, and the serving log stops routing small batches through the
 Triton path. Correctness: greedy outputs vs a pre-patch baseline (ours: 7/8 identical,
 factual PASS).
+
+---
+
+## 0008 — MoE decode skinny GEMV · *the kernel that makes W4 MoE decode fast on gfx1030*
+
+**What:** a wave-per-output-row W4A16 expert GEMV pair (six files: the kernel appended to
+`csrc/rocm/skinny_gemms_int4.cu`, its binding/declaration, and dispatch hooks). At decode
+batch sizes, one wave computes one output row with lanes striding along K — coalesced
+weight streaming, the thing the tile-based MoE kernels structurally lack (they read across
+K; measured 10×+ off bandwidth). Activations stage in LDS, silu·mul fuses into the
+gate_up epilogue, and the down kernel does the topk-weighted combine internally — one
+write, no atomics, and the whole moe_align machinery is bypassed. Plain fp32 FMA: this
+regime is bandwidth-bound and dequant is free on this chip. **432 GB/s effective (85% of
+the memory ceiling), linear in M from 1 to 8.** Gated to M ≤ 8, symmetric int4, SILU,
+fp16; `VLLM_ROCM_MOE_SKINNY=0` disables. Touches a `.cu` → rebuild the extension.
+
+**Measured on Qwen3.5-122B-A10B (Intel AutoRound quant, PP=3)**: decode 15.6 → **26.9 t/s**
+at 3.5k (25.4 @14k, 21.8 @42k), prefill unaffected — short-context parity with llama.cpp
+on the same cards.
+
+**The integration pitfall this patch survived, so you don't have to**: vLLM's modular MoE
+framework defines `TritonExperts.apply` *and* an override `TritonWNA16Experts.apply` with
+near-identical bodies in the same file. A dispatch hook in the former is silently dead for
+WNA16 models — no error, no log, no change. If your hook "doesn't fire", overlay a
+one-shot debug print (the launcher's `EXTRA_MOUNT` knob exists for exactly this) before
+assuming your kernel is at fault.
 
 ---
 

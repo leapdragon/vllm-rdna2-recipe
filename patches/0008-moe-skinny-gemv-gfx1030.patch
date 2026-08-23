@@ -1,0 +1,394 @@
+diff --git a/csrc/rocm/ops.h b/csrc/rocm/ops.h
+index d4b2cd4..7a1a483 100644
+--- a/csrc/rocm/ops.h
++++ b/csrc/rocm/ops.h
+@@ -52,3 +52,10 @@ void paged_attention(
+     const std::string& kv_cache_dtype, torch::Tensor& k_scale,
+     torch::Tensor& v_scale, const std::optional<torch::Tensor>& fp8_out_scale,
+     const std::string& mfma_type);
++
++void moe_skinny_int4_decode(const at::Tensor& input, const at::Tensor& w13,
++                            const at::Tensor& w13_scale, const at::Tensor& w2,
++                            const at::Tensor& w2_scale,
++                            const at::Tensor& topk_weights,
++                            const at::Tensor& topk_ids, at::Tensor& act_buf,
++                            at::Tensor& output, const int64_t group_size);
+diff --git a/csrc/rocm/skinny_gemms_int4.cu b/csrc/rocm/skinny_gemms_int4.cu
+index 29b111b..f4da9ca 100644
+--- a/csrc/rocm/skinny_gemms_int4.cu
++++ b/csrc/rocm/skinny_gemms_int4.cu
+@@ -811,3 +811,156 @@ torch::Tensor wvSplitK_int4_g(const at::Tensor& in_a, const at::Tensor& in_b,
+ 
+   return out_c;
+ }
++
++
++// ---------------------------------------------------------------------------
++// MoE decode skinny GEMV (W4A16, symmetric, small M): one wave per output row,
++// lanes stride along K (coalesced weight streaming), activations staged in
++// LDS, silu*mul fused into the gate_up epilogue, topk-weighted reduction
++// inside the down kernel (no atomics). Measures ~432 GB/s effective on
++// gfx1030 at M=1..8 vs ~40 GB/s-class for the tile-based MoE kernels.
++// Layout matches moe_wna16's prepared buffers: qweight k-sequential nibbles,
++// value = (nibble - 8) * scale (symmetric uint4b8), scales [E, rows, K/G].
++// ---------------------------------------------------------------------------
++
++template <int WAVES>
++__global__ void moe_w13_silu_gemv_(
++    const half* __restrict__ input, const uint32_t* __restrict__ w13,
++    const half* __restrict__ s13, const int32_t* __restrict__ topk_ids,
++    half* __restrict__ act, const int K, const int N, const int topk,
++    const int group_size) {
++  const int m = blockIdx.z, s = blockIdx.y;
++  const int wave = threadIdx.x / 32, lane = threadIdx.x % 32;
++  const int n = blockIdx.x * WAVES + wave;
++  extern __shared__ half xs[];
++  for (int i = threadIdx.x; i < K; i += blockDim.x) xs[i] = input[m * K + i];
++  __syncthreads();
++  if (n >= N) return;
++  const int expert = topk_ids[m * topk + s];
++  const int K8 = K / 8, KG = K / group_size;
++  const uint64_t base = (uint64_t)expert * 2 * N;
++  const uint32_t* wg = w13 + (base + n) * K8;
++  const uint32_t* wu = w13 + (base + N + n) * K8;
++  const half* sg = s13 + (base + n) * KG;
++  const half* su = s13 + (base + N + n) * KG;
++  float accg = 0.f, accu = 0.f;
++  for (int i = lane; i < K8; i += 32) {
++    const uint32_t qg = wg[i], qu = wu[i];
++    const int k0 = i * 8;
++    float pg = 0.f, pu = 0.f;
++#pragma unroll
++    for (int j = 0; j < 8; j++) {
++      const float xv = __half2float(xs[k0 + j]);
++      pg += (float)((int)((qg >> (4 * j)) & 0xF) - 8) * xv;
++      pu += (float)((int)((qu >> (4 * j)) & 0xF) - 8) * xv;
++    }
++    const int g = k0 / group_size;
++    accg += pg * __half2float(sg[g]);
++    accu += pu * __half2float(su[g]);
++  }
++#pragma unroll
++  for (int off = 16; off >= 1; off >>= 1) {
++    accg += __shfl_xor(accg, off);
++    accu += __shfl_xor(accu, off);
++  }
++  if (lane == 0) {
++    const float silu = accg / (1.f + __expf(-accg));
++    act[((uint64_t)m * topk + s) * N + n] = __float2half(silu * accu);
++  }
++}
++
++template <int WAVES>
++__global__ void moe_w2_gemv_(
++    const half* __restrict__ act, const uint32_t* __restrict__ w2,
++    const half* __restrict__ s2, const int32_t* __restrict__ topk_ids,
++    const float* __restrict__ topk_w, half* __restrict__ out, const int N,
++    const int H, const int topk, const int group_size) {
++  const int m = blockIdx.z;
++  const int wave = threadIdx.x / 32, lane = threadIdx.x % 32;
++  const int h = blockIdx.x * WAVES + wave;
++  extern __shared__ half as[];
++  for (int i = threadIdx.x; i < topk * N; i += blockDim.x)
++    as[i] = act[(uint64_t)m * topk * N + i];
++  __syncthreads();
++  if (h >= H) return;
++  const int N8 = N / 8, NG = N / group_size;
++  float acc = 0.f;
++  for (int s = 0; s < topk; s++) {
++    const int expert = topk_ids[m * topk + s];
++    const uint32_t* wrow = w2 + ((uint64_t)expert * H + h) * N8;
++    const half* srow = s2 + ((uint64_t)expert * H + h) * NG;
++    const half* xrow = as + s * N;
++    float sacc = 0.f;
++    for (int i = lane; i < N8; i += 32) {
++      const uint32_t q = wrow[i];
++      const int k0 = i * 8;
++      float p = 0.f;
++#pragma unroll
++      for (int j = 0; j < 8; j++)
++        p += (float)((int)((q >> (4 * j)) & 0xF) - 8) * __half2float(xrow[k0 + j]);
++      sacc += p * __half2float(srow[k0 / group_size]);
++    }
++    acc += sacc * topk_w[m * topk + s];
++  }
++#pragma unroll
++  for (int off = 16; off >= 1; off >>= 1) acc += __shfl_xor(acc, off);
++  if (lane == 0) out[(uint64_t)m * H + h] = __float2half(acc);
++}
++
++
++void moe_skinny_int4_decode(
++    const at::Tensor& input, const at::Tensor& w13,
++    const at::Tensor& w13_scale, const at::Tensor& w2,
++    const at::Tensor& w2_scale, const at::Tensor& topk_weights,
++    const at::Tensor& topk_ids, at::Tensor& act_buf, at::Tensor& output,
++    const int64_t group_size) {
++  const int M = input.size(0);
++  const int K = input.size(1);
++  const int topk = topk_ids.size(1);
++  const int N = act_buf.size(2);
++
++  TORCH_CHECK(M >= 1 && M <= 16, "moe_skinny_int4_decode: M must be 1..16");
++  TORCH_CHECK(K % 8 == 0 && N % 8 == 0, "K and N must be divisible by 8");
++  TORCH_CHECK(K % group_size == 0 && N % group_size == 0,
++              "group_size must divide K and N");
++  TORCH_CHECK(input.scalar_type() == at::kHalf &&
++                  w13_scale.scalar_type() == at::kHalf &&
++                  w2_scale.scalar_type() == at::kHalf &&
++                  act_buf.scalar_type() == at::kHalf &&
++                  output.scalar_type() == at::kHalf,
++              "fp16 activations/scales only");
++  TORCH_CHECK(topk_ids.scalar_type() == at::kInt, "topk_ids must be int32");
++  TORCH_CHECK(topk_weights.scalar_type() == at::kFloat,
++              "topk_weights must be float32");
++  TORCH_CHECK(input.is_contiguous() && act_buf.is_contiguous() &&
++                  output.is_contiguous(),
++              "activations must be contiguous");
++  const int64_t elem = w13.element_size();
++  TORCH_CHECK(w13.numel() * elem == (int64_t)w13_scale.size(0) * 2 * N * K / 2,
++              "w13 byte-size mismatch");
++  TORCH_CHECK(w2.numel() * elem == (int64_t)w2_scale.size(0) * K * N / 2,
++              "w2 byte-size mismatch");
++  TORCH_CHECK(output.size(1) == K, "output width must equal hidden size");
++
++  constexpr int WAVES = 8;
++  dim3 block(WAVES * 32);
++  dim3 grid1((N + WAVES - 1) / WAVES, topk, M);
++  dim3 grid2((K + WAVES - 1) / WAVES, 1, M);
++  const cudaStream_t stream = at::cuda::getCurrentCUDAStream();
++
++  moe_w13_silu_gemv_<WAVES><<<grid1, block, K * 2, stream>>>(
++      reinterpret_cast<const half*>(input.const_data_ptr()),
++      reinterpret_cast<const uint32_t*>(w13.const_data_ptr()),
++      reinterpret_cast<const half*>(w13_scale.const_data_ptr()),
++      reinterpret_cast<const int32_t*>(topk_ids.const_data_ptr()),
++      reinterpret_cast<half*>(act_buf.mutable_data_ptr()), K, N, topk,
++      (int)group_size);
++  moe_w2_gemv_<WAVES><<<grid2, block, topk * N * 2, stream>>>(
++      reinterpret_cast<const half*>(act_buf.const_data_ptr()),
++      reinterpret_cast<const uint32_t*>(w2.const_data_ptr()),
++      reinterpret_cast<const half*>(w2_scale.const_data_ptr()),
++      reinterpret_cast<const int32_t*>(topk_ids.const_data_ptr()),
++      reinterpret_cast<const float*>(topk_weights.const_data_ptr()),
++      reinterpret_cast<half*>(output.mutable_data_ptr()), N, K, topk,
++      (int)group_size);
++}
+diff --git a/csrc/rocm/torch_bindings.cpp b/csrc/rocm/torch_bindings.cpp
+index 92dbed7..606dd90 100644
+--- a/csrc/rocm/torch_bindings.cpp
++++ b/csrc/rocm/torch_bindings.cpp
+@@ -37,6 +37,11 @@ TORCH_LIBRARY_EXPAND(TORCH_EXTENSION_NAME, rocm_ops) {
+       "Tensor? in_zero_points, Tensor? in_bias, int CuCount, "
+       "int group_size) -> Tensor");
+   rocm_ops.impl("wvSplitK_int4_g", torch::kCUDA, &wvSplitK_int4_g);
++  rocm_ops.def(
++      "moe_skinny_int4_decode(Tensor input, Tensor w13, Tensor w13_scale, "
++      "Tensor w2, Tensor w2_scale, Tensor topk_weights, Tensor topk_ids, "
++      "Tensor! act_buf, Tensor! output, int group_size) -> ()");
++  rocm_ops.impl("moe_skinny_int4_decode", torch::kCUDA, &moe_skinny_int4_decode);
+ 
+   // Custom gemm op for skinny matrix-matrix multiplication
+   rocm_ops.def(
+diff --git a/vllm/_custom_ops.py b/vllm/_custom_ops.py
+index 553429a..46c068b 100644
+--- a/vllm/_custom_ops.py
++++ b/vllm/_custom_ops.py
+@@ -2168,6 +2168,28 @@ def wvSplitK(
+     return torch.ops._rocm_C.wvSplitK(a, b, bias, cu_count)
+ 
+ 
++def moe_skinny_int4_decode(
++    input: torch.Tensor,
++    w13: torch.Tensor,
++    w13_scale: torch.Tensor,
++    w2: torch.Tensor,
++    w2_scale: torch.Tensor,
++    topk_weights: torch.Tensor,
++    topk_ids: torch.Tensor,
++    act_buf: torch.Tensor,
++    output: torch.Tensor,
++    group_size: int,
++) -> None:
++    """Small-batch W4A16 MoE decode: gate_up+silu*mul then weighted down.
++
++    gfx1030 skinny GEMV pair; symmetric int4 only. See skinny_gemms_int4.cu.
++    """
++    torch.ops._rocm_C.moe_skinny_int4_decode(
++        input, w13, w13_scale, w2, w2_scale, topk_weights, topk_ids,
++        act_buf, output, group_size,
++    )
++
++
+ def wvSplitK_int4_g(
+     weight: torch.Tensor,
+     activation: torch.Tensor,
+diff --git a/vllm/model_executor/layers/fused_moe/experts/triton_moe.py b/vllm/model_executor/layers/fused_moe/experts/triton_moe.py
+index d1bab54..307ef0a 100644
+--- a/vllm/model_executor/layers/fused_moe/experts/triton_moe.py
++++ b/vllm/model_executor/layers/fused_moe/experts/triton_moe.py
+@@ -229,6 +229,46 @@ class TritonExperts(LoRAExpertsMixin, mk.FusedMoEExpertsModular):
+         expert_tokens_meta: mk.ExpertTokensMetadata | None,
+         apply_router_weight_on_input: bool,
+     ):
++        if (
++            self.quant_config.use_int4_w4a16
++            and hidden_states.dtype == torch.float16
++            and hidden_states.shape[0] <= 8
++            and activation == MoEActivation.SILU
++            and expert_map is None
++            and not apply_router_weight_on_input
++            and self.quant_config.w1_zp is None
++            and self.block_shape is not None
++        ):
++            from vllm.model_executor.layers.fused_moe.fused_moe import (
++                _rocm_moe_skinny_available,
++            )
++
++            if _rocm_moe_skinny_available():
++                # gfx1030 decode path: wave-per-row skinny GEMV pair. Writes
++                # the fully topk-combined result into `output`, matching the
++                # invoke+moe_sum tail below.
++                M = hidden_states.shape[0]
++                topk = topk_ids.shape[1]
++                inter = w1.size(1) // 2
++                act_buf = torch.empty(
++                    (M, topk, inter),
++                    dtype=torch.float16,
++                    device=hidden_states.device,
++                )
++                ops.moe_skinny_int4_decode(
++                    hidden_states,
++                    w1,
++                    self.quant_config.w1_scale,
++                    w2,
++                    self.quant_config.w2_scale,
++                    topk_weights.to(torch.float32).contiguous(),
++                    topk_ids.to(torch.int32).contiguous(),
++                    act_buf,
++                    output,
++                    self.block_shape[1],
++                )
++                return
++
+         # Check constraints.
+         if self.quant_config.use_int4_w4a16:
+             assert hidden_states.size(-1) // 2 == w1.size(2), "Hidden size mismatch"
+@@ -616,6 +656,46 @@ class TritonWNA16Experts(TritonExperts):
+         expert_tokens_meta: mk.ExpertTokensMetadata | None,
+         apply_router_weight_on_input: bool,
+     ):
++        if (
++            self.quant_config.use_int4_w4a16
++            and hidden_states.dtype == torch.float16
++            and hidden_states.shape[0] <= 8
++            and activation == MoEActivation.SILU
++            and expert_map is None
++            and not apply_router_weight_on_input
++            and self.quant_config.w1_zp is None
++            and self.block_shape is not None
++        ):
++            from vllm.model_executor.layers.fused_moe.fused_moe import (
++                _rocm_moe_skinny_available,
++            )
++
++            if _rocm_moe_skinny_available():
++                # gfx1030 decode path: wave-per-row skinny GEMV pair. Writes
++                # the fully topk-combined result into `output`, matching the
++                # invoke+moe_sum tail below.
++                M = hidden_states.shape[0]
++                topk = topk_ids.shape[1]
++                inter = w1.size(1) // 2
++                act_buf = torch.empty(
++                    (M, topk, inter),
++                    dtype=torch.float16,
++                    device=hidden_states.device,
++                )
++                ops.moe_skinny_int4_decode(
++                    hidden_states,
++                    w1,
++                    self.quant_config.w1_scale,
++                    w2,
++                    self.quant_config.w2_scale,
++                    topk_weights.to(torch.float32).contiguous(),
++                    topk_ids.to(torch.int32).contiguous(),
++                    act_buf,
++                    output,
++                    self.block_shape[1],
++                )
++                return
++
+         # Check constraints.
+         if self.quant_config.use_int4_w4a16:
+             assert hidden_states.size(-1) // 2 == w1.size(2), (
+diff --git a/vllm/model_executor/layers/fused_moe/fused_moe.py b/vllm/model_executor/layers/fused_moe/fused_moe.py
+index 2652623..79bc7f0 100644
+--- a/vllm/model_executor/layers/fused_moe/fused_moe.py
++++ b/vllm/model_executor/layers/fused_moe/fused_moe.py
+@@ -1279,6 +1279,22 @@ def get_moe_wna16_block_config(
+         return {"BLOCK_SIZE_N": block_size_n, "BLOCK_SIZE_K": block_size_k}
+ 
+ 
++_ROCM_MOE_SKINNY: bool | None = None
++
++
++def _rocm_moe_skinny_available() -> bool:
++    global _ROCM_MOE_SKINNY
++    if _ROCM_MOE_SKINNY is None:
++        import os
++
++        _ROCM_MOE_SKINNY = (
++            current_platform.is_rocm()
++            and os.environ.get("VLLM_ROCM_MOE_SKINNY", "1") == "1"
++            and hasattr(torch.ops._rocm_C, "moe_skinny_int4_decode")
++        )
++    return _ROCM_MOE_SKINNY
++
++
+ def should_moe_wna16_use_cuda(
+     num_valid_tokens: int, group_size: int, num_experts: int, bit: int
+ ):
+@@ -1604,6 +1620,43 @@ def fused_experts(
+     if quant_config is None:
+         quant_config = FUSED_MOE_UNQUANTIZED_CONFIG
+ 
++    if (
++        _rocm_moe_skinny_available()
++        and quant_config.use_int4_w4a16
++        and quant_config.w1_zp is None
++        and quant_config.block_shape is not None
++        and expert_map is None
++        and not apply_router_weight_on_input
++        and activation == MoEActivation.SILU
++        and hidden_states.dtype == torch.float16
++        and hidden_states.shape[0] <= 8
++        and global_num_experts in (-1, w1.shape[0])
++    ):
++        # gfx1030 decode path: wave-per-row skinny GEMV pair (~432 GB/s
++        # effective vs ~40 GB/s-class for the tile kernels at these M).
++        M, K = hidden_states.shape
++        topk = topk_ids.shape[1]
++        inter = w1.shape[1] // 2
++        act_buf = torch.empty(
++            (M, topk, inter), dtype=torch.float16, device=hidden_states.device
++        )
++        out = torch.empty(
++            (M, K), dtype=torch.float16, device=hidden_states.device
++        )
++        ops.moe_skinny_int4_decode(
++            hidden_states.contiguous(),
++            w1,
++            quant_config.w1_scale,
++            w2,
++            quant_config.w2_scale,
++            topk_weights.to(torch.float32).contiguous(),
++            topk_ids.to(torch.int32).contiguous(),
++            act_buf,
++            out,
++            quant_config.block_shape[1],
++        )
++        return out
++
+     return torch.ops.vllm.fused_experts(
+         hidden_states=hidden_states,
+         w1=w1,

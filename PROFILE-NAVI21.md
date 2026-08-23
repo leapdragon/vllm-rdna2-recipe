@@ -32,7 +32,7 @@
 | VRAM | 32 GB GDDR6 (31.98 GiB visible to HIP) | [probed] |
 | Board power | 300 W TBP spec; **our cards report a 232 W cap** and sustain 186–197 W under decode load | [published]/[probed] |
 | Host interface | PCIe 4.0 x16 on the card; **negotiates Gen4 x16 to onboard switches, but the Threadripper 2950X root ports are Gen3** (x16 for devices 1/3, x8 for devices 0/2) — platform-limited, not card-limited | [probed] |
-| Fleet on PhoenixWolf | 4× V620 (devices 0/1/3/4, gfx1030) + 1× RX 6700 XT (device 2, Navi 22/gfx1031, 12 GB, runs gfx1030 binaries via `HSA_OVERRIDE_GFX_VERSION=10.3.0`) | [probed] |
+| Fleet on this machine | 3× V620 installed (devices 0/1/3, gfx1030; a fourth on hand, not yet installed) + 1× RX 6700 XT (device 2, Navi 22/gfx1031, 12 GB, display; runs gfx1030 binaries via `HSA_OVERRIDE_GFX_VERSION=10.3.0`) | [probed] |
 | Availability for profiling | **All local inference is switched off for the duration of this profiling program** (user decision, 2026-08-19; server stopped and verified 15:0x — 0 KFD client processes, all V620s at 0% VRAM). Every device, including the 1+3 pair, is available. Multi-GPU tests (T-N1/T-N2) no longer need scheduling around a live server. | — |
 
 ## 2. Compute organization

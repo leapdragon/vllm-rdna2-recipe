@@ -47,10 +47,25 @@ All in `config/serve-rdna2-tp2.sh`. Each is individually reversible.
 | `AR_RDNA2` | 1 | +1.9% | All-reduce plugin. |
 | `--kv-cache-dtype` | `int8_per_token_head` | large at long context | |
 | `VLLM_DISABLED_KERNELS` | forces Exllama | ~4 t/s → ~10 t/s class | See pitfalls in 01. |
-| `MTP` | **2** | +24% @41k, +36% @14k | Speculative decoding via the checkpoint's own MTP head; output-lossless. **Requires the shipped `fd_rdna2`** (batched verification) or it becomes a 3.6× regression. `MTP=0` disables. |
+| `MTP` | **2** | 27B: +24% @41k, +36% @14k · 122B: +47% @3.5k, +30% @13k, parity @40k | Speculative decoding via the checkpoint's own MTP head; output-lossless. **Requires the shipped `fd_rdna2`** (batched verification) or it becomes a large regression, and **under PP it additionally requires the V2 runner + TunableOp lm_head rows** (Intel BUILD.md). `MTP=0` disables. |
 | `TUNEOP_TUNING` | **0** | prevents minutes-long prefill stalls | TunableOp lookup-only; `1` re-enables autotuning for deliberate offline sessions only. See pitfalls in 01. |
-| `FD_MAXQ` | 4 | — | Widest verification batch the attention plugin takes; the batched kernel packs nq×8 columns into 32. |
+| `FD_MAXQ` | 4 | — | Widest verification batch the attention plugin takes. The one-KV-pass batched kernel covers `nq × PAD ≤ 32` columns (PAD 8 at GQA ≤ 8, 16 at GQA ≤ 16); wider cases run per-position passes of the same kernel. |
 | `--max-num-batched-tokens` (`BATCHTOK`) | **8192** | swept optimum | 4096 and 16384 both measure worse at mid/long context. |
+
+| `--tensor-parallel-size` | 2 | | Must be the two ×16-rooted cards (27B builds). The 122B uses `TP=1 PP=3` instead — see below. |
+| Card power cap | 232 W | **free** | Decode is bandwidth-bound; the ~30% clock throttling it causes does not slow decode. |
+
+**Pipeline-parallel / MTP-under-PP knobs** (added for the 122B build; harmless elsewhere):
+
+| Setting | Value (122B) | Notes |
+|---|---|---|
+| `PP` | 3 | `--pipeline-parallel-size` (layer split). TP=3 is arithmetically impossible on this model (2 KV heads). |
+| `PP_PARTITION` | `17,17,14` | Uneven layer split (`VLLM_PP_LAYER_PARTITION`); unloads the last stage, which hosts the MTP draft model. |
+| `EXTRA_ENV` | `VLLM_USE_V2_MODEL_RUNNER=1` | **MTP under PP requires the V2 model runner** — the V1 drafter path page-faults under PP (patch 0009's section in 01-PATCHES). Comma-separated `NAME=VALUE` passthrough. |
+| `ASYNC_SCHED` | leave default | `0` forces sync scheduling — needed only for MTP-under-PP experiments on the V1 runner (its async PP broadcast assumes width-1 samples). Unnecessary on V2. |
+| `SPEC_EAGER` | leave default | `1` runs only the drafter eager (diagnostic; isolates drafter-cudagraph interplay). |
+| `MOE_CFG` | build-provided | Mounts a tuned fused-MoE config JSON into vLLM's configs dir. |
+| `EXTRA_MOUNT` | — | Comma-separated `host:container` overlays for rebuild-free iteration. |
 
 **Note on the launcher's paths and bind mounts:** every host path in
 `config/serve-rdna2-tp2.sh` is an environment variable with a sensible default —
@@ -61,8 +76,6 @@ checkout and the launcher bind-mounts the most-edited source files (`rocm.py`, a
 the W4A16 kernels) over the image's copies, so post-bake patch changes deploy without a
 rebuild. Leave it unset and the image's baked copies run — correct whenever your image was
 built from the fully-patched tree.
-| `--tensor-parallel-size` | 2 | | Must be the two ×16-rooted cards. |
-| Card power cap | 232 W | **free** | Decode is bandwidth-bound; the ~30% clock throttling it causes does not slow decode. |
 
 ## When the pins don't hold
 
@@ -82,6 +95,9 @@ carry; the numbers will not.
 **Upstream lands PR #52391.** Then patch 0001 is redundant — check before applying.
 
 ## Verifying you arrived
+
+The expectations below are for the reference 27B GPTQ build at TP=2; every other build's
+numbers are in its own `builds/<model>/BUILD.md`.
 
 ```bash
 verify/validate.py --compare verify/baseline-rccl.json    # expect: identical=8 diverged=0 (MTP on or off)

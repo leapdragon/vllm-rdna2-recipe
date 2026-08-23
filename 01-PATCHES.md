@@ -13,7 +13,9 @@ tar xzf /tmp/vllm-0.27.1.tar.gz -C /tmp && cd /tmp/vllm-0.27.1
 for p in /path/to/recipe/patches/*.patch; do patch -p1 < "$p"; done
 ```
 
-All nine apply cleanly to unmodified 0.27.1 (verified with `patch --dry-run`). If one fails
+All nine apply cleanly to unmodified 0.27.1, and the fully-patched tree has been verified
+byte-for-byte against the tree every published number was measured on (6,361 files compared;
+last verified 2026-08-23, after patch 0009). If one fails
 because you are on a different vLLM version, **do not force it** — read what it accomplishes below
 and re-implement, then run its verification line. A fuzzy-applied hunk that lands in the wrong
 place is worse than no patch, because it fails silently.
@@ -240,7 +242,7 @@ Both register through vLLM's `vllm.general_plugins` entry point and are **off un
 
 | | env | what it does | worth |
 |---|---|---|---|
-| `fd_rdna2` | `FD_RDNA2=1` | replaces decode attention with a flash-decode kernel using byte-sliced `tl.dot` over the int8 KV layout; **also handles speculative-verification batches** (`max_seqlen_q` ≤ `FD_MAXQ`=4) by packing all query positions into one KV pass | context slope **6.06× flatter**; makes MTP a win instead of a 3.6× loss |
+| `fd_rdna2` | `FD_RDNA2=1` | replaces decode attention with a flash-decode kernel using byte-sliced `tl.dot` over the int8 KV layout; **also handles speculative-verification batches** (`max_seqlen_q` ≤ `FD_MAXQ`=4). Geometry-general since 2026-08-23: shapes derive from the cache, any GQA ≤ 16 (the 27B's 24q/4kv and the 122B's 32q/2kv both covered); one-KV-pass batching for `nq × PAD ≤ 32` columns, per-position passes of the same kernel beyond. Correctness harness: `verify/fd_gqa_test.py` | context slope **6.06× flatter**; makes MTP a win instead of a large loss |
 | `ar_rdna2` | `AR_RDNA2=1` | replaces the TP=2 all-reduce with a push-based one-shot collective | +1.9% |
 
 ⚠️ **If you enable MTP, you need this exact `fd_rdna2`.** Speculative verification carries
@@ -272,10 +274,18 @@ allocation churn correlated with an `svm_range_restore_work [amdgpu]` kernel sto
 two hard system crashes. If you do run an offline tuning session, raise the engine watchdog
 first (`EXEC_TIMEOUT=3600`, i.e. `VLLM_EXECUTE_MODEL_TIMEOUT_SECONDS`): a tuning forward pass
 can stall for minutes, and the default 300 s watchdog declares the engine dead mid-tune — a
-clean shutdown that looks like a crash. The csv flushes incrementally, so an aborted session
-keeps what it tuned. Expect diminishing returns fast: chunk-sized shapes tune in one long
-prompt; everything after that is one-off prompt-length-dependent tail shapes worth nothing in
-lookup-only production.
+clean shutdown that looks like a crash. The csv flushes incrementally but the LAST
+entries are written at process exit — stop a tuning session gracefully (`docker stop`, not
+`docker rm -f`/SIGKILL) or the tail of what it tuned is lost. Expect diminishing returns fast:
+chunk-sized shapes tune in one long prompt; everything after that is one-off
+prompt-length-dependent tail shapes worth nothing in lookup-only production. One class of
+shape never gets tuned in-server at all in our experience: the fp16 logits GEMM (hidden ×
+vocab at M ≤ 4). On CDNA, vLLM routes it to a hand-written skinny kernel; that path is
+arch-gated off gfx1030, the default Tensile pick runs it ~4× slow (10.6 ms per speculative
+verification step on the 122B), and in-server tuning sessions never touched the shape. Tune
+it OFFLINE with a bare `torch.nn.functional.linear` loop under `PYTORCH_TUNABLEOP_TUNING=1`
+and merge the resulting `tn_<vocab>_*` rows into your per-rank csvs — the one-liner is in
+the Intel build's BUILD.md.
 
 **Triton's default `num_stages` costs ~2× on this chip.** Triton defaults to 3-stage software
 pipelining, which multiplies each kernel's K/V tile footprint in LDS; at head_size 256 that

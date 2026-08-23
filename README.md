@@ -34,7 +34,7 @@ This is **not** a fork, a distribution, or an installable package. It is a **rec
 are shared for v620 model use, and then for each optimized model (see 'builds/'), needed patches or configuration items to
 enable support and/or optimize performance when applied against pristine vLLM 0.27.1, along with:
 
-- Achieved performance data across two v620 cards on my system (so far I haven't tried any 3x or 4x configs)
+- Achieved performance data on my system: two-card (TP=2) configs for the 27B builds, and a three-card (PP=3) config for the 122B MoE
 - Summaries of what was done foreach model
 
 This project is deliberately shaped to be handed to your LLM along with instructions to consume and then build and/or optimize your
@@ -116,6 +116,11 @@ and more distributable than this for the RDNA2 family cards (hell I would use it
   recovery off converts hangs into a dead process instead of a dead machine). A crash
   mid-compile can leave a truncated artifact in the compile cache
   (`module ... has no attribute 'triton_poi_...'`) — wipe the cache directory.
+- **MTP on the 122B is a win only up to ~mid context.** At ~40k it measures parity with
+  MTP=0 (each verification re-reads the KV history once per draft position; the passes are
+  already near kernel bandwidth), and time-to-first-token with MTP on is not yet honestly
+  measured (the drafter re-processes prompt chunks to prime itself). Both are open items in
+  the Intel build's BUILD.md.
 - **Multi-stream decode on the AWQ/asymmetric path is unmeasured.** The HIP skinny GEMV that
   gives the hybrid kernel its decode speed covers batches of ≤5 rows; concurrent MTP streams
   exceed that and fall to a slower path. Single-stream numbers are solid; batch serving on that

@@ -57,9 +57,10 @@ PP_PART_ENV=()
 [ -n "${PP_PARTITION:-}" ] && PP_PART_ENV=(-e VLLM_PP_LAYER_PARTITION="${PP_PARTITION}")
 DEVICES="${DEVICES:-1,3}"                 # the two x16-rooted V620s
 SERVE_EXTRA=""
-# The optimisation set (W4 blocking, both plugins) is baked into the -v2 image. DEV=1 instead
-# mounts the working plugin trees and installs them at start, for iterating without a rebuild.
-IMG="${IMG:-vllm-gfx1030:0.27.1-patched-v2}"
+# IMG: the image you built from the nine patches + plugins (02-VERSIONS build order).
+# DEV=1 instead mounts the repo's plugin trees and installs them at start, for
+# iterating on plugin code without a rebuild.
+IMG="${IMG:-vllm-gfx1030:0.27.1-patched}"
 # Model under test. Defaults to the GPTQ quant every recorded number was measured on;
 # override for experiments, e.g. MODEL=amd/Qwen3.8-27B-Quark-AWQ-MXFP4 QUANT=quark.
 MODEL="${MODEL:-btbtyler09/Qwen3.8-27B-GPTQ-4bit}"

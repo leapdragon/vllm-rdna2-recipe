@@ -13,16 +13,17 @@ Covers the 27B geometry (GQA 6 / KVH 4, PAD 8 — regression guard) and the
 
 Run inside the serving container (needs triton + one GPU):
   docker run --rm --entrypoint python3 --device /dev/kfd --device /dev/dri \
-    -e HSA_OVERRIDE_GFX_VERSION=10.3.0 -e ROCR_VISIBLE_DEVICES=1 \
-    -v /home/perfekt/repos/vllm-rdna2:/repo vllm-gfx1030:0.27.1-patched-v5 \
-    /repo/bench/attn/fd_gqa_test.py
+    --group-add render --group-add video \
+    -e HSA_OVERRIDE_GFX_VERSION=10.3.0 -e ROCR_VISIBLE_DEVICES=0 \
+    -v <recipe-root>:/repo <your-vllm-gfx1030-image> \
+    /repo/verify/fd_gqa_test.py
 """
 import sys
 import time
 
 import torch
 
-sys.path.insert(0, "/repo/builds/shared/plugins/fd_rdna2")
+sys.path.insert(0, "/repo/builds/shared/plugins/fd_rdna2")  # recipe root mounted at /repo
 from fd_rdna2.fd_kernel2 import (fd2_decode, fd2_decode_mq, permute_q,
                                  permute_q_mq)
 

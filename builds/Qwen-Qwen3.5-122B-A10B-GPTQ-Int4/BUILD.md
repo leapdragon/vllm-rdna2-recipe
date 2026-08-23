@@ -11,7 +11,7 @@ The first model class this machine could not previously reach: too big for the T
 (no W4 fits 2×32 GB), and TP=3 is arithmetically impossible (2 KV heads, 32 Q heads, 256
 experts — nothing divides by 3). Pipeline parallelism is the only vLLM route on three
 cards, and this build proves it works. It is also the `moe_wna16`-on-gfx1030 pathfinder —
-the first MoE expert kernels ever run on this chip (predicted and confirmed).
+the first MoE expert kernels ever run on this chip (RESEARCH-4CARD.md risk #1, confirmed).
 
 ## The quantization — read the `dynamic` map before estimating anything
 
@@ -49,14 +49,14 @@ serves this model class at usable rates; vLLM decode is not yet competitive — 
    winners baked into `moe-config-gfx1030.json`, mounted via the launcher's `MOE_CFG` knob
    to the exact path vLLM's warning names. Result: **decode +11%, prefill +75%**.
    All winners use `num_stages=1` (the standing rule holds for this kernel too).
-4. **Decode is kernel-overhead-bound, not config-bound**: the swept optimum at M=8
-   (3.5 ms/layer) ≈ the default's 3.2 — while the bandwidth cost of the 8 active experts'
-   weights is ~0.075 ms. The Triton fused-MoE machinery (routing, alignment, tiny-tile
-   launches over 256 experts) is ~45× off bandwidth at batch-1. vLLM has a dedicated CUDA
-   `moe_wna16` kernel for exactly this regime, but it is `is_cuda()`-gated and absent from
-   our ROCm build. **The follow-on campaign** (days, WS-scale): port/HIPify that kernel or
-   write a wvSplitK-style batched expert GEMV — realistic target ~20–25 t/s against the
-   28 t/s backbone ceiling.
+4. **The CUDA `moe_wna16` kernel is now ported to gfx1030** (patch 0007) and this
+   build runs it: correct in-server, ~1.1× the Triton path at real decode sizes. That
+   port also *corrected the attribution*: T36's "MoE is 45× off bandwidth" came from
+   sweeping M=8; at the real M=1 the MoE costs ~46 ms of the 140 ms token. The rest is
+   ~45 ms of bf16 backbone streaming (this quant's unquantized attention/GDN — fixable
+   only by a backbone-quantized checkpoint, which would lift the ceiling toward
+   ~55 t/s) and ~50 ms unattributed with decode graphs confirmed captured (PP stage
+   handoffs suspected — profiling is the open lever).
 
 ## Working configuration — deltas from the shared launcher
 

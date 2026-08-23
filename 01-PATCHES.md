@@ -2,7 +2,7 @@
 
 Copyright © 2026 Aron Hsiao · GPL-3.0-or-later (see LICENSE)
 
-Six patches against **pristine vLLM 0.27.1**. Plus two net-new plugin
+Seven patches against **pristine vLLM 0.27.1**. Plus two net-new plugin
 packages under `builds/shared/plugins/`, which patch nothing — they install and register themselves.
 
 ## Applying
@@ -138,6 +138,33 @@ list keeps the hybrid kernel off there.
 `DISABLED_KERNELS=RDNA3W4A16LinearKernel,ConchLinearKernel` (the shared launcher exposes this
 override) and look for `Using RDNAHybridW4A16LinearKernel for CompressedTensorsWNA16` in the
 log. See `builds/cyankiwi-Qwen3.8-27B-AWQ-INT4/` for a complete working configuration.
+
+---
+
+## 0007 — CUDA moe_wna16 MoE kernel on ROCm/gfx1030 · *for W4 MoE models (e.g. Qwen3.5-122B-A10B)*
+
+**What:** seven files, ~70 lines. vLLM ships a dedicated small-batch W4A16 MoE GEMM
+(`csrc/libtorch_stable/moe/moe_wna16.cu`) that was CUDA-only at four layers: the CMake
+source list, the op declaration/binding, and two Python gates. The device code needed
+exactly three portable substitutions — the `lop3` PTX helper's only LUT is `(a & b) | c`,
+`prmt` maps to HIP's native `__byte_perm`, and `nv_bfloat16` gets type aliases (hipify
+converts the header include but not the type names) — plus a CAS-loop fp16 `atomicAdd`
+(gfx10 has no fp16 global atomics) and one `res2 = {};` → `scalar_t2()` (ambiguous for
+HIP's `__half2`). The bf16 code paths self-discard when `__CUDA_ARCH__` is undefined, so
+they cost nothing. Touches `.cu`/CMake → rebuild the extension after applying.
+
+**Why, honestly:** at real decode batch sizes it measures ~1.1× vLLM's Triton fused-MoE
+path — worthwhile but not transformative, and the port's bigger value was diagnostic: on
+the official Qwen 122B quant, decode is split roughly evenly between the MoE experts,
+the checkpoint's *unquantized bf16 backbone* (see the build's BUILD.md), and
+pipeline-parallel overhead. Don't expect this patch alone to change end-to-end numbers;
+apply it because it is correct, slightly faster, and required groundwork for any future
+W4 MoE work on this platform.
+
+**Verify:** `python3 -c "import torch, vllm._custom_ops; print(hasattr(torch.ops._moe_C, 'moe_wna16_gemm'))"`
+inside the container → `True`, and the serving log stops routing small batches through the
+Triton path. Correctness: greedy outputs vs a pre-patch baseline (ours: 7/8 identical,
+factual PASS).
 
 ---
 

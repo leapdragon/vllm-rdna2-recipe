@@ -1,0 +1,216 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 54374c2..13052fe 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1201,11 +1201,13 @@ set(VLLM_MOE_EXT_SRC
+   "csrc/libtorch_stable/moe/torch_bindings.cpp"
+   "csrc/libtorch_stable/moe/moe_align_sum_kernels.cu"
+   "csrc/libtorch_stable/moe/topk_softmax_kernels.cu"
+-  "csrc/libtorch_stable/moe/topk_softplus_sqrt_kernels.cu")
++  "csrc/libtorch_stable/moe/topk_softplus_sqrt_kernels.cu"
++  # moe_wna16 builds for HIP too: its PTX helpers have portable ROCm
++  # equivalents in moe_wna16_utils.h (gfx1030 W4 MoE decode path)
++  "csrc/libtorch_stable/moe/moe_wna16.cu")
+ 
+ if(VLLM_GPU_LANG STREQUAL "CUDA")
+   list(APPEND VLLM_MOE_EXT_SRC
+-    "csrc/libtorch_stable/moe/moe_wna16.cu"
+     "csrc/libtorch_stable/moe/grouped_topk_kernels.cu")
+ endif()
+ 
+diff --git a/csrc/libtorch_stable/moe/moe_ops.h b/csrc/libtorch_stable/moe/moe_ops.h
+index 03525a0..5b85122 100644
+--- a/csrc/libtorch_stable/moe/moe_ops.h
++++ b/csrc/libtorch_stable/moe/moe_ops.h
+@@ -54,7 +54,6 @@ void moe_lora_align_block_size(
+     torch::stable::Tensor num_tokens_post_pad,
+     torch::stable::Tensor adapter_enabled, torch::stable::Tensor lora_ids,
+     std::optional<torch::stable::Tensor> maybe_expert_map);
+-#ifndef USE_ROCM
+ torch::stable::Tensor moe_wna16_gemm(
+     torch::stable::Tensor input, torch::stable::Tensor output,
+     torch::stable::Tensor b_qweight, torch::stable::Tensor b_scales,
+@@ -65,6 +64,8 @@ torch::stable::Tensor moe_wna16_gemm(
+     int64_t BLOCK_SIZE_M, int64_t BLOCK_SIZE_N, int64_t BLOCK_SIZE_K,
+     int64_t bit);
+ 
++#ifndef USE_ROCM
++
+ std::tuple<torch::stable::Tensor, torch::stable::Tensor> grouped_topk(
+     const torch::stable::Tensor& scores, int64_t n_group, int64_t topk_group,
+     int64_t topk, bool renormalize, double routed_scaling_factor,
+diff --git a/csrc/libtorch_stable/moe/moe_wna16.cu b/csrc/libtorch_stable/moe/moe_wna16.cu
+index 9345a7c..86ebd8e 100644
+--- a/csrc/libtorch_stable/moe/moe_wna16.cu
++++ b/csrc/libtorch_stable/moe/moe_wna16.cu
+@@ -13,6 +13,35 @@
+ 
+ #define DIVIDE(x, size) (((x) + (size) - 1) / (size))
+ 
++#ifdef USE_ROCM
++// gfx10 has no fp16 global atomic add; CAS on the containing 32-bit word.
++// Only the half instantiation runs on ROCm (bf16 is constexpr-discarded).
++__device__ inline void atomic_add_scalar(__half* address, __half val) {
++  uintptr_t addr_ui = reinterpret_cast<uintptr_t>(address);
++  auto* base = reinterpret_cast<unsigned int*>(addr_ui & ~uintptr_t(2));
++  const bool hi_half = (addr_ui & 2) != 0;
++  unsigned int old = *base, assumed;
++  do {
++    assumed = old;
++    __half cur = __ushort_as_half(
++        hi_half ? (unsigned short)(old >> 16) : (unsigned short)(old & 0xffff));
++    unsigned short sum = __half_as_ushort(__hadd(cur, val));
++    unsigned int updated = hi_half ? ((old & 0x0000ffffu) | ((unsigned int)sum << 16))
++                                   : ((old & 0xffff0000u) | sum);
++    old = atomicCAS(base, assumed, updated);
++  } while (assumed != old);
++}
++__device__ inline void atomic_add_scalar(nv_bfloat16*, nv_bfloat16) {
++  // unreachable on ROCm: the bf16 kernel body is discarded before this point
++  __builtin_trap();
++}
++#else
++template <typename T>
++__device__ inline void atomic_add_scalar(T* address, T val) {
++  atomicAdd(address, val);
++}
++#endif
++
+ template <typename scalar_t, int bit, int GROUPS>
+ __global__ void moe_wna16_gemm_kernel(
+     const scalar_t* __restrict__ input, scalar_t* __restrict__ output,
+@@ -193,7 +222,7 @@ __global__ void moe_wna16_gemm_kernel(
+       dequant<scalar_t2, bit>(expert_qweight_tmp[tmp_k % 4], weight_half2);
+ 
+       for (int m = 0; m < num_valid_tokens; m++) {
+-        res2 = {};
++        res2 = scalar_t2();
+ 
+ #pragma unroll
+         for (int i = 0; i < 16 / bit; i++) {
+@@ -216,8 +245,8 @@ __global__ void moe_wna16_gemm_kernel(
+       if (mul_topk_weight) {
+         res[m] *= topk_weights[token_index];
+       }
+-      atomicAdd(&output[token_index * size_n + offset_n],
+-                Dtype::float2num(res[m]));
++      atomic_add_scalar(&output[token_index * size_n + offset_n],
++                        Dtype::float2num(res[m]));
+     }
+ 
+ #if !defined(__CUDA_ARCH__) || __CUDA_ARCH__ < 800
+diff --git a/csrc/libtorch_stable/moe/moe_wna16_utils.h b/csrc/libtorch_stable/moe/moe_wna16_utils.h
+index 8ef03f0..a4010a6 100644
+--- a/csrc/libtorch_stable/moe/moe_wna16_utils.h
++++ b/csrc/libtorch_stable/moe/moe_wna16_utils.h
+@@ -2,6 +2,14 @@
+ #include <cuda_fp16.h>
+ #include <cuda_bf16.h>
+ 
++#ifdef USE_ROCM
++// hipify maps the cuda_bf16.h include but not these NVIDIA type names
++#include <hip/hip_bf16.h>
++using nv_bfloat16 = __hip_bfloat16;
++using nv_bfloat162 = __hip_bfloat162;
++#endif
++
++
+ template <typename scalar_t>
+ class ScalarType {};
+ 
+@@ -78,6 +86,21 @@ class ScalarType<nv_bfloat16> {
+ #endif
+ };
+ 
++#ifdef USE_ROCM
++// Portable equivalents of the PTX helpers below. Every lop3 call site in this
++// file uses LUT 0xEA = (a & b) | c, and prmt with these operands is exactly
++// HIP's native __byte_perm (both lower to v_perm_b32 / bitwise ops on AMD).
++template <int lut>
++__device__ inline int lop3(int a, int b, int c) {
++  static_assert(lut == ((0xf0 & 0xcc) | 0xaa), "only (a & b) | c is used");
++  return (a & b) | c;
++}
++
++template <int start_byte, int mask>
++__device__ inline uint32_t prmt(uint32_t a) {
++  return __byte_perm(a, start_byte, mask);
++}
++#else
+ template <int lut>
+ __device__ inline int lop3(int a, int b, int c) {
+   int res;
+@@ -95,6 +118,7 @@ __device__ inline uint32_t prmt(uint32_t a) {
+                : "r"(a), "n"(start_byte), "n"(mask));
+   return res;
+ }
++#endif
+ 
+ template <typename scalar_t2, int bit>
+ __device__ inline void dequant(int q, scalar_t2* res) {}
+diff --git a/csrc/libtorch_stable/moe/torch_bindings.cpp b/csrc/libtorch_stable/moe/torch_bindings.cpp
+index c6467f1..af0370f 100644
+--- a/csrc/libtorch_stable/moe/torch_bindings.cpp
++++ b/csrc/libtorch_stable/moe/torch_bindings.cpp
+@@ -64,7 +64,6 @@ STABLE_TORCH_LIBRARY_FRAGMENT(_moe_C, m) {
+       "                     Tensor !adapter_enabled,"
+       "                     Tensor !lora_ids,"
+       "                     Tensor? maybe_expert_map) -> () ");
+-#ifndef USE_ROCM
+   m.def(
+       "moe_wna16_gemm(Tensor input, Tensor! output, Tensor b_qweight, "
+       "Tensor b_scales, Tensor? b_qzeros, "
+@@ -73,6 +72,7 @@ STABLE_TORCH_LIBRARY_FRAGMENT(_moe_C, m) {
+       "int top_k, int BLOCK_SIZE_M, int BLOCK_SIZE_N, int BLOCK_SIZE_K, "
+       "int bit) -> Tensor");
+ 
++#ifndef USE_ROCM
+   m.def(
+       "moe_wna16_marlin_gemm(Tensor! a, Tensor? c_or_none,"
+       "Tensor! b_q_weight, Tensor? b_bias_or_none,"
+@@ -142,8 +142,8 @@ STABLE_TORCH_LIBRARY_IMPL(_moe_C, CUDA, m) {
+   m.impl("batched_moe_align_block_size",
+          TORCH_BOX(&batched_moe_align_block_size));
+   m.impl("moe_lora_align_block_size", TORCH_BOX(&moe_lora_align_block_size));
+-#ifndef USE_ROCM
+   m.impl("moe_wna16_gemm", TORCH_BOX(&moe_wna16_gemm));
++#ifndef USE_ROCM
+   m.impl("shuffle_rows", TORCH_BOX(&shuffle_rows));
+   m.impl("grouped_topk", TORCH_BOX(&grouped_topk));
+ #endif
+diff --git a/vllm/_custom_ops.py b/vllm/_custom_ops.py
+index 8c1cc10..553429a 100644
+--- a/vllm/_custom_ops.py
++++ b/vllm/_custom_ops.py
+@@ -2320,9 +2320,9 @@ def moe_wna16_gemm(
+     BLOCK_SIZE_K: int,
+     bit: int,
+ ) -> torch.Tensor:
+-    if not current_platform.is_cuda():
++    if not (current_platform.is_cuda() or current_platform.is_rocm()):
+         raise NotImplementedError(
+-            "The optimized moe_wna16_gemm kernel is only available on CUDA platforms"
++            "The optimized moe_wna16_gemm kernel is only available on CUDA/ROCm"
+         )
+     torch.ops._moe_C.moe_wna16_gemm(
+         input,
+diff --git a/vllm/model_executor/layers/fused_moe/fused_moe.py b/vllm/model_executor/layers/fused_moe/fused_moe.py
+index be49300..2652623 100644
+--- a/vllm/model_executor/layers/fused_moe/fused_moe.py
++++ b/vllm/model_executor/layers/fused_moe/fused_moe.py
+@@ -1282,9 +1282,13 @@ def get_moe_wna16_block_config(
+ def should_moe_wna16_use_cuda(
+     num_valid_tokens: int, group_size: int, num_experts: int, bit: int
+ ):
++    if not (current_platform.is_cuda() or current_platform.is_rocm()):
++        return False
++    if current_platform.is_rocm() and not hasattr(torch.ops._moe_C, "moe_wna16_gemm"):
++        # older ROCm builds do not compile the kernel
++        return False
+     return (
+-        current_platform.is_cuda()
+-        and bit == 4
++        bit == 4
+         and group_size in [32, 64, 128]
+         and num_valid_tokens / num_experts <= 6
+     )

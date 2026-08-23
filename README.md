@@ -63,7 +63,7 @@ Used in my case with:
 | **[PROFILE-NAVI21.md](PROFILE-NAVI21.md)** | Emergency break-glass option if success is elusive. The full silicon profile behind 00-HARDWARE's summary: 37 measured tests covering compute, memory, interconnect, and the design rules they imply. Don't pay attention to too many of the wild-eyed WAGs in it, as it hasn't really been cleaned up, but there's a lot of basic reference here resulting from empirical poking and prodding of the chip. |
 
 ```
-patches/    six patches against pristine vLLM 0.27.1
+patches/    seven patches against pristine vLLM 0.27.1
 builds/     one directory per model we've actually brought up and optimized,
             named for the Hugging Face model id — each contains BUILD.md
             (the document of record: the model's structure, its quantization
@@ -113,6 +113,16 @@ and more distributable than this for the RDNA2 family cards (hell I would use it
   build needs measuring first.
 
 ## Changelog
+
+**2026-08-23 (later) — patch 0007: the CUDA moe_wna16 MoE kernel ported to gfx1030.**
+An afternoon-scale port (portable lop3/prmt/bf16 substitutions, CAS fp16 atomicAdd, four
+un-gating layers). Correct in-server; ~1.1× the Triton MoE path at decode sizes. Its main
+value was diagnostic: on the official 122B quant, decode splits roughly evenly between MoE
+kernels, the checkpoint's unquantized bf16 backbone, and PP overhead — so this patch alone
+does not move end-to-end numbers, and the 122B build's BUILD.md now carries the corrected
+token budget. Lesson shipped with it: benchmark MoE kernels at the batch size the server
+actually runs (M = tokens × top-k at decode is still tiny), not a convenient synthetic M.
+
 
 **2026-08-23 — first model beyond two cards: Qwen3.5-122B-A10B at PP=3.**
 `builds/Qwen-Qwen3.5-122B-A10B-GPTQ-Int4/` — the official GPTQ 122B MoE across three V620s

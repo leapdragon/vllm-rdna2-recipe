@@ -9,7 +9,7 @@
 # from the shared kernel disable list: it enables RDNAHybridW4A16 (HIP skinny
 # GEMV decode + dequant-to-dense rocBLAS prefill), which needs patch
 # 0006-rdna-hybrid-w4a16-gfx1030.patch baked into the image. See BUILD.md.
-IMG="${IMG:-vllm-gfx1030:0.27.1-patched-v3}" \
+# patch 0006 (RDNA-hybrid W4A16) must be in your image \
 MODEL="cyankiwi/Qwen3.8-27B-AWQ-INT4" \
 SERVED="qwen38-27b-awq" \
 QUANT="compressed-tensors" \

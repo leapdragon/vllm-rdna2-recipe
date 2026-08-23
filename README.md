@@ -114,6 +114,15 @@ and more distributable than this for the RDNA2 family cards (hell I would use it
 
 ## Changelog
 
+**2026-08-23 (evening) — 122B build replaced: backbone-quantized checkpoint doubles decode.**
+`builds/Intel-Qwen3.5-122B-A10B-int4-AutoRound/` supersedes the official-GPTQ build. The
+lesson that matters: the official Qwen GPTQ quantizes only the *experts*, leaving ~18 GB of
+bf16 backbone streaming every token (extra-painful on gfx1030, which has no native bf16).
+Intel's AutoRound covers the backbone (shared expert fp16, MTP untouched) — verified from
+config + tensor-index metadata alone, before downloading a byte. Decode 7.1 → **15.7 t/s**,
+same serving config. Read a MoE checkpoint's exclusion map before trusting its name.
+
+
 **2026-08-23 (later) — patch 0007: the CUDA moe_wna16 MoE kernel ported to gfx1030.**
 An afternoon-scale port (portable lop3/prmt/bf16 substitutions, CAS fp16 atomicAdd, four
 un-gating layers). Correct in-server; ~1.1× the Triton MoE path at decode sizes. Its main

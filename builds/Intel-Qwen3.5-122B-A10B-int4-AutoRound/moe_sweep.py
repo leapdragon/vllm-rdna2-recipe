@@ -1,5 +1,3 @@
-# Copyright (C) 2026 Aron Hsiao
-# SPDX-License-Identifier: GPL-3.0-or-later
 """Offline sweep of fused_moe int4_w4a16 configs at the 122B's exact shapes.
 
 E=256 experts, N=1024 (moe_intermediate), K=3072 (hidden), topk=8, group 128.

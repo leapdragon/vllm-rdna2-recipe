@@ -11,7 +11,7 @@
 # unused (PP forbids speculation). MoE config JSON carries the gfx1030 sweep
 # winners (same E=256/N=1024 shapes as the predecessor build).
 MOE_CFG="${MOE_CFG:-$(cd "$(dirname "$0")" && pwd)/moe-config-gfx1030.json:E=256,N=1024,device_name=AMD_RADEON_PRO_V620_Azure,dtype=int4_w4a16.json}" \
-# patch 0007 (moe_wna16) must be in your image \
+# patches 0007 AND 0008 (MoE kernels) must be in your image \
 MODEL="Intel/Qwen3.5-122B-A10B-int4-AutoRound" \
 SERVED="qwen35-122b-autoround" \
 QUANT="gptq" \

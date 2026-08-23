@@ -41,7 +41,7 @@ router/GDN/PP overhead, and MTP stays blocked under PP.
 
 ## Working configuration
 
-Inherited from the predecessor unchanged: `TP=1 PP=3 DEVICES=0,1,3`, image v5 (skinny MoE
+Inherited from the predecessor unchanged: `TP=1 PP=3 DEVICES=0,1,3`, an image carrying all eight patches (skinny MoE
 GEMV, patch 0008, on top of the moe_wna16
 port), `GPUUTIL=0.95 MAXSEQS=4`, `MTP=0` (PP forbids speculation; head is bf16 and skipped
 at load), `FD_RDNA2=0 AR_RDNA2=0`, MOE_CFG → the swept fused-MoE config. Watch item also

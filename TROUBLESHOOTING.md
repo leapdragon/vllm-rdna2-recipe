@@ -189,7 +189,7 @@ llama's CPU-orchestrated cadence never holds communication kernels open.
 This platform has an active community that has hit many of these walls independently — the
 [Wiki GFX1030](https://blivioniag.github.io/gfx1030-wiki/) is the best orientation point
 (power tuning, PCIe P2P readiness checks, env-var cheat sheets, its own troubleshooting pages),
-and the README's [wider gfx1030 universe](README.md#the-wider-gfx1030--rdna2-universe) section
+and [RDNA2-RESOURCES.md](RDNA2-RESOURCES.md)
 lists the forks, images and toolboxes worth knowing about. Notably, the wiki documents the same
 "no pre-gfx1030 GPU in the machine" rule as §1-3 above, reached independently — and its
 `v620_toolbox` unlocks a 120 W power floor on hardware that otherwise refuses anything under

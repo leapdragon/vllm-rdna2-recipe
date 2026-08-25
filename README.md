@@ -31,7 +31,7 @@ APU formats do not perform well, and in some cases perform catastrophically.
 Each optimization/configuration run for a new model takes 2-3 hours for the agent to complete, but is generally a hands-off
 process. Hopefully others who try this will have the same experience.
 
-At this point I have done a number of hours of real work powered by vLLM and all seems well. YMMV.
+Do I know what I'm doing? Categorically, no. But at this point I have done a number of hours of real work powered by vLLM and all seems well and performance is on par with what the hardware can do. YMMV.
 
 ## What's in this repo really, and how to use it
 

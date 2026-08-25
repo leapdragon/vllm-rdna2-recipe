@@ -111,11 +111,16 @@ inherited: flaky load-time worker death (~2-in-7 boots; plain retry works).
 
 `./serve-4gpu.sh` — 122B across four V620s as plain tensor parallelism:
 
-| ctx | decode t/s | TTFT s |
-|---|---|---|
-| ~3.5k | 56–59 | 4.2–4.6 |
-| ~13k | 57–59 | 4.0–4.9 |
-| ~41k | 49–55 | 7.2–8.9 |
+| ctx | decode t/s | fresh prefill t/s | fresh TTFT s |
+|---|---|---|---|
+| ~3.5k | 56–59 | 820–838 | ~4.2 |
+| ~13k | 57–59 | — | — |
+| ~41–45k | 49–55 | 536–537 | ~83 |
+
+Prefill measured with UNIQUE prompts and `max_tokens=1`. Benchmark-harness
+TTFT is prefix-cache-entangled and must not be used for prefill claims: a
+repeated 44.5k prompt "prefills" in 7.9 s ("5,640 t/s") — pure cache
+artifact; fresh is 83 s.
 
 MTP=2, acceptance ~2.3 tokens/step; +43–124% over PP=3 and near-flat with
 context (attention shards 4-way, collapsing the context-proportional term).
@@ -130,7 +135,11 @@ lives in TROUBLESHOOTING.md §4 and 02-VERSIONS.md's platform-stability
 table. Apply the whole stack — the load-bearing subset has not been
 isolated.
 
-**⚠ Tuning pending — these numbers are a floor.** TP=4 shards change every
+**⚠ Tuning pending — decode numbers are a floor; prefill currently
+trails PP=3 at long context** (537 vs the PP=3 band's upper 763 — suspects:
+`--max-num-batched-tokens 2048` is a *stability* choice where the 27B
+prefill sweep favored 8192, so any raise must be re-soaked; per-chunk
+4-way all-reduces; untuned N=256 MoE prefill configs). TP=4 shards change every
 tuned shape and none have been re-swept: the fused-MoE config here covers
 `N=1024` (PP shapes; TP=4 needs an `N=256` sweep — use `moe_sweep.py`),
 and the lm_head TunableOp rows cover the full vocab GEMM (TP=4 needs

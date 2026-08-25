@@ -199,5 +199,11 @@ llama's CPU-orchestrated cadence never holds communication kernels open.
 - **sysfs lies about link width** on some boards (claims x16 on x8 slots —
   bridge hop, not end-to-end). Throughput-test your links before making
   topology decisions.
+- **Never derive prefill claims from harness TTFT with prefix caching
+  on.** Repeated or nested benchmark prompts hit the cache: our repeated
+  44.5k prompt "prefilled" in 7.9 s (5,640 t/s) vs 83 s (537 t/s) fresh —
+  a 10× flattering artifact that survived into a results table before a
+  human said "those numbers seem suspicious." Measure prefill with unique
+  prompts and `max_tokens=1`.
 - **Stop containers gracefully** (`docker stop`, never `rm -f`) — TunableOp
   writes its CSV at exit, and SIGKILL eats it.

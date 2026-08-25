@@ -132,7 +132,9 @@ and more distributable than this for the RDNA2 family cards (hell I would use it
 **2026-08-25 — four cards, TP=4: 56–59 t/s on the 122B (+43–124% over PP=3).** The
 config every earlier attempt said was impossible: flat tensor-parallel across four V620s,
 MTP=2, near-FLAT decode from 3.8k to 41k (attention sharded 4-way collapses the context
-term), TTFT halved, cards bandwidth-bound at ~180 W — cool and quiet at full speed.
+term), cards bandwidth-bound at ~180 W — cool and quiet at full speed. Fresh prefill
+830/537 t/s at 3.5k/45k — long-context prefill trails PP=3 pending the TP-shape tuning
+pass (see the build's 4-GPU section; and never trust prefix-cached TTFT for prefill claims).
 What changed: the platform-personality mitigation stack — kernel line
 (`amdgpu.pcie_gen_cap=0x00070007` Gen3 link cap, `aspm=0`, `runpm=0`, `gpu_recovery=1`),
 `HSA_NO_SCRATCH_RECLAIM=1`, `NCCL_P2P_LEVEL=PXB`, and `--max-num-batched-tokens 2048`

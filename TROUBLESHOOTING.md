@@ -123,6 +123,19 @@ kernel new enough for RDNA2 work is old enough for gfx803.
    3-second capture success, and full recorded performance, with *zero*
    config changes — the moment the card left.
 
+**Related upstream defect (same pathology, different trigger).** An open,
+upstream-confirmed ROCm runtime bug produces the same "async fault surfacing
+on a later, unrelated HIP call" signature *without* any mixed-GPU setup:
+large **pageable host-memory transfers on multi-GPU** can fault with
+`illegal memory access ... current device: -1`, surfacing at a later
+`hipHostFree` or teardown call — see
+[ROCm/rocm-systems#4817](https://github.com/ROCm/rocm-systems/issues/4817).
+The proven workaround (from the llama.cpp side of this hardware community:
+[edwinbrowwn/llama.cpp-rdna2](https://github.com/edwinbrowwn/llama.cpp-rdna2))
+is to temporarily `hipHostRegister` the pageable buffer around the transfer.
+If you hit sticky async faults around big host transfers on a *clean* rig,
+suspect this before anything exotic.
+
 ---
 
 ## 4. Cards drop off the PCIe bus under multi-GPU vLLM (but llama.cpp is fine)
@@ -132,17 +145,30 @@ heavy request: kernel log shows `qcm fence timeout` then `device lost from
 bus`; with `amdgpu.gpu_recovery=0` the card is gone until reboot. The same
 cards run multi-GPU llama.cpp tensor-split for hours.
 
-**Mechanism (our best-evidenced account).** RCCL collective kernels
-**spin-wait on-GPU** while peer ranks stall (cold Triton JIT compiles,
-warmup). Prolonged spin-wait wedges the command processor; recovery-off
-turns that into a bus drop. llama.cpp is immune because its multi-GPU path
-is CPU-coordinated copies — no GPU-side spin-waits. Victims rotate between
-runs; narrower (x8) links add marginality.
+**Mechanism (our best-evidenced account).** GPU-resident, tightly
+synchronized per-layer collective kernels wedge the command processor;
+recovery-off turns that into a bus drop. llama.cpp is immune because its
+multi-GPU path is CPU-coordinated copies — no GPU-side communication
+kernels, no lockstep cadence.
+
+**It is NOT peer-to-peer DMA.** Our cleanest incident (no unsupported GPU
+in the system, vendor-stock runtime): a TP=2 pair died together ~20 min
+into sustained decode with `NCCL_P2P_DISABLE=1`, vLLM's custom all-reduce
+disabled, and small all-reduces on a host-coherent-memory plugin — every
+byte host-mediated. The victims were exactly the two cards forming one TP
+pair; the other pair (running the identical machinery as pipeline stage 2)
+survived. What kills is the *cadence* — paired collective kernels in
+lockstep, hundreds of times a second, for minutes — not the transport.
+Corroborating: the llama.cpp-rdna2 fork above runs the same 4×V620 daily
+with RCCL P2P *enabled* (`NCCL_P2P_LEVEL=PXB`) and no drops — because
+llama's CPU-orchestrated cadence never holds communication kernels open.
 
 **Mitigations.**
-- Prefer **PP over flat TP** across many cards: PP's sparse send/recv
-  doesn't hold spin-wait collectives open. Our 122B config of record is
-  PP=3 for this reason; it has run for days.
+- Prefer **PP over ANY tensor-parallel pairing** across many cards: PP's
+  sparse send/recv doesn't hold collective kernels open. Our 122B config of
+  record is PP=3 for this reason; it has run for days. A TP=2-per-stage
+  hybrid (2+2) killed its stage-0 pair even with all P2P disabled — treat
+  TP spans of any width as suspect on this platform.
 - Keep a **persistent Triton cache** volume so mid-request JIT stalls (the
   spin-wait trigger) don't recur on every boot.
 - If you do run TP, warm everything before real load.

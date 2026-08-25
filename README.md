@@ -19,7 +19,12 @@ So I pointed Qwen 3.8 Max and Opus 5.0 at both and said let's build out support 
 This is the result. First actual generatable run (after LLMs consumed the above repos) netted 11-18 t/s generation with a Qwen 27b Q4 quant.
 After all optimizations, I got the the 2x v620 combo running Qwen 3.8 27b up to 42 t/s at 41k context.
 
-Since then I've built out optimization examples for more models, so now we have GPTQ, AWQ, and Autoround, all Int4, and I'll
+Since then, I also discovered that:
+there is another vLLM for RDNA2 project at:
+
+- There is another vLLM for RDNA2 project at [vLLM RDNA2_extras](https://github.com/blivioniag/vllm/tree/rdna2_extras), and it is a bit more formal than this one is, though there are some areas where we don't overlap yet (i.e. MoE)
+
+Since the start of his in mid-August, I've built out optimization examples for more models, so now we have GPTQ, AWQ, and Autoround, all Int4, and I'll
 probably do a round of 8s before all is said and done just so we have a full set of examples. Note that most FP formats and boutique
 APU formats do not perform well, and in some cases perform catastrophically.
 

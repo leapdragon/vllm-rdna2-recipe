@@ -164,13 +164,22 @@ with RCCL P2P *enabled* (`NCCL_P2P_LEVEL=PXB`) and no drops — because
 llama's CPU-orchestrated cadence never holds communication kernels open.
 
 **Mitigations.**
-- Prefer **PP over ANY tensor-parallel pairing** across many cards: PP's
-  sparse send/recv doesn't hold collective kernels open. Our 122B config of
-  record is PP=3 for this reason; it has run for days. A TP=2-per-stage
-  hybrid (2+2) killed its stage-0 pair even with all P2P disabled — treat
-  TP spans of any width as suspect on this platform.
-- Keep a **persistent Triton cache** volume so mid-request JIT stalls (the
-  spin-wait trigger) don't recur on every boot.
+- **TP is achievable — with the full mitigation stack** (2026-08-25
+  update): flat TP=4 ran ~2.5 h sustained with zero events, and at +43–124%
+  over PP, once ALL of the following were in place: kernel line
+  `amdgpu.pcie_gen_cap=0x00070007` (Gen3 link cap) + `aspm=0` + `runpm=0`
+  + `gpu_recovery=1`; `HSA_NO_SCRATCH_RECLAIM=1`; `NCCL_P2P_LEVEL=PXB`;
+  `--max-num-batched-tokens 2048`; moderate power caps. Which subset is
+  load-bearing is not yet isolated — apply the whole stack. Without it,
+  every TP attempt (flat ×3, 2+2 ×2) lost cards, including with P2P fully
+  disabled.
+- **PP remains the zero-kludge fallback**: sparse host-paced send/recv
+  never held collective kernels open; our PP=3 config ran for days with no
+  special measures.
+- Keep a **persistent Triton cache** volume — for boot time (~480 s of
+  one-time compile freight per topology's shape set). A deliberate
+  cold-cache control run under the full stack survived, so warm caches are
+  a convenience here, not a stability requirement.
 - If you do run TP, warm everything before real load.
 
 ---

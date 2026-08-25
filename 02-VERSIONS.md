@@ -52,7 +52,7 @@ All in `config/serve-rdna2-tp2.sh`. Each is individually reversible.
 | `FD_MAXQ` | 4 | — | Widest verification batch the attention plugin takes. The one-KV-pass batched kernel covers `nq × PAD ≤ 32` columns (PAD 8 at GQA ≤ 8, 16 at GQA ≤ 16); wider cases run per-position passes of the same kernel. |
 | `--max-num-batched-tokens` (`BATCHTOK`) | **8192** | swept optimum | 4096 and 16384 both measure worse at mid/long context. |
 
-| `--tensor-parallel-size` | 2 | | Must be the two ×16-rooted cards (27B builds). The 122B uses `TP=1 PP=3` instead — see below. |
+| `--tensor-parallel-size` | 2 | | Two-card 27B builds. The 122B runs `TP=4` across four cards (flagship; REQUIRES the platform-stability stack below) or `TP=1 PP=3` on three. |
 | Card power cap | 232 W | **free** | Decode is bandwidth-bound; the ~30% clock throttling it causes does not slow decode. |
 
 **Pipeline-parallel / MTP-under-PP knobs** (added for the 122B build; harmless elsewhere):
@@ -118,3 +118,22 @@ divergence is a bug — with the single exception of the TunableOp first-run art
 
 If you get correct output but ~18 t/s at 42k, the plugins are not active. If you get ~4 t/s, the
 Exllama kernel is not being forced.
+
+
+## Platform-stability stack (required for multi-card tensor parallelism)
+
+V620s are SR-IOV graphics cards; sustained lockstep collective kernels sit
+outside their qualification envelope and can wedge the command processor
+(`qcm fence timeout` → `device lost from bus`) — with or without P2P. The
+following stack made flat TP=4 stable (validated ~2.5 h sustained, zero
+events; treat as all-load-bearing until noted otherwise):
+
+| Layer | Setting | Why |
+|---|---|---|
+| kernel cmdline | `amdgpu.pcie_gen_cap=0x00070007` | Cap links at Gen3. Links *train* at Gen4 but deliver less (marginal signaling); verify via `pp_dpm_pcie` — `current_link_width`/`current_link_speed` sysfs lie on some boards. |
+| kernel cmdline | `amdgpu.aspm=0 amdgpu.runpm=0` | No link/device low-power exits racing an idle→full-burst transition (where the drops clustered). |
+| kernel cmdline | `amdgpu.gpu_recovery=1` | A wedge becomes a GPU reset instead of a card lost until reboot. |
+| env | `HSA_NO_SCRATCH_RECLAIM=1` | No mid-flight scratch reclaim/regrow (queue surgery at dispatch time of the largest kernels — also the likely truth behind llama.cpp's classic "batch 4096+ is crashy" lore). |
+| env | `NCCL_P2P_LEVEL=PXB` | RCCL P2P within a root complex, SHM across. |
+| vLLM | `--max-num-batched-tokens 2048` | Batch size is a TIMING knob: unpreemptible dispatch length, scratch-crossing odds, DMA burst duration, power-ramp width all scale with it. Keep work items frame-sized. |
+| per boot | power caps at 232 W | Gentler transients (TP=4 decode only draws ~180 W anyway — bandwidth-bound). |

@@ -34,7 +34,7 @@ This is **not** a fork, a distribution, or an installable package. It is a **rec
 are shared for v620 model use, and then for each optimized model (see 'builds/'), needed patches or configuration items to
 enable support and/or optimize performance when applied against pristine vLLM 0.27.1, along with:
 
-- Achieved performance data on my system: two-card (TP=2) configs for the 27B builds, and a three-card (PP=3) config for the 122B MoE
+- Achieved performance data on my system: two-card (TP=2) configs for the 27B builds, and three-card (PP=3) and **four-card (TP=4, the current flagship: 56–59 t/s)** configs for the 122B MoE
 - Summaries of what was done foreach model
 
 This project is deliberately shaped to be handed to your LLM along with instructions to consume and then build and/or optimize your
@@ -128,6 +128,30 @@ and more distributable than this for the RDNA2 family cards (hell I would use it
   build needs measuring first.
 
 ## Changelog
+
+**2026-08-25 — four cards, TP=4: 56–59 t/s on the 122B (+43–124% over PP=3).** The
+config every earlier attempt said was impossible: flat tensor-parallel across four V620s,
+MTP=2, near-FLAT decode from 3.8k to 41k (attention sharded 4-way collapses the context
+term), TTFT halved, cards bandwidth-bound at ~180 W — cool and quiet at full speed.
+What changed: the platform-personality mitigation stack — kernel line
+(`amdgpu.pcie_gen_cap=0x00070007` Gen3 link cap, `aspm=0`, `runpm=0`, `gpu_recovery=1`),
+`HSA_NO_SCRATCH_RECLAIM=1`, `NCCL_P2P_LEVEL=PXB`, and `--max-num-batched-tokens 2048`
+(batch size is a TIMING knob on graphics silicon: it sets unpreemptible dispatch length,
+scratch-crossing odds, DMA burst duration, and power-ramp width all at once). Validated
+warm, cold-cache, and soaked: ~2.5 h sustained, zero gpu events. Details and prerequisites
+in the 122B build's 4-GPU section; updated TROUBLESHOOTING §4. **Still untuned for TP=4
+shapes** (MoE N=256 sweep + lm_head TunableOp rows pending) — these numbers are a floor.
+Credit where due: `HSA_NO_SCRATCH_RECLAIM` and the P2P level came from strip-mining
+[edwinbrowwn/llama.cpp-rdna2](https://github.com/edwinbrowwn/llama.cpp-rdna2), a parallel
+4×V620 effort on the llama.cpp side.
+
+**2026-08-24 — the Polaris day: three ways an unsupported GPU poisons a supported fleet.**
+A pre-Vega display card broke ROCm enumeration for every healthy card (all-or-nothing agent
+discovery), contaminated device identity through amdsmi (which ignores visibility filters),
+and — beyond any userspace fix — its kernel-side KFD node poisoned VMM/graph-capture memory
+paths, producing arithmetically impossible "out of memory" errors on 64-byte allocations.
+Card removed; every diagnostic and the one-byte vendor-binary doorbell patch documented in
+the new **TROUBLESHOOTING.md** — failure modes that lie to you, symptom-first.
 
 **2026-08-23 (later still) — MTP pays: 39.7–41 t/s on the 122B.** Two finishing moves on
 top of patch 0009: `fd_rdna2` generalized from the 27B's GQA 6 to any GQA ≤ 16 (the Triton

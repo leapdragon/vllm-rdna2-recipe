@@ -160,7 +160,9 @@ exec docker run -d --name "$NAME" --network=host \
   -e FLASH_ATTENTION_TRITON_AMD_ENABLE=TRUE \
   -e VLLM_ROCM_USE_AITER=0 -e VLLM_ROCM_USE_AITER_MOE=0 \
   -e HIP_FORCE_DEV_KERNARG=1 \
-  -e PYTORCH_ALLOC_CONF=expandable_segments:True \
+  -v "$RECIPE_ROOT/.triton-cache:/triton-cache" \
+  -e TRITON_CACHE_DIR=/triton-cache \
+  -e PYTORCH_ALLOC_CONF="expandable_segments:${EXPANDABLE_SEGMENTS:-True}" \
   -e VLLM_EXECUTE_MODEL_TIMEOUT_SECONDS="${EXEC_TIMEOUT:-300}" \
   -e VLLM_LOG_STATS_INTERVAL="${STATS_INTERVAL:-10}" \
   -v "$STATE_DIR/traces:/traces" \

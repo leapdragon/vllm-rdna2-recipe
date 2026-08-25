@@ -72,7 +72,7 @@ Context slope 0.4879 → **0.0805 µs/ctx-token** (6.06× flatter).
 For scale: llama.cpp on the same model and machine reaches 31–40 t/s at 45k with 2-draft MTP.
 The `MTP=2` column uses the same technique (the checkpoint's own MTP head) and passes that band.
 
-These targets are the two-card 27B reference. The three-card 122B MoE build (PP=3, MTP)
+These targets are the two-card 27B reference. The four-card 122B TP=4 flagship and three-card PP=3 build (MTP)
 has its own table in `builds/Intel-Qwen3.5-122B-A10B-int4-AutoRound/BUILD.md` —
 headline 39.7–41 t/s at 3.5k, also past llama.cpp on the same model.
 

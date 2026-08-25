@@ -106,3 +106,33 @@ already near kernel bandwidth); long-context batch workloads can run `MTP=0`.
 MAXSEQS=4`, MOE_CFG → the swept fused-MoE config, TunableOp lm_head rows merged (see MTP
 section). Fallback config in serve.sh's header comment (v5/V1/MTP=0). Watch item
 inherited: flaky load-time worker death (~2-in-7 boots; plain retry works).
+
+## Four cards: flat TP=4 — the current flagship (2026-08-25)
+
+`./serve-4gpu.sh` — 122B across four V620s as plain tensor parallelism:
+
+| ctx | decode t/s | TTFT s |
+|---|---|---|
+| ~3.5k | 56–59 | 4.2–4.6 |
+| ~13k | 57–59 | 4.0–4.9 |
+| ~41k | 49–55 | 7.2–8.9 |
+
+MTP=2, acceptance ~2.3 tokens/step; +43–124% over PP=3 and near-flat with
+context (attention shards 4-way, collapsing the context-proportional term).
+Cards draw ~180 W (bandwidth-bound) — cool and quiet at full speed.
+Validated warm, cold-cache, and through a 3-pass soak: ~2.5 h sustained,
+zero GPU events.
+
+**Prerequisites are non-optional.** Every earlier TP attempt on this class
+of platform dropped cards off the PCIe bus. The script header lists the
+required kernel line, per-boot power caps, and runtime env; the rationale
+lives in TROUBLESHOOTING.md §4 and 02-VERSIONS.md's platform-stability
+table. Apply the whole stack — the load-bearing subset has not been
+isolated.
+
+**⚠ Tuning pending — these numbers are a floor.** TP=4 shards change every
+tuned shape and none have been re-swept: the fused-MoE config here covers
+`N=1024` (PP shapes; TP=4 needs an `N=256` sweep — use `moe_sweep.py`),
+and the lm_head TunableOp rows cover the full vocab GEMM (TP=4 needs
+per-rank `tn_37984_*` rows; same offline method as above). Both are open;
+expect more once they land.

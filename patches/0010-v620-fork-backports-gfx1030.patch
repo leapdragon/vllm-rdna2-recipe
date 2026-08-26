@@ -1,0 +1,169 @@
+# 0010: Backports from the v620/vllm-src fork (v0.24.0-based gfx1030 optimization
+# work) onto the 0.27.1 recipe tree. Re-ported by hand - files diverged heavily,
+# do NOT expect this to apply to any other vLLM version.
+#
+# Contents (ranked by measured impact, TP=4 Qwen3.8-27B GPTQ-int4 on 4x V620):
+#   1. Triton do_not_specialize on the hot per-step kernels:
+#      packed_decode_kernel (FLA fused_recurrent), layer_norm_fwd_kernel
+#      (layernorm_guard), _causal_conv1d_update_kernel, fused_gdn_gating_kernel,
+#      kernel_unified_attention + reduce_segments (triton_unified_attention),
+#      _fused_qk_rmsnorm_rope_gate_kernel. Kills ~20 redundant JIT
+#      specialization checks per launch (~600 launches/step at decode).
+#   2. models/qwen3_next.py: enable the fused qk-norm+rope+gate kernel on ROCm
+#      (is_cuda() -> is_cuda_alike()).
+#   3. mamba/gdn/qwen_gdn_linear_attn.py forward_cuda: persistent zeroed
+#      core_attn_out buffer (drops 48 torch.zeros per decode step) and removal
+#      of two no-op .contiguous() copies after split_ba.
+#
+# Measured (all_reduce PHB-class P2P, MTP=2, BATCHTOK=2048): +3-4% aggregate
+# decode across solo short / solo long / 2x-long-concurrent.
+# Applies AFTER patches 0001-0009. Only 0002 overlaps a file
+# (vllm/v1/attention/ops/triton_unified_attention.py); this patch expects
+# 0002 already applied.
+--- a/vllm/third_party/flash_linear_attention/ops/fused_recurrent.py
++++ b/vllm/third_party/flash_linear_attention/ops/fused_recurrent.py
+@@ -252,7 +252,7 @@
+     return o, final_state
+ 
+ 
+-@triton.jit
++@triton.jit(do_not_specialize=["mixed_qkv", "a", "b", "A_log", "dt_bias", "o", "h0", "ht", "ssm_state_indices", "scale"])
+ def fused_recurrent_gated_delta_rule_packed_decode_kernel(
+     mixed_qkv,
+     a,
+--- a/vllm/third_party/flash_linear_attention/ops/layernorm_guard.py
++++ b/vllm/third_party/flash_linear_attention/ops/layernorm_guard.py
+@@ -63,7 +63,7 @@
+         "HAS_Z": lambda args: args["Z"] is not None,
+     }
+ )
+-@triton.jit
++@triton.jit(do_not_specialize=["X", "stride_z_row", "M"])
+ def layer_norm_fwd_kernel(
+     X,  # pointer to the input
+     Y,  # pointer to the output
+--- a/vllm/model_executor/layers/mamba/gdn/qwen_gdn_linear_attn.py
++++ b/vllm/model_executor/layers/mamba/gdn/qwen_gdn_linear_attn.py
+@@ -859,19 +859,13 @@
+             mixed_qkv, z = mixed_qkvz.split([qkv_size, z_size], dim=-1)
+             z = z.reshape(z.size(0), -1, self.head_v_dim)
+             b, a = self.split_ba(ba)
+-            b = b.contiguous()
+-            a = a.contiguous()
+ 
+         # ============================================================
+         # Part 2: Core Attention (Custom Op)
+         # ============================================================
+         # Note: we should not use torch.empty here like other attention backends,
+         # see discussions in https://github.com/vllm-project/vllm/pull/28182
+-        core_attn_out = torch.zeros(
+-            (num_tokens, self.num_v_heads // self.tp_size, self.head_v_dim),
+-            dtype=hidden_states.dtype,
+-            device=hidden_states.device,
+-        )
++        core_attn_out = self._get_core_attn_out(num_tokens, hidden_states)
+ 
+         torch.ops.vllm.qwen_gdn_attention_core(
+             mixed_qkv,
+@@ -886,6 +880,22 @@
+         # ============================================================
+         return self._output_projection(core_attn_out, z)
+ 
++    def _get_core_attn_out(
++        self, num_tokens: int, ref: torch.Tensor
++    ) -> torch.Tensor:
++        """Persistent zeroed output buffer for the GDN core op.
++
++        Replaces a per-call torch.zeros (one alloc per GDN layer per step,
++        48x/step at decode). Zeroed on (re)allocation; the core op fully
++        overwrites written lanes every call, so numerics are unchanged.
++        """
++        buf = getattr(self, "_core_attn_out", None)
++        need = (num_tokens, self.num_v_heads // self.tp_size, self.head_v_dim)
++        if buf is None or buf.shape != need or buf.dtype != ref.dtype:
++            buf = torch.zeros(need, dtype=ref.dtype, device=ref.device)
++            self._core_attn_out = buf
++        return buf
++
+     def forward_xpu(
+         self,
+         hidden_states: torch.Tensor,
+@@ -1676,7 +1686,7 @@
+ )
+ 
+ 
+-@triton.jit
++@triton.jit(do_not_specialize=["g", "beta_output", "A_log", "a", "b", "dt_bias", "seq_len"])
+ def fused_gdn_gating_kernel(
+     g,
+     beta_output,
+--- a/vllm/model_executor/layers/mamba/ops/causal_conv1d.py
++++ b/vllm/model_executor/layers/mamba/ops/causal_conv1d.py
+@@ -759,7 +759,15 @@
+     return out.to(original_x_dtype)
+ 
+ 
+-@triton.jit(do_not_specialize_on_alignment=["num_cache_lines"])
++@triton.jit(
++    do_not_specialize_on_alignment=["num_cache_lines"],
++    do_not_specialize=[
++        "x_ptr", "w_ptr", "bias_ptr", "conv_state_ptr",
++        "conv_state_indices_ptr", "num_accepted_tokens_ptr",
++        "query_start_loc_ptr", "block_idx_last_scheduled_token",
++        "initial_state_idx", "o_ptr",
++    ],
++)
+ def _causal_conv1d_update_kernel(
+     # Pointers to matrices
+     x_ptr,  # (batch, dim, seqlen)
+--- a/vllm/model_executor/layers/fused_qk_norm_rope.py
++++ b/vllm/model_executor/layers/fused_qk_norm_rope.py
+@@ -13,7 +13,7 @@
+ from vllm.triton_utils import tl, triton
+ 
+ 
+-@triton.jit
++@triton.jit(do_not_specialize=["q_gate_ptr", "k_ptr", "q_out_ptr", "k_out_ptr", "gate_out_ptr", "q_weight_ptr", "k_weight_ptr", "cos_sin_cache_ptr", "positions_ptr", "q_gate_stride_t", "k_stride_t", "q_out_stride_t", "k_out_stride_t", "gate_out_stride_t", "cache_stride_p"])
+ def _fused_qk_rmsnorm_rope_gate_kernel(
+     q_gate_ptr,
+     k_ptr,
+--- a/vllm/model_executor/models/qwen3_next.py
++++ b/vllm/model_executor/models/qwen3_next.py
+@@ -324,7 +324,7 @@
+         self.use_fused_qk_norm_rope_gate = (
+             self.attn_output_gate
+             and getattr(self.rotary_emb, "is_neox_style", False)
+-            and current_platform.is_cuda()
++            and current_platform.is_cuda_alike()
+             and text_only
+         )
+ 
+--- a/vllm/v1/attention/ops/triton_unified_attention.py
++++ b/vllm/v1/attention/ops/triton_unified_attention.py
+@@ -175,7 +175,13 @@
+     )
+ 
+ 
+-@triton.jit
++@triton.jit(do_not_specialize=[
++    "output_ptr", "query_ptr", "key_cache_ptr", "value_cache_ptr",
++    "sink_ptr", "block_tables_ptr", "seq_lens_ptr", "alibi_slopes_ptr",
++    "qq_bias_ptr", "scale", "q_scale", "k_scale", "v_scale", "out_scale",
++    "softcap", "per_seq_causal_ptr", "mm_prefix_range_ptr",
++    "rswa_prefix_lens_ptr", "query_start_len_ptr", "num_seqs",
++])
+ def kernel_unified_attention(
+     # Output destination for the 2D path.  In 3D mode per-segment partials
+     # go to the ``segm_*`` tensors (see bottom of signature) and
+@@ -681,7 +687,10 @@
+             )
+ 
+ 
+-@triton.jit
++@triton.jit(do_not_specialize=[
++    "output_ptr", "segm_output_ptr", "segm_max_ptr", "segm_expsum_ptr",
++    "seq_lens_ptr", "num_seqs", "out_scale_inv",
++])
+ def reduce_segments(
+     output_ptr,  # [num_tokens, num_query_heads, head_size]
+     segm_output_ptr,

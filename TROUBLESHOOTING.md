@@ -195,6 +195,45 @@ lists the forks, images and toolboxes worth knowing about. Notably, the wiki doc
 `v620_toolbox` unlocks a 120 W power floor on hardware that otherwise refuses anything under
 250 W, which is directly relevant to §4's power-transient story.
 
+## 5a. Traps found on the Flash-Next fork (2026-08-29/30)
+
+All from https://github.com/leapdragon/vllm-rdna2-qwen; each cost at least one 15-minute boot.
+
+- **A lever "did nothing" although the kernel is correct.** vLLM compiles the model once for a
+  dynamic token range; a Python `if 0 < n <= 8:` inside the traced region is decided on the
+  tracing example and baked into the graph. Count kernel *launches* in a profile after every
+  change; put decode/prefill choices inside an opaque custom op with a fake impl.
+- **Same symptom, second cause: the torch.compile cache.** Its key does not cover edits to
+  vLLM's own Python, so a changed hook can be served from a stale compiled graph. Boot with
+  `VLLM_DISABLE_COMPILE_CACHE=1` while iterating.
+- **One card loads weights, three sit at 1 % VRAM.** A collective's init raised on one rank
+  inside an ordered barrier loop and that rank moved on; the others wait forever. vLLM builds
+  several `GroupCoordinator`s over the same ranks — never keep singleton state in a
+  communicator, and never let an init path skip a barrier the peers will hit.
+- **`Failed to dlopen libcuda.so.1` from the PLE offload connector on ROCm.** A full venv has
+  `cuda-bindings` as a transitive dependency, so "try cuda-python, else the HIP shim" picks
+  cuda-python. Select by platform (`torch.version.hip`), not by importability.
+- **Model inspection fails with `No module named 'torchvision'`** even for text-only serving:
+  `transformers`' Qwen2-VL image processor hard-imports it. Build torchvision (CPU ops) too.
+- **`pip install -r requirements/common.txt` installs the CUDA torch 2.13 from PyPI** on a box
+  where you built torch yourself (compressed-tensors, xgrammar depend on torch). Install your
+  wheels first.
+- **Triton's cmake: "imported targets are referenced, but are missing: LLVMNVPTX…".** With
+  `/opt/rocm` on `CMAKE_PREFIX_PATH`, `find_package(LLVM)` finds TheRock's LLVM (no NVPTX
+  target) while MLIR comes from Triton's own tarball. Keep ROCm out of Triton's configure.
+- **`hipErrorPeerAccessAlreadyEnabled` is sticky** — the second `hipDeviceEnablePeerAccess`
+  in a process returns it and torch's next launch check throws "peer access is already
+  enabled". Clear with `hipGetLastError()`.
+- **"Runlist is getting oversubscribed" in the kernel log during graph capture** — a side job
+  on a serving card. ROCR device numbering is not `/dev/dri/cardN` numbering; put harnesses on
+  the card the server does not use.
+- **Widening upstream's `__HIP__GFX1X__` macro to gfx10 builds, launches — and returns
+  garbage** (relerr 0.6–0.9 on every shape). "RDNA" in upstream ROCm code means gfx11/12.
+  Validate numerically before trusting a port.
+- **Timing a kernel on an idle card**: the first pass reads 5–10× slow (clock ramp); weights
+  under 16 MB sit in the Infinity Cache in a timing loop and read as 800 GB/s. Warm the card;
+  believe the DRAM-streaming number.
+
 ## 6. Meta-lessons (the generalizable part)
 
 - **Keep the KFD homogeneous.** Only put GPUs in the machine that your

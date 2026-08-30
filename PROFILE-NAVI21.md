@@ -301,11 +301,29 @@ The hardware does **not** need many workgroups to saturate memory. So the attent
   LDS footprint and halve occupancy at large head sizes; measured ~2× on prefill attention
   (T32) and reconfirmed on two hand-written kernels (T33/T34). This is the single biggest
   launch-parameter knob observed on this chip.
+- **Fused-dequant Triton GEMMs lose to dequantize-then-rocBLAS at prefill shapes.** The W4
+  fused kernel that is mandatory at decode (M=1) is ~3× off the vendor GEMM at M=8192; a
+  single-pass dequant to dense fp16 (~2.5 bytes/element, ~1% of chunk time) followed by
+  `torch.nn.functional.linear` restored GPTQ-band prefill for the AWQ build. This is the same
+  structure Exllama uses internally for large M — when a quant path is slow at prefill, check
+  whether it is fusing dequant into its own GEMM before tuning its tiles. [T36]
 - **Custom Triton prefill-attention kernels lose to vLLM's stock kernel here.** Two structures
   measured (byte-sliced fused-dequant 0.70×, interleave-reconstructed deep-dot 0.58×, both
   correct): at prefill shapes KV is Infinity-Cache-served and the stock kernel's scheduling
   wins. The decode regime (no reuse, bandwidth-bound) is where custom kernels pay [T-A1/T23];
   the prefill regime is not. [T33/T34]
+
+- **vLLM's RDNA-gated HIP kernels port to gfx1030 by widening their guards.** The
+  `skinny_gemms_int4.cu` device code (`wvSplitK_int4_g`, used by RDNAHybridW4A16 for W4 decode
+  GEMV) gates on `__GFX11__||__GFX12__`, but everything it needs — wave32, 64 KiB LDS,
+  `v_dot2_f32_f16`, DPP `row_shr` — is gfx10.3 hardware. Adding `__GFX10__` to the guard (plus
+  a scalar fallback for the bf16 dot, which gfx10 lacks) ran first try and beat Exllama q_gemm
+  at 42k context (43.6 vs 41.4 t/s decode, T35). Check the guard before assuming a "gfx11+"
+  kernel is off-limits; the actual requirements are often in gfx10's envelope.
+- **Asymmetric W4 (uint4 + zero-points) narrows the kernel field sharply.** Exllama implements
+  only uint4b8/uint8b128 — symmetric. On ROCm the uint4+zp takers at group_size 32 are
+  RDNAHybridW4A16 (after the port above) and TritonW4A16 (correct everywhere, ~7 t/s decode at
+  M=1 on this chip). Quant format choice is therefore also a kernel-path choice. [T35]
 
 - Container: ROCm 7.2.3, torch 2.11.0+gitd0c8b1f, Triton 3.6.0, py3.12 (`vllm-gfx1030:0.27.1-patched`).
 - **No vendor stack ships gfx1030 kernels.** Everything fast was earned by source build + patches.

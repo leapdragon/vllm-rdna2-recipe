@@ -5,6 +5,22 @@
 Newest first. Companion to [README.md](README.md); per-model detail lives in each
 `builds/*/BUILD.md`, and measured configs in [02-VERSIONS.md](02-VERSIONS.md).
 
+**2026-08-30 — Qwen3.8-Flash-Next at ~100 t/s, in its own fork.** The 176 B / 512-expert
+model with a 51 B-row n-gram table runs on 4× V620 at 98–106 t/s (llama.cpp: 29–30) via
+https://github.com/leapdragon/vllm-rdna2-qwen — upstream vLLM main + the unmerged Flash-Next
+model branch + 22 ported commits, built from source against TheRock ROCm 7.14 on the host
+(PyTorch too: TheRock ships no torch for gfx103X). The campaign (T42–T46) in one line each:
+PLE n-gram table served from a 30 GB int4 sidecar by a CPU worker over a HIP stream-wait shim;
+CUDA graphs 3×; MTP 1.9×; every dense fp16 projection had been on rocBLAS at 35 % of bandwidth
+because vLLM's skinny-GEMV gate is gfx9/gfx11-only and its RDNA kernels miscompute on gfx10 —
+own wave-per-row GEMV, 2.1×; the T38 int4 MoE GEMV had never run under expert parallelism;
+a push-based one-shot P2P all-reduce (33 µs vs RCCL 156) — but a barrier shows rank skew as
+its own time; int8 shadows of the dense weights; ~1,100 launches fused out of a 2,900-kernel
+decode step. New traps: torch.compile freezes Python-level decode/prefill branches at trace
+time (put the choice inside a custom op); a stale compile cache served an old graph; a
+`cuda-bindings` package shadows the HIP shim on ROCm; TheRock's LLVM on `CMAKE_PREFIX_PATH`
+breaks Triton's configure. See TROUBLESHOOTING.md §5a.
+
 **2026-08-25 — four cards, TP=4: 56–59 t/s on the 122B (+43–124% over PP=3).** The
 config every earlier attempt said was impossible: flat tensor-parallel across four V620s,
 MTP=2, near-FLAT decode from 3.8k to 41k (attention sharded 4-way collapses the context

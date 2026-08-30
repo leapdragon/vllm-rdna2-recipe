@@ -60,6 +60,27 @@ Used in my case with:
 When I started this I thought nobody was doing RDNA2 inference seriously. That was wrong — there's
 an active community. See [RDNA2-RESOURCES.md](RDNA2-RESOURCES.md) for links.
 
+## Qwen3.8-Flash-Next at ~100 t/s — the successor repo (2026-08-30)
+
+The next model after this recipe book was **Qwen3.8-Flash-Next** (176 B, 512 experts, a
+51-billion-row n-gram table), and it outgrew the "patches on pristine vLLM" format: 22 patches,
+five new kernels, and a from-source PyTorch. That work lives in a proper fork you can clone and
+build, on **TheRock ROCm 7.14, no container**:
+
+**https://github.com/leapdragon/vllm-rdna2-qwen** (default branch `rdna2/qwen38-flash-next`)
+
+- ~**100 tokens/s** single-stream decode on 4× V620 (98 / 105 / 96 at 256 tokens, 106 over
+  1024), from 5.7 t/s at first light — llama.cpp on the same box does 29–30.
+- What made the difference, in order: the dense fp16 projections were on rocBLAS at 35 % of
+  bandwidth (vLLM's skinny-GEMV gate excludes gfx1030 → own kernel), an int4 MoE GEMV that had
+  never run under expert parallelism, a one-shot P2P all-reduce (33 µs vs RCCL's 156), int8
+  shadows of the dense weights, and fusing ~1,100 launches out of a 2,900-kernel decode step.
+- Everything this recipe book teaches still applies there — `PROFILE-NAVI21.md` and
+  `TROUBLESHOOTING.md` are carried in that repo unchanged — plus its own
+  `docs/rdna2/CHANGES.md` (every change and why) and `RESULTS.md` (every number).
+
+This repo remains the recipe for the 27B and 122B builds on vLLM 0.27.1 and the plugins.
+
 ## Read in this order
 
 | | |

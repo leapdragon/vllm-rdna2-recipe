@@ -197,6 +197,21 @@ lists the forks, images and toolboxes worth knowing about. Notably, the wiki doc
 
 ## 5a. Traps found on the Flash-Next fork (2026-08-29/30)
 
+- **A stream-memory wait inside a captured graph is silently dropped.** `hipStreamWaitValue32`
+  returns success during stream capture but the HIP graph replays without it. Anything that
+  synchronises GPU work against a CPU producer that way (vLLM's PLE offload did) never waits on
+  CUDA-graph steps and reads stale data; a per-step host round trip elsewhere (speculative
+  decoding) can hide it for days. Test it standalone before trusting it; synchronise on the host.
+- **A pending GPU stream wait can take the card off the bus.** KFD's queue eviction
+  (`svm_range_restore`, frequent with big mmaps / pinned buffers) cannot preempt a queue parked
+  in WAIT_REG_MEM: "unsuccessful queues preemption → GPU reset → device lost from bus". Reboot.
+- **Do not poll host memory from GPU kernels across PCIe.** A one-shot all-reduce whose barrier
+  flags lived in a host-coherent page had four GPUs spinning on system-memory reads through
+  both root complexes; the SAS HBA's tape drive re-initialised under load and two cards on
+  different root complexes dropped together. Posted writes are ordered per destination only, so
+  a payload to a peer's VRAM and a flag to host memory can also arrive out of order. Push flags
+  into each rank's own uncached VRAM and poll locally.
+
 All from https://github.com/leapdragon/vllm-rdna2-qwen; each cost at least one 15-minute boot.
 
 - **A lever "did nothing" although the kernel is correct.** vLLM compiles the model once for a

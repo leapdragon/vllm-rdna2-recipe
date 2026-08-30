@@ -5,6 +5,21 @@
 Newest first. Companion to [README.md](README.md); per-model detail lives in each
 `builds/*/BUILD.md`, and measured configs in [02-VERSIONS.md](02-VERSIONS.md).
 
+**2026-08-30 (later) — the ~100 t/s was measured with a handshake that never waited.** On
+this ROCm, `hipStreamWaitValue32` is accepted during stream capture but not recorded into the
+HIP graph, so the n-gram (PLE) offload's in-graph wait was a no-op on every CUDA-graph decode
+step: the GPU read whatever lookup was in the buffer. MTP's per-step host round trip hid it by
+keeping the CPU worker in lock-step; with MTP off, async scheduling ran the host a step ahead,
+the worker dropped "duplicate" requests, and long generations garbled. Moving the wait outside
+the graph is not the fix here — a pending WAIT_REG_MEM cannot be preempted by KFD queue
+eviction, and the reset lost a card from the PCIe bus. The fork now synchronises on the host
+(shared-memory counter, the model thread blocks before enqueueing the forward), moved the
+one-shot all-reduce's barrier flags out of a host-coherent page that four GPUs polled over
+PCIe (also an ordering race between payload and flag — greedy runs were not reproducible),
+and recovered the cost with a fused numpy lookup, a prefaulted sidecar and rank-side result
+copies. Honest numbers: **MTP=0 61–65 t/s**, byte-identical greedy runs, soak with no PCIe
+events; the MTP=3 98–106 figure awaits a re-measure. Fork `CHANGES.md` §8a, TROUBLESHOOTING §5a.
+
 **2026-08-30 — Qwen3.8-Flash-Next at ~100 t/s, in its own fork.** The 176 B / 512-expert
 model with a 51 B-row n-gram table runs on 4× V620 at 98–106 t/s (llama.cpp: 29–30) via
 https://github.com/leapdragon/vllm-rdna2-qwen — upstream vLLM main + the unmerged Flash-Next

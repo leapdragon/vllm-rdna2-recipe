@@ -64,6 +64,9 @@ DEVICES="${DEVICES:-1,3}"                 # default V620 pair (2026-08-31 chain-
 COMPILE_CACHE_DIR="$STATE_DIR/compile-cache-${DEVICES//,/-}"
 mkdir -p "$COMPILE_CACHE_DIR"
 SERVE_EXTRA=""
+# HW_QUEUES: hardware queues per device (GPU_MAX_HW_QUEUES). 4 is the measured optimum
+# (+3.8%; 8 regresses 32% — 02-VERSIONS). Present since the first commit, silently dropped
+# in the 2026-08-22 builds/ refactor, restored 2026-08-31 after the regression hunt.
 # IMG: the image you built from the nine patches + plugins (02-VERSIONS build order), or the published
 # one: IMG=ghcr.io/leapdragon/vllm-rdna2-recipe:0.27.1-rocm7.2.3-gfx1030 (see containers/README.md).
 # The recorded numbers need a plugin-bearing image: one built before builds/shared/plugins existed
@@ -177,6 +180,7 @@ exec docker run -d --name "$NAME" --network=host \
   -e FLASH_ATTENTION_TRITON_AMD_ENABLE=TRUE \
   -e VLLM_ROCM_USE_AITER=0 -e VLLM_ROCM_USE_AITER_MOE=0 \
   -e HIP_FORCE_DEV_KERNARG=1 \
+  -e GPU_MAX_HW_QUEUES="${HW_QUEUES:-4}" \
   -v "$RECIPE_ROOT/.triton-cache:/triton-cache" \
   -e TRITON_CACHE_DIR=/triton-cache \
   -e PYTORCH_ALLOC_CONF="expandable_segments:${EXPANDABLE_SEGMENTS:-True}" \

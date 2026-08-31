@@ -1,0 +1,84 @@
+; ModuleID = 'LLVMDialectModule'
+source_filename = "LLVMDialectModule"
+target datalayout = "e-p:64:64-p1:64:64-p2:32:32-p3:32:32-p4:64:64-p5:32:32-p6:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024-v2048:2048-n32:64-S32-A5-G1-ni:7:8:9"
+target triple = "amdgcn-amd-amdhsa"
+
+; Function Attrs: mustprogress nofree norecurse nosync nounwind willreturn memory(argmem: readwrite)
+define amdgpu_kernel void @expand_kernel(ptr addrspace(1) inreg writeonly captures(none) %0, ptr addrspace(1) inreg readonly captures(none) %1, ptr addrspace(1) inreg readonly captures(none) %2, i32 inreg %3, i32 inreg %4, ptr addrspace(1) inreg readnone captures(none) %5, ptr addrspace(1) inreg readnone captures(none) %6) local_unnamed_addr #0 !dbg !4 {
+  %8 = tail call i32 @llvm.amdgcn.workgroup.id.x(), !dbg !7
+  %9 = icmp eq i32 %8, 0, !dbg !8
+  br i1 %9, label %16, label %10, !dbg !9
+
+10:                                               ; preds = %7
+  %11 = add i32 %8, -1
+  %12 = sext i32 %11 to i64
+  %13 = getelementptr i32, ptr addrspace(1) %2, i64 %12
+  %14 = load <1 x i32>, ptr addrspace(1) %13, align 4, !dbg !10
+  %15 = extractelement <1 x i32> %14, i64 0, !dbg !10
+  br label %16, !dbg !9
+
+16:                                               ; preds = %10, %7
+  %17 = phi i32 [ %15, %10 ], [ 0, %7 ], !dbg !9
+  %18 = sext i32 %8 to i64, !dbg !11
+  %19 = getelementptr i32, ptr addrspace(1) %2, i64 %18, !dbg !11
+  %20 = load <1 x i32>, ptr addrspace(1) %19, align 4, !dbg !11
+  %21 = extractelement <1 x i32> %20, i64 0, !dbg !11
+  %22 = sub i32 %21, %17, !dbg !12
+  %23 = getelementptr float, ptr addrspace(1) %1, i64 %18, !dbg !13
+  %24 = load <1 x float>, ptr addrspace(1) %23, align 4, !dbg !13
+  %25 = extractelement <1 x float> %24, i64 0, !dbg !13
+  %26 = sitofp i32 %3 to float, !dbg !14
+  %27 = fcmp oeq float %25, %26, !dbg !14
+  %28 = sitofp i32 %4 to float, !dbg !15
+  %29 = select i1 %27, float %28, float %25, !dbg !15
+  %30 = tail call i32 @llvm.amdgcn.workitem.id.x(), !dbg !16
+  %31 = and i32 %30, 127, !dbg !16
+  %32 = icmp slt i32 %31, %22, !dbg !17
+  %33 = add i32 %17, %31, !dbg !18
+  %34 = tail call ptr addrspace(8) @llvm.amdgcn.make.buffer.rsrc.p8.p1(ptr addrspace(1) %0, i16 0, i64 2147483646, i32 822243328), !dbg !19
+  %35 = shl i32 %33, 2, !dbg !19
+  %36 = select i1 %32, i32 %35, i32 -2147483648, !dbg !19
+  tail call void @llvm.amdgcn.raw.ptr.buffer.store.f32(float %29, ptr addrspace(8) %34, i32 %36, i32 0, i32 0), !dbg !19
+  ret void, !dbg !20
+}
+
+; Function Attrs: mustprogress nocallback nofree nosync nounwind speculatable willreturn memory(none)
+declare noundef i32 @llvm.amdgcn.workgroup.id.x() #1
+
+; Function Attrs: mustprogress nocallback nofree nosync nounwind speculatable willreturn memory(none)
+declare noundef range(i32 0, 1024) i32 @llvm.amdgcn.workitem.id.x() #1
+
+; Function Attrs: mustprogress nocallback nofree nosync nounwind speculatable willreturn memory(none)
+declare ptr addrspace(8) @llvm.amdgcn.make.buffer.rsrc.p8.p1(ptr addrspace(1) readnone, i16, i64, i32) #1
+
+; Function Attrs: mustprogress nocallback nofree nosync nounwind willreturn memory(argmem: write)
+declare void @llvm.amdgcn.raw.ptr.buffer.store.f32(float, ptr addrspace(8) writeonly captures(none), i32, i32, i32 immarg) #2
+
+attributes #0 = { mustprogress nofree norecurse nosync nounwind willreturn memory(argmem: readwrite) "amdgpu-agpr-alloc"="0" "amdgpu-flat-work-group-size"="1,128" "amdgpu-no-cluster-id-x" "amdgpu-no-cluster-id-y" "amdgpu-no-cluster-id-z" "amdgpu-no-completion-action" "amdgpu-no-default-queue" "amdgpu-no-dispatch-id" "amdgpu-no-dispatch-ptr" "amdgpu-no-flat-scratch-init" "amdgpu-no-heap-ptr" "amdgpu-no-hostcall-ptr" "amdgpu-no-implicitarg-ptr" "amdgpu-no-lds-kernel-id" "amdgpu-no-multigrid-sync-arg" "amdgpu-no-queue-ptr" "amdgpu-no-workgroup-id-x" "amdgpu-no-workgroup-id-y" "amdgpu-no-workgroup-id-z" "amdgpu-no-workitem-id-x" "amdgpu-no-workitem-id-y" "amdgpu-no-workitem-id-z" "amdgpu-waves-per-eu"="0, 0" "denormal-fp-math-f32"="ieee" "uniform-work-group-size"="true" }
+attributes #1 = { mustprogress nocallback nofree nosync nounwind speculatable willreturn memory(none) }
+attributes #2 = { mustprogress nocallback nofree nosync nounwind willreturn memory(argmem: write) }
+
+!llvm.dbg.cu = !{!0}
+!llvm.module.flags = !{!2, !3}
+
+!0 = distinct !DICompileUnit(language: DW_LANG_C, file: !1, producer: "triton", isOptimized: true, runtimeVersion: 0, emissionKind: LineTablesOnly)
+!1 = !DIFile(filename: "rejection_sampler.py", directory: "/app/vllm-src/vllm/v1/sample")
+!2 = !{i32 2, !"Debug Info Version", i32 3}
+!3 = !{i32 1, !"amdhsa_code_object_version", i32 500}
+!4 = distinct !DISubprogram(name: "expand_kernel", linkageName: "expand_kernel", scope: !1, file: !1, line: 850, type: !5, scopeLine: 850, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0)
+!5 = !DISubroutineType(cc: DW_CC_normal, types: !6)
+!6 = !{}
+!7 = !DILocation(line: 858, column: 28, scope: !4)
+!8 = !DILocation(line: 859, column: 18, scope: !4)
+!9 = !DILocation(line: 859, column: 7, scope: !4)
+!10 = !DILocation(line: 862, column: 28, scope: !4)
+!11 = !DILocation(line: 863, column: 22, scope: !4)
+!12 = !DILocation(line: 864, column: 27, scope: !4)
+!13 = !DILocation(line: 866, column: 22, scope: !4)
+!14 = !DILocation(line: 867, column: 34, scope: !4)
+!15 = !DILocation(line: 867, column: 60, scope: !4)
+!16 = !DILocation(line: 868, column: 26, scope: !4)
+!17 = !DILocation(line: 869, column: 69, scope: !4)
+!18 = !DILocation(line: 869, column: 38, scope: !4)
+!19 = !DILocation(line: 869, column: 46, scope: !4)
+!20 = !DILocation(line: 869, column: 4, scope: !4)

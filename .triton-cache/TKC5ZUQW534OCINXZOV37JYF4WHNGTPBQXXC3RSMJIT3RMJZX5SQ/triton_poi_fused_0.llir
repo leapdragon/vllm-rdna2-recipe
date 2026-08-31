@@ -1,0 +1,701 @@
+; ModuleID = 'LLVMDialectModule'
+source_filename = "LLVMDialectModule"
+target datalayout = "e-p:64:64-p1:64:64-p2:32:32-p3:32:32-p4:64:64-p5:32:32-p6:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024-v2048:2048-n32:64-S32-A5-G1-ni:7:8:9"
+target triple = "amdgcn-amd-amdhsa"
+
+; Function Attrs: mustprogress nofree norecurse nosync nounwind willreturn memory(argmem: readwrite)
+define amdgpu_kernel void @triton_poi_fused_0(ptr addrspace(1) inreg readonly captures(none) %0, ptr addrspace(1) inreg readonly captures(none) %1, ptr addrspace(1) inreg readonly captures(none) %2, ptr addrspace(1) inreg readonly captures(none) %3, ptr addrspace(1) inreg writeonly captures(none) %4, ptr addrspace(1) inreg writeonly captures(none) %5, ptr addrspace(1) inreg writeonly captures(none) %6, i64 inreg %7, i32 inreg %8, i32 inreg %9, ptr addrspace(1) inreg readnone captures(none) %10, ptr addrspace(1) inreg readnone captures(none) %11) local_unnamed_addr #0 !dbg !4 {
+  %13 = tail call i32 @llvm.amdgcn.workgroup.id.x(), !dbg !7
+  %14 = add i32 %8, 511, !dbg !8
+  %15 = sdiv i32 %14, 512, !dbg !13
+  %16 = icmp slt i32 %13, %15, !dbg !14
+  br i1 %16, label %17, label %57, !dbg !15
+
+17:                                               ; preds = %12
+  %18 = shl i32 %13, 9, !dbg !16
+  %19 = tail call i32 @llvm.amdgcn.workitem.id.x(), !dbg !17
+  %20 = shl nuw nsw i32 %19, 2, !dbg !17
+  %21 = and i32 %20, 508, !dbg !17
+  %22 = or disjoint i32 %21, %18, !dbg !18
+  %23 = icmp slt i32 %22, %8, !dbg !19
+  br i1 %23, label %24, label %.critedge, !dbg !20
+
+24:                                               ; preds = %17
+  %25 = sdiv i32 %22, 5120, !dbg !21
+  %26 = mul i32 %25, 5120, !dbg !22
+  %.decomposed = sub i32 %22, %26, !dbg !22
+  %27 = sext i32 %25 to i64, !dbg !23
+  %28 = getelementptr i32, ptr addrspace(1) %0, i64 %27, !dbg !23
+  %29 = load <1 x i32>, ptr addrspace(1) %28, align 4, !dbg !20
+  %30 = extractelement <1 x i32> %29, i64 0, !dbg !20
+  %31 = add i32 %30, -248320, !dbg !24
+  %32 = icmp ult i32 %31, -124160, !dbg !24
+  %33 = sext i32 %.decomposed to i64, !dbg !25
+  %34 = sext i32 %30 to i64, !dbg !26
+  %35 = add nsw i64 %34, -124160, !dbg !27
+  %36 = select i1 %32, i64 0, i64 %35, !dbg !28
+  %37 = icmp slt i64 %36, 0, !dbg !29
+  %38 = add nsw i64 %36, 124160, !dbg !30
+  %39 = select i1 %37, i64 %38, i64 %36, !dbg !31
+  %.idx35 = mul nsw i64 %39, 10240, !dbg !32
+  %40 = getelementptr i8, ptr addrspace(1) %1, i64 %.idx35, !dbg !32
+  %41 = getelementptr half, ptr addrspace(1) %40, i64 %33, !dbg !32
+  %42 = load <4 x half>, ptr addrspace(1) %41, align 8, !dbg !33
+  %43 = extractelement <4 x half> %42, i64 0, !dbg !33
+  %44 = select i1 %32, half 0xH0000, half %43, !dbg !34
+  %45 = insertelement <4 x half> poison, half %44, i64 0, !dbg !35
+  %46 = extractelement <4 x half> %42, i64 1, !dbg !33
+  %47 = select i1 %32, half 0xH0000, half %46, !dbg !34
+  %48 = insertelement <4 x half> %45, half %47, i64 1, !dbg !35
+  %49 = extractelement <4 x half> %42, i64 2, !dbg !33
+  %50 = select i1 %32, half 0xH0000, half %49, !dbg !34
+  %51 = insertelement <4 x half> %48, half %50, i64 2, !dbg !35
+  %52 = extractelement <4 x half> %42, i64 3, !dbg !33
+  %53 = select i1 %32, half 0xH0000, half %52, !dbg !34
+  %54 = insertelement <4 x half> %51, half %53, i64 3, !dbg !35
+  %55 = sext i32 %22 to i64, !dbg !36
+  %56 = getelementptr half, ptr addrspace(1) %4, i64 %55, !dbg !36
+  store <4 x half> %54, ptr addrspace(1) %56, align 8, !dbg !35
+  br label %.critedge, !dbg !35
+
+57:                                               ; preds = %12
+  %58 = add i32 %9, 511, !dbg !37
+  %59 = sdiv i32 %58, 512, !dbg !39
+  %60 = add nsw i32 %59, %15, !dbg !40
+  %61 = icmp slt i32 %13, %60, !dbg !41
+  br i1 %61, label %62, label %.critedge, !dbg !42
+
+62:                                               ; preds = %57
+  %63 = sub nsw i32 %13, %15, !dbg !43
+  %64 = shl i32 %63, 9, !dbg !44
+  %65 = tail call i32 @llvm.amdgcn.workitem.id.x(), !dbg !45
+  %66 = shl nuw nsw i32 %65, 2, !dbg !45
+  %67 = and i32 %66, 508, !dbg !45
+  %68 = or disjoint i32 %64, %67, !dbg !46
+  %69 = or i32 %64, %66, !dbg !45
+  %70 = or disjoint i32 %69, 1, !dbg !46
+  %71 = or disjoint i32 %69, 2, !dbg !46
+  %72 = or disjoint i32 %69, 3, !dbg !46
+  %73 = icmp slt i32 %68, %9, !dbg !47
+  %.frozen = freeze i32 %68, !dbg !48
+  %74 = sdiv i32 %.frozen, 32, !dbg !48
+  %75 = mul i32 %74, 32, !dbg !49
+  %.decomposed85 = sub i32 %.frozen, %75, !dbg !49
+  %76 = srem i32 %70, 32, !dbg !49
+  %77 = srem i32 %71, 32, !dbg !49
+  %78 = srem i32 %72, 32, !dbg !49
+  %79 = sext i32 %74 to i64
+  br i1 %73, label %80, label %._crit_edge, !dbg !50
+
+80:                                               ; preds = %62
+  %81 = getelementptr i64, ptr addrspace(1) %2, i64 %79
+  %82 = load <1 x i64>, ptr addrspace(1) %81, align 8, !dbg !50
+  br label %._crit_edge, !dbg !50
+
+._crit_edge:                                      ; preds = %62, %80
+  %83 = phi <1 x i64> [ %82, %80 ], [ zeroinitializer, %62 ], !dbg !50
+  %84 = extractelement <1 x i64> %83, i64 0, !dbg !50
+  %85 = sext i32 %.decomposed85 to i64, !dbg !51
+  %86 = add nsw i32 %.decomposed85, -2, !dbg !52
+  %87 = add nsw i32 %77, -2, !dbg !52
+  %.lhs.trunc = trunc nsw i32 %86 to i8, !dbg !53
+  %88 = sdiv i8 %.lhs.trunc, 3, !dbg !54
+  %89 = mul i8 %88, 3, !dbg !53
+  %.decomposed86 = sub i8 %.lhs.trunc, %89, !dbg !53
+  %90 = trunc nsw i32 %76 to i8, !dbg !53
+  %.lhs.trunc40 = add nsw i8 %90, -2, !dbg !53
+  %.lhs.trunc40.frozen = freeze i8 %.lhs.trunc40, !dbg !54
+  %91 = sdiv i8 %.lhs.trunc40.frozen, 3, !dbg !54
+  %92 = mul i8 %91, 3, !dbg !53
+  %.decomposed87 = sub i8 %.lhs.trunc40.frozen, %92, !dbg !53
+  %.lhs.trunc42 = trunc nsw i32 %87 to i8, !dbg !53
+  %.lhs.trunc42.frozen = freeze i8 %.lhs.trunc42, !dbg !54
+  %93 = sdiv i8 %.lhs.trunc42.frozen, 3, !dbg !54
+  %94 = mul i8 %93, 3, !dbg !53
+  %.decomposed88 = sub i8 %.lhs.trunc42.frozen, %94, !dbg !53
+  %95 = trunc nsw i32 %78 to i8, !dbg !53
+  %.lhs.trunc44 = add nsw i8 %95, -2, !dbg !53
+  %.lhs.trunc44.frozen = freeze i8 %.lhs.trunc44, !dbg !54
+  %96 = sdiv i8 %.lhs.trunc44.frozen, 3, !dbg !54
+  %97 = mul i8 %96, 3, !dbg !53
+  %.decomposed89 = sub i8 %.lhs.trunc44.frozen, %97, !dbg !53
+  %98 = icmp eq i8 %.decomposed86, 0, !dbg !58
+  %99 = icmp eq i8 %.decomposed87, 0, !dbg !58
+  %100 = icmp eq i8 %.decomposed88, 0, !dbg !58
+  %101 = icmp eq i8 %.decomposed89, 0, !dbg !58
+  %102 = icmp ult i32 %86, 28, !dbg !59
+  %103 = icmp ult i32 %87, 28, !dbg !59
+  %104 = and i1 %102, %98, !dbg !60
+  %105 = and i1 %99, %102, !dbg !60
+  %106 = and i1 %103, %100, !dbg !60
+  %107 = and i1 %103, %101, !dbg !60
+  %.idx = shl i64 %7, 4, !dbg !61
+  %108 = getelementptr i8, ptr addrspace(1) %2, i64 %.idx, !dbg !61
+  %109 = getelementptr i64, ptr addrspace(1) %108, i64 %79, !dbg !61
+  %110 = and i1 %73, %104, !dbg !62
+  %111 = and i1 %73, %105, !dbg !62
+  %112 = and i1 %106, %73, !dbg !62
+  %113 = and i1 %107, %73, !dbg !62
+  br i1 %110, label %114, label %116, !dbg !63
+
+114:                                              ; preds = %._crit_edge
+  %115 = load <1 x i64>, ptr addrspace(1) %109, align 8, !dbg !63
+  br label %116, !dbg !63
+
+116:                                              ; preds = %114, %._crit_edge
+  %117 = phi <1 x i64> [ %115, %114 ], [ zeroinitializer, %._crit_edge ], !dbg !63
+  %118 = extractelement <1 x i64> %117, i64 0, !dbg !63
+  br i1 %111, label %119, label %121, !dbg !63
+
+119:                                              ; preds = %116
+  %120 = load <1 x i64>, ptr addrspace(1) %109, align 8, !dbg !63
+  br label %121, !dbg !63
+
+121:                                              ; preds = %119, %116
+  %122 = phi <1 x i64> [ %120, %119 ], [ zeroinitializer, %116 ], !dbg !63
+  %123 = extractelement <1 x i64> %122, i64 0, !dbg !63
+  br i1 %112, label %124, label %126, !dbg !63
+
+124:                                              ; preds = %121
+  %125 = load <1 x i64>, ptr addrspace(1) %109, align 8, !dbg !63
+  br label %126, !dbg !63
+
+126:                                              ; preds = %124, %121
+  %127 = phi <1 x i64> [ %125, %124 ], [ zeroinitializer, %121 ], !dbg !63
+  %128 = extractelement <1 x i64> %127, i64 0, !dbg !63
+  br i1 %113, label %129, label %131, !dbg !63
+
+129:                                              ; preds = %126
+  %130 = load <1 x i64>, ptr addrspace(1) %109, align 8, !dbg !63
+  br label %131, !dbg !63
+
+131:                                              ; preds = %129, %126
+  %132 = phi <1 x i64> [ %130, %129 ], [ zeroinitializer, %126 ], !dbg !63
+  %133 = extractelement <1 x i64> %132, i64 0, !dbg !63
+  %134 = lshr i64 %118, 43, !dbg !64
+  %135 = and i64 %134, 1048576, !dbg !64
+  %136 = add i64 %135, %118, !dbg !64
+  %137 = lshr i64 %123, 43, !dbg !64
+  %138 = and i64 %137, 1048576, !dbg !64
+  %139 = add i64 %138, %123, !dbg !64
+  %140 = lshr i64 %128, 43, !dbg !64
+  %141 = and i64 %140, 1048576, !dbg !64
+  %142 = add i64 %141, %128, !dbg !64
+  %143 = lshr i64 %133, 43, !dbg !64
+  %144 = and i64 %143, 1048576, !dbg !64
+  %145 = add i64 %144, %133, !dbg !64
+  %.sext47 = sext i8 %88 to i32, !dbg !54
+  %.sext49 = sext i8 %91 to i64, !dbg !54
+  %.sext51 = sext i8 %93 to i64, !dbg !54
+  %.sext53 = sext i8 %96 to i64, !dbg !54
+  %.not = icmp ne i8 %.decomposed86, 0, !dbg !65
+  %.not3 = icmp ne i8 %.decomposed87, 0, !dbg !65
+  %.not4 = icmp ne i8 %.decomposed88, 0, !dbg !65
+  %.not5 = icmp ne i8 %.decomposed89, 0, !dbg !65
+  %146 = icmp slt i32 %.decomposed85, 1, !dbg !66
+  %147 = icmp slt i32 %77, 1, !dbg !66
+  %narrow = and i1 %146, %.not, !dbg !67
+  %148 = sext i1 %narrow to i32, !dbg !67
+  %149 = add nsw i32 %148, %.sext47, !dbg !67
+  %narrow6 = select i1 %146, i1 %.not3, i1 false, !dbg !67
+  %150 = sext i1 %narrow6 to i64, !dbg !67
+  %151 = add nsw i64 %150, %.sext49, !dbg !67
+  %narrow7 = select i1 %147, i1 %.not4, i1 false, !dbg !67
+  %152 = sext i1 %narrow7 to i64, !dbg !67
+  %153 = add nsw i64 %152, %.sext51, !dbg !67
+  %narrow8 = select i1 %147, i1 %.not5, i1 false, !dbg !67
+  %154 = sext i1 %narrow8 to i64, !dbg !67
+  %155 = add nsw i64 %154, %.sext53, !dbg !67
+  %156 = mul nsw i32 %149, 3, !dbg !68
+  %157 = shl i64 %136, 6, !dbg !69
+  %.idx70 = shl i64 %139, 7, !dbg !70
+  %158 = getelementptr i8, ptr addrspace(1) %3, i64 %.idx70, !dbg !70
+  %.idx71 = mul nsw i64 %151, 6, !dbg !70
+  %159 = getelementptr i8, ptr addrspace(1) %158, i64 %.idx71, !dbg !70
+  %160 = getelementptr i8, ptr addrspace(1) %159, i64 4, !dbg !70
+  %.idx72 = shl i64 %142, 7, !dbg !70
+  %161 = getelementptr i8, ptr addrspace(1) %3, i64 %.idx72, !dbg !70
+  %.idx73 = mul nsw i64 %153, 6, !dbg !70
+  %162 = getelementptr i8, ptr addrspace(1) %161, i64 %.idx73, !dbg !70
+  %163 = getelementptr i8, ptr addrspace(1) %162, i64 4, !dbg !70
+  %.idx74 = shl i64 %145, 7, !dbg !70
+  %164 = getelementptr i8, ptr addrspace(1) %3, i64 %.idx74, !dbg !70
+  %.idx75 = mul nsw i64 %155, 6, !dbg !70
+  %165 = getelementptr i8, ptr addrspace(1) %164, i64 %.idx75, !dbg !70
+  %166 = getelementptr i8, ptr addrspace(1) %165, i64 4, !dbg !70
+  br i1 %110, label %167, label %173, !dbg !71
+
+167:                                              ; preds = %131
+  %168 = getelementptr half, ptr addrspace(1) %3, i64 %157
+  %169 = sext i32 %156 to i64
+  %170 = getelementptr half, ptr addrspace(1) %168, i64 %169
+  %171 = getelementptr i8, ptr addrspace(1) %170, i64 4
+  %172 = load <1 x half>, ptr addrspace(1) %171, align 2, !dbg !71
+  br label %173, !dbg !71
+
+173:                                              ; preds = %167, %131
+  %174 = phi <1 x half> [ %172, %167 ], [ zeroinitializer, %131 ], !dbg !71
+  %175 = extractelement <1 x half> %174, i64 0, !dbg !71
+  br i1 %111, label %176, label %178, !dbg !71
+
+176:                                              ; preds = %173
+  %177 = load <1 x half>, ptr addrspace(1) %160, align 2, !dbg !71
+  br label %178, !dbg !71
+
+178:                                              ; preds = %176, %173
+  %179 = phi <1 x half> [ %177, %176 ], [ zeroinitializer, %173 ], !dbg !71
+  %180 = extractelement <1 x half> %179, i64 0, !dbg !71
+  br i1 %112, label %181, label %183, !dbg !71
+
+181:                                              ; preds = %178
+  %182 = load <1 x half>, ptr addrspace(1) %163, align 2, !dbg !71
+  br label %183, !dbg !71
+
+183:                                              ; preds = %181, %178
+  %184 = phi <1 x half> [ %182, %181 ], [ zeroinitializer, %178 ], !dbg !71
+  %185 = extractelement <1 x half> %184, i64 0, !dbg !71
+  br i1 %113, label %186, label %188, !dbg !71
+
+186:                                              ; preds = %183
+  %187 = load <1 x half>, ptr addrspace(1) %166, align 2, !dbg !71
+  br label %188, !dbg !71
+
+188:                                              ; preds = %186, %183
+  %189 = phi <1 x half> [ %187, %186 ], [ zeroinitializer, %183 ], !dbg !71
+  %190 = extractelement <1 x half> %189, i64 0, !dbg !71
+  %191 = icmp sgt i32 %.decomposed85, 0, !dbg !72
+  %192 = icmp sgt i32 %76, 0, !dbg !72
+  %193 = icmp sgt i32 %77, 0, !dbg !72
+  %194 = icmp sgt i32 %78, 0, !dbg !72
+  %195 = trunc nsw i32 %.decomposed85 to i8, !dbg !73
+  %.lhs.trunc54 = add nsw i8 %195, -1, !dbg !73
+  %196 = sdiv i8 %.lhs.trunc54, 3, !dbg !74
+  %197 = mul i8 %196, 3, !dbg !73
+  %.decomposed90 = sub i8 %.lhs.trunc54, %197, !dbg !73
+  %198 = trunc nsw i32 %76 to i8, !dbg !73
+  %.lhs.trunc56 = add nsw i8 %198, -1, !dbg !73
+  %.lhs.trunc56.frozen = freeze i8 %.lhs.trunc56, !dbg !74
+  %199 = sdiv i8 %.lhs.trunc56.frozen, 3, !dbg !74
+  %200 = mul i8 %199, 3, !dbg !73
+  %.decomposed91 = sub i8 %.lhs.trunc56.frozen, %200, !dbg !73
+  %201 = trunc nsw i32 %77 to i8, !dbg !73
+  %.lhs.trunc58 = add nsw i8 %201, -1, !dbg !73
+  %.lhs.trunc58.frozen = freeze i8 %.lhs.trunc58, !dbg !74
+  %202 = sdiv i8 %.lhs.trunc58.frozen, 3, !dbg !74
+  %203 = mul i8 %202, 3, !dbg !73
+  %.decomposed92 = sub i8 %.lhs.trunc58.frozen, %203, !dbg !73
+  %204 = trunc nsw i32 %78 to i8, !dbg !73
+  %.lhs.trunc60 = add nsw i8 %204, -1, !dbg !73
+  %.lhs.trunc60.frozen = freeze i8 %.lhs.trunc60, !dbg !74
+  %205 = sdiv i8 %.lhs.trunc60.frozen, 3, !dbg !74
+  %206 = mul i8 %205, 3, !dbg !73
+  %.decomposed93 = sub i8 %.lhs.trunc60.frozen, %206, !dbg !73
+  %207 = icmp eq i8 %.decomposed90, 0, !dbg !76
+  %208 = icmp eq i8 %.decomposed91, 0, !dbg !76
+  %209 = icmp eq i8 %.decomposed92, 0, !dbg !76
+  %210 = icmp eq i8 %.decomposed93, 0, !dbg !76
+  %211 = and i1 %191, %207, !dbg !77
+  %212 = and i1 %192, %208, !dbg !77
+  %213 = and i1 %193, %209, !dbg !77
+  %214 = and i1 %194, %210, !dbg !77
+  %215 = getelementptr i64, ptr addrspace(1) %2, i64 %7, !dbg !78
+  %216 = getelementptr i64, ptr addrspace(1) %215, i64 %79, !dbg !78
+  %217 = and i1 %73, %211, !dbg !79
+  %218 = and i1 %212, %73, !dbg !79
+  %219 = and i1 %213, %73, !dbg !79
+  %220 = and i1 %214, %73, !dbg !79
+  br i1 %217, label %221, label %223, !dbg !80
+
+221:                                              ; preds = %188
+  %222 = load <1 x i64>, ptr addrspace(1) %216, align 8, !dbg !80
+  br label %223, !dbg !80
+
+223:                                              ; preds = %221, %188
+  %224 = phi <1 x i64> [ %222, %221 ], [ zeroinitializer, %188 ], !dbg !80
+  %225 = extractelement <1 x i64> %224, i64 0, !dbg !80
+  br i1 %218, label %226, label %228, !dbg !80
+
+226:                                              ; preds = %223
+  %227 = load <1 x i64>, ptr addrspace(1) %216, align 8, !dbg !80
+  br label %228, !dbg !80
+
+228:                                              ; preds = %226, %223
+  %229 = phi <1 x i64> [ %227, %226 ], [ zeroinitializer, %223 ], !dbg !80
+  %230 = extractelement <1 x i64> %229, i64 0, !dbg !80
+  br i1 %219, label %231, label %233, !dbg !80
+
+231:                                              ; preds = %228
+  %232 = load <1 x i64>, ptr addrspace(1) %216, align 8, !dbg !80
+  br label %233, !dbg !80
+
+233:                                              ; preds = %231, %228
+  %234 = phi <1 x i64> [ %232, %231 ], [ zeroinitializer, %228 ], !dbg !80
+  %235 = extractelement <1 x i64> %234, i64 0, !dbg !80
+  br i1 %220, label %236, label %238, !dbg !80
+
+236:                                              ; preds = %233
+  %237 = load <1 x i64>, ptr addrspace(1) %216, align 8, !dbg !80
+  br label %238, !dbg !80
+
+238:                                              ; preds = %236, %233
+  %239 = phi <1 x i64> [ %237, %236 ], [ zeroinitializer, %233 ], !dbg !80
+  %240 = extractelement <1 x i64> %239, i64 0, !dbg !80
+  %241 = lshr i64 %225, 43, !dbg !81
+  %242 = and i64 %241, 1048576, !dbg !81
+  %243 = add i64 %242, %225, !dbg !81
+  %244 = lshr i64 %230, 43, !dbg !81
+  %245 = and i64 %244, 1048576, !dbg !81
+  %246 = add i64 %245, %230, !dbg !81
+  %247 = lshr i64 %235, 43, !dbg !81
+  %248 = and i64 %247, 1048576, !dbg !81
+  %249 = add i64 %248, %235, !dbg !81
+  %250 = lshr i64 %240, 43, !dbg !81
+  %251 = and i64 %250, 1048576, !dbg !81
+  %252 = add i64 %251, %240, !dbg !81
+  %.sext63 = sext i8 %196 to i32, !dbg !74
+  %.sext65 = sext i8 %199 to i64, !dbg !74
+  %.sext67 = sext i8 %202 to i64, !dbg !74
+  %.sext69 = sext i8 %205 to i64, !dbg !74
+  %.not9 = icmp ne i8 %.decomposed90, 0, !dbg !82
+  %.not10 = icmp ne i8 %.decomposed91, 0, !dbg !82
+  %.not11 = icmp ne i8 %.decomposed92, 0, !dbg !82
+  %.not12 = icmp ne i8 %.decomposed93, 0, !dbg !82
+  %narrow13 = and i1 %146, %.not9, !dbg !83
+  %253 = sext i1 %narrow13 to i32, !dbg !83
+  %254 = add nsw i32 %253, %.sext63, !dbg !83
+  %.inv14 = icmp slt i32 %76, 1, !dbg !83
+  %narrow15 = select i1 %.inv14, i1 %.not10, i1 false, !dbg !83
+  %255 = sext i1 %narrow15 to i64, !dbg !83
+  %256 = add nsw i64 %255, %.sext65, !dbg !83
+  %narrow17 = select i1 %147, i1 %.not11, i1 false, !dbg !83
+  %257 = sext i1 %narrow17 to i64, !dbg !83
+  %258 = add nsw i64 %257, %.sext67, !dbg !83
+  %.inv18 = icmp slt i32 %78, 1, !dbg !83
+  %narrow19 = select i1 %.inv18, i1 %.not12, i1 false, !dbg !83
+  %259 = sext i1 %narrow19 to i64, !dbg !83
+  %260 = add nsw i64 %259, %.sext69, !dbg !83
+  %261 = mul nsw i32 %254, 3, !dbg !84
+  %262 = shl i64 %243, 6, !dbg !85
+  %.idx76 = shl i64 %246, 7, !dbg !86
+  %263 = getelementptr i8, ptr addrspace(1) %3, i64 %.idx76, !dbg !86
+  %.idx77 = mul nsw i64 %256, 6, !dbg !86
+  %264 = getelementptr i8, ptr addrspace(1) %263, i64 %.idx77, !dbg !86
+  %265 = getelementptr i8, ptr addrspace(1) %264, i64 2, !dbg !86
+  %.idx78 = shl i64 %249, 7, !dbg !86
+  %266 = getelementptr i8, ptr addrspace(1) %3, i64 %.idx78, !dbg !86
+  %.idx79 = mul nsw i64 %258, 6, !dbg !86
+  %267 = getelementptr i8, ptr addrspace(1) %266, i64 %.idx79, !dbg !86
+  %268 = getelementptr i8, ptr addrspace(1) %267, i64 2, !dbg !86
+  %.idx80 = shl i64 %252, 7, !dbg !86
+  %269 = getelementptr i8, ptr addrspace(1) %3, i64 %.idx80, !dbg !86
+  %.idx81 = mul nsw i64 %260, 6, !dbg !86
+  %270 = getelementptr i8, ptr addrspace(1) %269, i64 %.idx81, !dbg !86
+  %271 = getelementptr i8, ptr addrspace(1) %270, i64 2, !dbg !86
+  br i1 %217, label %272, label %278, !dbg !87
+
+272:                                              ; preds = %238
+  %273 = getelementptr half, ptr addrspace(1) %3, i64 %262
+  %274 = sext i32 %261 to i64
+  %275 = getelementptr half, ptr addrspace(1) %273, i64 %274
+  %276 = getelementptr i8, ptr addrspace(1) %275, i64 2
+  %277 = load <1 x half>, ptr addrspace(1) %276, align 2, !dbg !87
+  br label %278, !dbg !87
+
+278:                                              ; preds = %272, %238
+  %279 = phi <1 x half> [ %277, %272 ], [ zeroinitializer, %238 ], !dbg !87
+  %280 = extractelement <1 x half> %279, i64 0, !dbg !87
+  br i1 %218, label %281, label %283, !dbg !87
+
+281:                                              ; preds = %278
+  %282 = load <1 x half>, ptr addrspace(1) %265, align 2, !dbg !87
+  br label %283, !dbg !87
+
+283:                                              ; preds = %281, %278
+  %284 = phi <1 x half> [ %282, %281 ], [ zeroinitializer, %278 ], !dbg !87
+  %285 = extractelement <1 x half> %284, i64 0, !dbg !87
+  br i1 %219, label %286, label %288, !dbg !87
+
+286:                                              ; preds = %283
+  %287 = load <1 x half>, ptr addrspace(1) %268, align 2, !dbg !87
+  br label %288, !dbg !87
+
+288:                                              ; preds = %286, %283
+  %289 = phi <1 x half> [ %287, %286 ], [ zeroinitializer, %283 ], !dbg !87
+  %290 = extractelement <1 x half> %289, i64 0, !dbg !87
+  br i1 %220, label %291, label %293, !dbg !87
+
+291:                                              ; preds = %288
+  %292 = load <1 x half>, ptr addrspace(1) %271, align 2, !dbg !87
+  br label %293, !dbg !87
+
+293:                                              ; preds = %291, %288
+  %294 = phi <1 x half> [ %292, %291 ], [ zeroinitializer, %288 ], !dbg !87
+  %295 = extractelement <1 x half> %294, i64 0, !dbg !87
+  %296 = lshr i64 %84, 43, !dbg !88
+  %297 = and i64 %296, 1048576, !dbg !88
+  %298 = add i64 %297, %84, !dbg !88
+  %299 = shl i64 %298, 6, !dbg !89
+  br i1 %73, label %300, label %304, !dbg !90
+
+300:                                              ; preds = %293
+  %301 = getelementptr half, ptr addrspace(1) %3, i64 %299
+  %302 = getelementptr half, ptr addrspace(1) %301, i64 %85
+  %303 = load <4 x half>, ptr addrspace(1) %302, align 8, !dbg !90
+  br label %304, !dbg !90
+
+304:                                              ; preds = %300, %293
+  %305 = phi <4 x half> [ %303, %300 ], [ zeroinitializer, %293 ], !dbg !90
+  %306 = extractelement <4 x half> %305, i64 0, !dbg !90
+  %307 = extractelement <4 x half> %305, i64 1, !dbg !90
+  %308 = extractelement <4 x half> %305, i64 2, !dbg !90
+  %309 = extractelement <4 x half> %305, i64 3, !dbg !90
+  %.v = select i1 %211, half %280, half %306, !dbg !91
+  %.v20 = select i1 %212, half %285, half %307, !dbg !91
+  %.v21 = select i1 %213, half %290, half %308, !dbg !91
+  %.v22 = select i1 %214, half %295, half %309, !dbg !91
+  %.v23 = select i1 %104, half %175, half %.v, !dbg !92
+  %.v24 = select i1 %105, half %180, half %.v20, !dbg !92
+  %.v25 = select i1 %106, half %185, half %.v21, !dbg !92
+  %.v26 = select i1 %107, half %190, half %.v22, !dbg !92
+  %310 = getelementptr i8, ptr addrspace(1) %159, i64 68, !dbg !93
+  %311 = getelementptr i8, ptr addrspace(1) %162, i64 68, !dbg !93
+  %312 = getelementptr i8, ptr addrspace(1) %165, i64 68, !dbg !93
+  br i1 %110, label %313, label %319, !dbg !94
+
+313:                                              ; preds = %304
+  %314 = getelementptr half, ptr addrspace(1) %3, i64 %157
+  %315 = sext i32 %156 to i64
+  %316 = getelementptr half, ptr addrspace(1) %314, i64 %315
+  %317 = getelementptr i8, ptr addrspace(1) %316, i64 68
+  %318 = load <1 x half>, ptr addrspace(1) %317, align 2, !dbg !94
+  br label %319, !dbg !94
+
+319:                                              ; preds = %313, %304
+  %320 = phi <1 x half> [ %318, %313 ], [ zeroinitializer, %304 ], !dbg !94
+  %321 = extractelement <1 x half> %320, i64 0, !dbg !94
+  br i1 %111, label %322, label %324, !dbg !94
+
+322:                                              ; preds = %319
+  %323 = load <1 x half>, ptr addrspace(1) %310, align 2, !dbg !94
+  br label %324, !dbg !94
+
+324:                                              ; preds = %322, %319
+  %325 = phi <1 x half> [ %323, %322 ], [ zeroinitializer, %319 ], !dbg !94
+  %326 = extractelement <1 x half> %325, i64 0, !dbg !94
+  br i1 %112, label %327, label %329, !dbg !94
+
+327:                                              ; preds = %324
+  %328 = load <1 x half>, ptr addrspace(1) %311, align 2, !dbg !94
+  br label %329, !dbg !94
+
+329:                                              ; preds = %327, %324
+  %330 = phi <1 x half> [ %328, %327 ], [ zeroinitializer, %324 ], !dbg !94
+  %331 = extractelement <1 x half> %330, i64 0, !dbg !94
+  br i1 %113, label %332, label %334, !dbg !94
+
+332:                                              ; preds = %329
+  %333 = load <1 x half>, ptr addrspace(1) %312, align 2, !dbg !94
+  br label %334, !dbg !94
+
+334:                                              ; preds = %332, %329
+  %335 = phi <1 x half> [ %333, %332 ], [ zeroinitializer, %329 ], !dbg !94
+  %336 = extractelement <1 x half> %335, i64 0, !dbg !94
+  %337 = getelementptr i8, ptr addrspace(1) %264, i64 66, !dbg !95
+  %338 = getelementptr i8, ptr addrspace(1) %267, i64 66, !dbg !95
+  %339 = getelementptr i8, ptr addrspace(1) %270, i64 66, !dbg !95
+  br i1 %217, label %340, label %346, !dbg !96
+
+340:                                              ; preds = %334
+  %341 = getelementptr half, ptr addrspace(1) %3, i64 %262
+  %342 = sext i32 %261 to i64
+  %343 = getelementptr half, ptr addrspace(1) %341, i64 %342
+  %344 = getelementptr i8, ptr addrspace(1) %343, i64 66
+  %345 = load <1 x half>, ptr addrspace(1) %344, align 2, !dbg !96
+  br label %346, !dbg !96
+
+346:                                              ; preds = %340, %334
+  %347 = phi <1 x half> [ %345, %340 ], [ zeroinitializer, %334 ], !dbg !96
+  %348 = extractelement <1 x half> %347, i64 0, !dbg !96
+  br i1 %218, label %349, label %351, !dbg !96
+
+349:                                              ; preds = %346
+  %350 = load <1 x half>, ptr addrspace(1) %337, align 2, !dbg !96
+  br label %351, !dbg !96
+
+351:                                              ; preds = %349, %346
+  %352 = phi <1 x half> [ %350, %349 ], [ zeroinitializer, %346 ], !dbg !96
+  %353 = extractelement <1 x half> %352, i64 0, !dbg !96
+  br i1 %219, label %354, label %356, !dbg !96
+
+354:                                              ; preds = %351
+  %355 = load <1 x half>, ptr addrspace(1) %338, align 2, !dbg !96
+  br label %356, !dbg !96
+
+356:                                              ; preds = %354, %351
+  %357 = phi <1 x half> [ %355, %354 ], [ zeroinitializer, %351 ], !dbg !96
+  %358 = extractelement <1 x half> %357, i64 0, !dbg !96
+  br i1 %220, label %359, label %361, !dbg !96
+
+359:                                              ; preds = %356
+  %360 = load <1 x half>, ptr addrspace(1) %339, align 2, !dbg !96
+  br label %361, !dbg !96
+
+361:                                              ; preds = %359, %356
+  %362 = phi <1 x half> [ %360, %359 ], [ zeroinitializer, %356 ], !dbg !96
+  br i1 %73, label %363, label %.critedge, !dbg !97
+
+363:                                              ; preds = %361
+  %364 = extractelement <1 x half> %362, i64 0, !dbg !96
+  %365 = getelementptr half, ptr addrspace(1) %3, i64 %299, !dbg !98
+  %366 = getelementptr half, ptr addrspace(1) %365, i64 %85, !dbg !98
+  %367 = getelementptr i8, ptr addrspace(1) %366, i64 64, !dbg !98
+  %368 = load <4 x half>, ptr addrspace(1) %367, align 8, !dbg !97
+  %369 = insertelement <4 x half> poison, half %.v23, i64 0, !dbg !99
+  %370 = insertelement <4 x half> %369, half %.v24, i64 1, !dbg !99
+  %371 = insertelement <4 x half> %370, half %.v25, i64 2, !dbg !99
+  %372 = insertelement <4 x half> %371, half %.v26, i64 3, !dbg !99
+  %373 = sext i32 %68 to i64, !dbg !100
+  %374 = getelementptr half, ptr addrspace(1) %5, i64 %373, !dbg !100
+  %375 = extractelement <4 x half> %368, i64 3, !dbg !97
+  %.v30 = select i1 %214, half %364, half %375, !dbg !101
+  %.v34 = select i1 %107, half %336, half %.v30, !dbg !102
+  %376 = extractelement <4 x half> %368, i64 2, !dbg !97
+  %.v29 = select i1 %213, half %358, half %376, !dbg !101
+  %.v33 = select i1 %106, half %331, half %.v29, !dbg !102
+  %377 = extractelement <4 x half> %368, i64 1, !dbg !97
+  %.v28 = select i1 %212, half %353, half %377, !dbg !101
+  %.v32 = select i1 %105, half %326, half %.v28, !dbg !102
+  %378 = extractelement <4 x half> %368, i64 0, !dbg !97
+  %.v27 = select i1 %211, half %348, half %378, !dbg !101
+  %.v31 = select i1 %104, half %321, half %.v27, !dbg !102
+  store <4 x half> %372, ptr addrspace(1) %374, align 8, !dbg !99
+  %379 = getelementptr half, ptr addrspace(1) %6, i64 %373, !dbg !103
+  %380 = insertelement <4 x half> poison, half %.v31, i64 0, !dbg !104
+  %381 = insertelement <4 x half> %380, half %.v32, i64 1, !dbg !104
+  %382 = insertelement <4 x half> %381, half %.v33, i64 2, !dbg !104
+  %383 = insertelement <4 x half> %382, half %.v34, i64 3, !dbg !104
+  store <4 x half> %383, ptr addrspace(1) %379, align 8, !dbg !104
+  br label %.critedge, !dbg !104
+
+.critedge:                                        ; preds = %17, %361, %363, %57, %24
+  ret void, !dbg !105
+}
+
+; Function Attrs: mustprogress nocallback nofree nosync nounwind speculatable willreturn memory(none)
+declare noundef i32 @llvm.amdgcn.workgroup.id.x() #1
+
+; Function Attrs: mustprogress nocallback nofree nosync nounwind speculatable willreturn memory(none)
+declare noundef range(i32 0, 1024) i32 @llvm.amdgcn.workitem.id.x() #1
+
+attributes #0 = { mustprogress nofree norecurse nosync nounwind willreturn memory(argmem: readwrite) "amdgpu-agpr-alloc"="0" "amdgpu-flat-work-group-size"="1,128" "amdgpu-no-cluster-id-x" "amdgpu-no-cluster-id-y" "amdgpu-no-cluster-id-z" "amdgpu-no-completion-action" "amdgpu-no-default-queue" "amdgpu-no-dispatch-id" "amdgpu-no-dispatch-ptr" "amdgpu-no-flat-scratch-init" "amdgpu-no-heap-ptr" "amdgpu-no-hostcall-ptr" "amdgpu-no-implicitarg-ptr" "amdgpu-no-lds-kernel-id" "amdgpu-no-multigrid-sync-arg" "amdgpu-no-queue-ptr" "amdgpu-no-workgroup-id-x" "amdgpu-no-workgroup-id-y" "amdgpu-no-workgroup-id-z" "amdgpu-no-workitem-id-x" "amdgpu-no-workitem-id-y" "amdgpu-no-workitem-id-z" "amdgpu-waves-per-eu"="0, 0" "denormal-fp-math-f32"="ieee" "uniform-work-group-size"="true" }
+attributes #1 = { mustprogress nocallback nofree nosync nounwind speculatable willreturn memory(none) }
+
+!llvm.dbg.cu = !{!0}
+!llvm.module.flags = !{!2, !3}
+
+!0 = distinct !DICompileUnit(language: DW_LANG_C, file: !1, producer: "triton", isOptimized: true, runtimeVersion: 0, emissionKind: LineTablesOnly)
+!1 = !DIFile(filename: "ctuzlgtw36dp6umwsyxfc6mhqkm7xmfepqj4iaazoduuipdsmiix.py", directory: "/compile-cache/torch_compile_cache/torch_aot_compile/6625b0bc305b478a535d440a3c5eb82d06325b7749cf61ce209ee8f4bf26daa4/inductor_cache/tu")
+!2 = !{i32 2, !"Debug Info Version", i32 3}
+!3 = !{i32 1, !"amdhsa_code_object_version", i32 500}
+!4 = distinct !DISubprogram(name: "triton_poi_fused_0", linkageName: "triton_poi_fused_0", scope: !1, file: !1, line: 20, type: !5, scopeLine: 20, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0)
+!5 = !DISubroutineType(cc: DW_CC_normal, types: !6)
+!6 = !{}
+!7 = !DILocation(line: 21, column: 24, scope: !4)
+!8 = !DILocation(line: 43, column: 17, scope: !9, inlinedAt: !11)
+!9 = distinct !DILexicalBlockFile(scope: !4, file: !10, discriminator: 0)
+!10 = !DIFile(filename: "standard.py", directory: "/usr/local/lib/python3.12/dist-packages/triton/language")
+!11 = !DILocation(line: 22, column: 38, scope: !12)
+!12 = distinct !DILexicalBlockFile(scope: !4, file: !1, discriminator: 0)
+!13 = !DILocation(line: 43, column: 30, scope: !9, inlinedAt: !11)
+!14 = !DILocation(line: 24, column: 13, scope: !4)
+!15 = !DILocation(line: 24, column: 7, scope: !4)
+!16 = !DILocation(line: 27, column: 31, scope: !4)
+!17 = !DILocation(line: 28, column: 40, scope: !4)
+!18 = !DILocation(line: 28, column: 27, scope: !4)
+!19 = !DILocation(line: 29, column: 25, scope: !4)
+!20 = !DILocation(line: 33, column: 39, scope: !4)
+!21 = !DILocation(line: 30, column: 23, scope: !4)
+!22 = !DILocation(line: 31, column: 23, scope: !4)
+!23 = !DILocation(line: 33, column: 34, scope: !4)
+!24 = !DILocation(line: 38, column: 22, scope: !4)
+!25 = !DILocation(line: 58, column: 40, scope: !4)
+!26 = !DILocation(line: 44, column: 24, scope: !4)
+!27 = !DILocation(line: 51, column: 24, scope: !4)
+!28 = !DILocation(line: 52, column: 24, scope: !4)
+!29 = !DILocation(line: 55, column: 24, scope: !4)
+!30 = !DILocation(line: 54, column: 24, scope: !4)
+!31 = !DILocation(line: 56, column: 39, scope: !4)
+!32 = !DILocation(line: 58, column: 35, scope: !4)
+!33 = !DILocation(line: 58, column: 53, scope: !4)
+!34 = !DILocation(line: 60, column: 38, scope: !4)
+!35 = !DILocation(line: 61, column: 41, scope: !4)
+!36 = !DILocation(line: 61, column: 29, scope: !4)
+!37 = !DILocation(line: 43, column: 17, scope: !9, inlinedAt: !38)
+!38 = !DILocation(line: 23, column: 54, scope: !12)
+!39 = !DILocation(line: 43, column: 30, scope: !9, inlinedAt: !38)
+!40 = !DILocation(line: 23, column: 36, scope: !4)
+!41 = !DILocation(line: 62, column: 15, scope: !4)
+!42 = !DILocation(line: 62, column: 9, scope: !4)
+!43 = !DILocation(line: 63, column: 27, scope: !4)
+!44 = !DILocation(line: 65, column: 31, scope: !4)
+!45 = !DILocation(line: 66, column: 40, scope: !4)
+!46 = !DILocation(line: 66, column: 27, scope: !4)
+!47 = !DILocation(line: 67, column: 25, scope: !4)
+!48 = !DILocation(line: 69, column: 23, scope: !4)
+!49 = !DILocation(line: 68, column: 23, scope: !4)
+!50 = !DILocation(line: 71, column: 40, scope: !4)
+!51 = !DILocation(line: 74, column: 25, scope: !4)
+!52 = !DILocation(line: 77, column: 25, scope: !4)
+!53 = !DILocation(line: 77, column: 31, scope: !4)
+!54 = !DILocation(line: 78, column: 16, scope: !55, inlinedAt: !57)
+!55 = distinct !DILexicalBlockFile(scope: !4, file: !56, discriminator: 0)
+!56 = !DIFile(filename: "triton_helpers.py", directory: "/usr/local/lib/python3.12/dist-packages/torch/_inductor/runtime")
+!57 = !DILocation(line: 89, column: 87, scope: !12)
+!58 = !DILocation(line: 79, column: 25, scope: !4)
+!59 = !DILocation(line: 80, column: 24, scope: !4)
+!60 = !DILocation(line: 81, column: 24, scope: !4)
+!61 = !DILocation(line: 83, column: 35, scope: !4)
+!62 = !DILocation(line: 83, column: 56, scope: !4)
+!63 = !DILocation(line: 83, column: 48, scope: !4)
+!64 = !DILocation(line: 87, column: 39, scope: !4)
+!65 = !DILocation(line: 80, column: 34, scope: !55, inlinedAt: !57)
+!66 = !DILocation(line: 81, column: 25, scope: !55, inlinedAt: !57)
+!67 = !DILocation(line: 81, column: 47, scope: !55, inlinedAt: !57)
+!68 = !DILocation(line: 89, column: 42, scope: !4)
+!69 = !DILocation(line: 89, column: 96, scope: !4)
+!70 = !DILocation(line: 89, column: 35, scope: !4)
+!71 = !DILocation(line: 89, column: 104, scope: !4)
+!72 = !DILocation(line: 91, column: 25, scope: !4)
+!73 = !DILocation(line: 92, column: 31, scope: !4)
+!74 = !DILocation(line: 78, column: 16, scope: !55, inlinedAt: !75)
+!75 = !DILocation(line: 102, column: 87, scope: !12)
+!76 = !DILocation(line: 93, column: 25, scope: !4)
+!77 = !DILocation(line: 94, column: 24, scope: !4)
+!78 = !DILocation(line: 96, column: 35, scope: !4)
+!79 = !DILocation(line: 96, column: 54, scope: !4)
+!80 = !DILocation(line: 96, column: 46, scope: !4)
+!81 = !DILocation(line: 100, column: 39, scope: !4)
+!82 = !DILocation(line: 80, column: 34, scope: !55, inlinedAt: !75)
+!83 = !DILocation(line: 81, column: 47, scope: !55, inlinedAt: !75)
+!84 = !DILocation(line: 102, column: 42, scope: !4)
+!85 = !DILocation(line: 102, column: 96, scope: !4)
+!86 = !DILocation(line: 102, column: 35, scope: !4)
+!87 = !DILocation(line: 102, column: 104, scope: !4)
+!88 = !DILocation(line: 106, column: 39, scope: !4)
+!89 = !DILocation(line: 108, column: 43, scope: !4)
+!90 = !DILocation(line: 108, column: 51, scope: !4)
+!91 = !DILocation(line: 109, column: 39, scope: !4)
+!92 = !DILocation(line: 110, column: 39, scope: !4)
+!93 = !DILocation(line: 111, column: 35, scope: !4)
+!94 = !DILocation(line: 111, column: 105, scope: !4)
+!95 = !DILocation(line: 112, column: 35, scope: !4)
+!96 = !DILocation(line: 112, column: 105, scope: !4)
+!97 = !DILocation(line: 113, column: 56, scope: !4)
+!98 = !DILocation(line: 113, column: 35, scope: !4)
+!99 = !DILocation(line: 116, column: 41, scope: !4)
+!100 = !DILocation(line: 116, column: 29, scope: !4)
+!101 = !DILocation(line: 114, column: 39, scope: !4)
+!102 = !DILocation(line: 115, column: 39, scope: !4)
+!103 = !DILocation(line: 117, column: 29, scope: !4)
+!104 = !DILocation(line: 117, column: 41, scope: !4)
+!105 = !DILocation(line: 24, column: 4, scope: !4)

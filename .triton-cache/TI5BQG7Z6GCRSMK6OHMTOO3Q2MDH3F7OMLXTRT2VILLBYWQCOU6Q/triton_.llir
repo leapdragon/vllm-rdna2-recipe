@@ -1,0 +1,77 @@
+; ModuleID = 'LLVMDialectModule'
+source_filename = "LLVMDialectModule"
+target datalayout = "e-p:64:64-p1:64:64-p2:32:32-p3:32:32-p4:64:64-p5:32:32-p6:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024-v2048:2048-n32:64-S32-A5-G1-ni:7:8:9"
+target triple = "amdgcn-amd-amdhsa"
+
+; Function Attrs: mustprogress nofree norecurse nosync nounwind willreturn memory(argmem: readwrite)
+define amdgpu_kernel void @triton_(ptr addrspace(1) inreg readonly captures(none) %0, ptr addrspace(1) inreg writeonly captures(none) %1, i32 inreg %2, ptr addrspace(1) inreg readnone captures(none) %3, ptr addrspace(1) inreg readnone captures(none) %4) local_unnamed_addr #0 !dbg !4 {
+  %6 = tail call i32 @llvm.amdgcn.workgroup.id.x(), !dbg !7
+  %7 = shl i32 %6, 10, !dbg !8
+  %8 = tail call i32 @llvm.amdgcn.workitem.id.x(), !dbg !9
+  %9 = shl nuw nsw i32 %8, 3, !dbg !9
+  %10 = and i32 %9, 1016, !dbg !9
+  %11 = or disjoint i32 %10, %7, !dbg !10
+  %12 = icmp slt i32 %11, %2, !dbg !11
+  br i1 %12, label %13, label %.critedge, !dbg !12
+
+13:                                               ; preds = %5
+  %14 = sdiv i32 %11, 256, !dbg !13
+  %15 = mul i32 %14, 256, !dbg !14
+  %.decomposed = sub i32 %11, %15, !dbg !14
+  %16 = add nsw i32 %.decomposed, 256, !dbg !15
+  %17 = srem i32 %14, 12, !dbg !16
+  %18 = shl nsw i32 %17, 9, !dbg !17
+  %19 = sdiv i32 %11, 3072, !dbg !18
+  %20 = mul i32 %19, 7168, !dbg !19
+  %21 = add i32 %16, %20, !dbg !20
+  %22 = add i32 %21, %18, !dbg !21
+  %23 = sext i32 %22 to i64, !dbg !22
+  %24 = getelementptr half, ptr addrspace(1) %0, i64 %23, !dbg !22
+  %25 = load <8 x half>, ptr addrspace(1) %24, align 16, !dbg !12
+  %26 = sext i32 %11 to i64, !dbg !23
+  %27 = getelementptr half, ptr addrspace(1) %1, i64 %26, !dbg !23
+  store <8 x half> %25, ptr addrspace(1) %27, align 16, !dbg !24
+  br label %.critedge, !dbg !24
+
+.critedge:                                        ; preds = %5, %13
+  ret void, !dbg !25
+}
+
+; Function Attrs: mustprogress nocallback nofree nosync nounwind speculatable willreturn memory(none)
+declare noundef i32 @llvm.amdgcn.workgroup.id.x() #1
+
+; Function Attrs: mustprogress nocallback nofree nosync nounwind speculatable willreturn memory(none)
+declare noundef range(i32 0, 1024) i32 @llvm.amdgcn.workitem.id.x() #1
+
+attributes #0 = { mustprogress nofree norecurse nosync nounwind willreturn memory(argmem: readwrite) "amdgpu-agpr-alloc"="0" "amdgpu-flat-work-group-size"="1,128" "amdgpu-no-cluster-id-x" "amdgpu-no-cluster-id-y" "amdgpu-no-cluster-id-z" "amdgpu-no-completion-action" "amdgpu-no-default-queue" "amdgpu-no-dispatch-id" "amdgpu-no-dispatch-ptr" "amdgpu-no-flat-scratch-init" "amdgpu-no-heap-ptr" "amdgpu-no-hostcall-ptr" "amdgpu-no-implicitarg-ptr" "amdgpu-no-lds-kernel-id" "amdgpu-no-multigrid-sync-arg" "amdgpu-no-queue-ptr" "amdgpu-no-workgroup-id-x" "amdgpu-no-workgroup-id-y" "amdgpu-no-workgroup-id-z" "amdgpu-no-workitem-id-x" "amdgpu-no-workitem-id-y" "amdgpu-no-workitem-id-z" "amdgpu-waves-per-eu"="0, 0" "denormal-fp-math-f32"="ieee" "uniform-work-group-size"="true" }
+attributes #1 = { mustprogress nocallback nofree nosync nounwind speculatable willreturn memory(none) }
+
+!llvm.dbg.cu = !{!0}
+!llvm.module.flags = !{!2, !3}
+
+!0 = distinct !DICompileUnit(language: DW_LANG_C, file: !1, producer: "triton", isOptimized: true, runtimeVersion: 0, emissionKind: LineTablesOnly)
+!1 = !DIFile(filename: "czhgvunsretcu4xfwcsgka7ikcb3cxlnfxajqoznveaqj5yyc3r3.py", directory: "/compile-cache/torch_compile_cache/torch_aot_compile/d7204f1f34e6c77165926f0ab12c850fae4d90351461363e3eba42a413c914ff/inductor_cache/zh")
+!2 = !{i32 2, !"Debug Info Version", i32 3}
+!3 = !{i32 1, !"amdhsa_code_object_version", i32 500}
+!4 = distinct !DISubprogram(name: "triton_", linkageName: "triton_", scope: !1, file: !1, line: 22, type: !5, scopeLine: 22, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0)
+!5 = !DISubroutineType(cc: DW_CC_normal, types: !6)
+!6 = !{}
+!7 = !DILocation(line: 23, column: 28, scope: !4)
+!8 = !DILocation(line: 23, column: 33, scope: !4)
+!9 = !DILocation(line: 24, column: 36, scope: !4)
+!10 = !DILocation(line: 24, column: 23, scope: !4)
+!11 = !DILocation(line: 25, column: 21, scope: !4)
+!12 = !DILocation(line: 30, column: 60, scope: !4)
+!13 = !DILocation(line: 27, column: 21, scope: !4)
+!14 = !DILocation(line: 26, column: 19, scope: !4)
+!15 = !DILocation(line: 30, column: 36, scope: !4)
+!16 = !DILocation(line: 27, column: 28, scope: !4)
+!17 = !DILocation(line: 30, column: 45, scope: !4)
+!18 = !DILocation(line: 28, column: 19, scope: !4)
+!19 = !DILocation(line: 30, column: 55, scope: !4)
+!20 = !DILocation(line: 30, column: 41, scope: !4)
+!21 = !DILocation(line: 30, column: 50, scope: !4)
+!22 = !DILocation(line: 30, column: 30, scope: !4)
+!23 = !DILocation(line: 31, column: 25, scope: !4)
+!24 = !DILocation(line: 31, column: 36, scope: !4)
+!25 = !DILocation(line: 31, column: 4, scope: !4)

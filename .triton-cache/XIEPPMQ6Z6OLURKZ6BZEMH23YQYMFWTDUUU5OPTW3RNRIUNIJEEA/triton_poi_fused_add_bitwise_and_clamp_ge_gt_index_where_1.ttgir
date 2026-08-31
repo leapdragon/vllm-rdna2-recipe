@@ -1,0 +1,20 @@
+#blocked = #ttg.blocked<{sizePerThread = [1], threadsPerWarp = [32], warpsPerCTA = [1], order = [0]}>
+#loc = loc("/compile-cache/torch_compile_cache/torch_aot_compile/6625b0bc305b478a535d440a3c5eb82d06325b7749cf61ce209ee8f4bf26daa4/inductor_cache/rl/crlo2cetm2xd6bugbv7uuu7qvq4z7tfy3ygkiol3p7fhgpfiekov.py":18:0)
+#loc6 = loc("in_ptr0"(#loc))
+#loc7 = loc("out_ptr0"(#loc))
+module attributes {"ttg.num-ctas" = 1 : i32, "ttg.num-warps" = 1 : i32, ttg.target = "hip:gfx1030", "ttg.threads-per-warp" = 32 : i32} {
+  tt.func public @triton_poi_fused_add_bitwise_and_clamp_ge_gt_index_where_1(%in_ptr0: !tt.ptr<i32> {tt.divisibility = 16 : i32} loc("in_ptr0"(#loc)), %out_ptr0: !tt.ptr<i32> {tt.divisibility = 16 : i32} loc("out_ptr0"(#loc))) attributes {noinline = false} {
+    %tmp0 = tt.load %in_ptr0 : !tt.ptr<i32> loc(#loc8)
+    %tmp1 = tt.splat %tmp0 : i32 -> tensor<1xi32, #blocked> loc(#loc9)
+    %0 = tt.splat %out_ptr0 : !tt.ptr<i32> -> tensor<1x!tt.ptr<i32>, #blocked> loc(#loc3)
+    tt.store %0, %tmp1 : tensor<1x!tt.ptr<i32>, #blocked> loc(#loc4)
+    tt.return loc(#loc5)
+  } loc(#loc)
+} loc(#loc)
+#loc1 = loc("/compile-cache/torch_compile_cache/torch_aot_compile/6625b0bc305b478a535d440a3c5eb82d06325b7749cf61ce209ee8f4bf26daa4/inductor_cache/rl/crlo2cetm2xd6bugbv7uuu7qvq4z7tfy3ygkiol3p7fhgpfiekov.py":23:19)
+#loc2 = loc("/compile-cache/torch_compile_cache/torch_aot_compile/6625b0bc305b478a535d440a3c5eb82d06325b7749cf61ce209ee8f4bf26daa4/inductor_cache/rl/crlo2cetm2xd6bugbv7uuu7qvq4z7tfy3ygkiol3p7fhgpfiekov.py":24:33)
+#loc3 = loc("/compile-cache/torch_compile_cache/torch_aot_compile/6625b0bc305b478a535d440a3c5eb82d06325b7749cf61ce209ee8f4bf26daa4/inductor_cache/rl/crlo2cetm2xd6bugbv7uuu7qvq4z7tfy3ygkiol3p7fhgpfiekov.py":25:25)
+#loc4 = loc("/compile-cache/torch_compile_cache/torch_aot_compile/6625b0bc305b478a535d440a3c5eb82d06325b7749cf61ce209ee8f4bf26daa4/inductor_cache/rl/crlo2cetm2xd6bugbv7uuu7qvq4z7tfy3ygkiol3p7fhgpfiekov.py":25:85)
+#loc5 = loc("/compile-cache/torch_compile_cache/torch_aot_compile/6625b0bc305b478a535d440a3c5eb82d06325b7749cf61ce209ee8f4bf26daa4/inductor_cache/rl/crlo2cetm2xd6bugbv7uuu7qvq4z7tfy3ygkiol3p7fhgpfiekov.py":25:4)
+#loc8 = loc("tmp0"(#loc1))
+#loc9 = loc("tmp1"(#loc2))

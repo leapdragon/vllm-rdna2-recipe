@@ -1,0 +1,287 @@
+; ModuleID = 'LLVMDialectModule'
+source_filename = "LLVMDialectModule"
+target datalayout = "e-p:64:64-p1:64:64-p2:32:32-p3:32:32-p4:64:64-p5:32:32-p6:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024-v2048:2048-n32:64-S32-A5-G1-ni:7:8:9"
+target triple = "amdgcn-amd-amdhsa"
+
+; Function Attrs: mustprogress nofree norecurse nosync nounwind willreturn memory(argmem: readwrite)
+define amdgpu_kernel void @triton_poi_fused_6(ptr addrspace(1) inreg readonly captures(none) %0, ptr addrspace(1) inreg writeonly captures(none) %1, ptr addrspace(1) inreg writeonly captures(none) %2, i32 inreg %3, i32 inreg %4, ptr addrspace(1) inreg readnone captures(none) %5, ptr addrspace(1) inreg readnone captures(none) %6) local_unnamed_addr #0 !dbg !4 {
+  %8 = tail call i32 @llvm.amdgcn.workgroup.id.x(), !dbg !7
+  %9 = add i32 %3, 511, !dbg !8
+  %10 = sdiv i32 %9, 512, !dbg !13
+  %11 = icmp slt i32 %8, %10, !dbg !14
+  br i1 %11, label %12, label %74, !dbg !15
+
+12:                                               ; preds = %7
+  %13 = shl i32 %8, 9, !dbg !16
+  %14 = tail call i32 @llvm.amdgcn.workitem.id.x(), !dbg !17
+  %15 = shl nuw nsw i32 %14, 2, !dbg !17
+  %16 = and i32 %15, 508, !dbg !17
+  %17 = or disjoint i32 %16, %13, !dbg !18
+  %18 = or disjoint i32 %17, 1, !dbg !18
+  %19 = or disjoint i32 %17, 2, !dbg !18
+  %20 = or disjoint i32 %17, 3, !dbg !18
+  %21 = icmp slt i32 %17, %3, !dbg !19
+  %22 = icmp slt i32 %18, %3, !dbg !19
+  %23 = icmp slt i32 %19, %3, !dbg !19
+  %24 = icmp slt i32 %20, %3, !dbg !19
+  %25 = srem i32 %18, 24, !dbg !20
+  %26 = srem i32 %19, 24, !dbg !20
+  %27 = srem i32 %20, 24, !dbg !20
+  %28 = sdiv i32 %17, 24, !dbg !21
+  %29 = mul i32 %28, 48, !dbg !22
+  %30 = add i32 %25, %29, !dbg !23
+  %31 = add i32 %26, %29, !dbg !23
+  %32 = add i32 %27, %29, !dbg !23
+  %33 = sext i32 %30 to i64, !dbg !24
+  %34 = getelementptr half, ptr addrspace(1) %0, i64 %33, !dbg !24
+  %35 = sext i32 %31 to i64, !dbg !24
+  %36 = getelementptr half, ptr addrspace(1) %0, i64 %35, !dbg !24
+  %37 = sext i32 %32 to i64, !dbg !24
+  %38 = getelementptr half, ptr addrspace(1) %0, i64 %37, !dbg !24
+  br i1 %21, label %39, label %45, !dbg !25
+
+39:                                               ; preds = %12
+  %40 = mul i32 %28, 24, !dbg !20
+  %.decomposed = sub i32 %17, %40, !dbg !20
+  %41 = add i32 %29, %.decomposed, !dbg !23
+  %42 = sext i32 %41 to i64, !dbg !24
+  %43 = getelementptr half, ptr addrspace(1) %0, i64 %42, !dbg !24
+  %44 = load <1 x half>, ptr addrspace(1) %43, align 2, !dbg !25
+  br label %45, !dbg !25
+
+45:                                               ; preds = %39, %12
+  %46 = phi <1 x half> [ %44, %39 ], [ zeroinitializer, %12 ], !dbg !25
+  br i1 %22, label %47, label %49, !dbg !25
+
+47:                                               ; preds = %45
+  %48 = load <1 x half>, ptr addrspace(1) %34, align 2, !dbg !25
+  br label %49, !dbg !25
+
+49:                                               ; preds = %47, %45
+  %50 = phi <1 x half> [ %48, %47 ], [ zeroinitializer, %45 ], !dbg !25
+  br i1 %23, label %51, label %53, !dbg !25
+
+51:                                               ; preds = %49
+  %52 = load <1 x half>, ptr addrspace(1) %36, align 2, !dbg !25
+  br label %53, !dbg !25
+
+53:                                               ; preds = %51, %49
+  %54 = phi <1 x half> [ %52, %51 ], [ zeroinitializer, %49 ], !dbg !25
+  br i1 %24, label %55, label %57, !dbg !25
+
+55:                                               ; preds = %53
+  %56 = load <1 x half>, ptr addrspace(1) %38, align 2, !dbg !25
+  br label %57, !dbg !25
+
+57:                                               ; preds = %55, %53
+  %58 = phi <1 x half> [ %56, %55 ], [ zeroinitializer, %53 ], !dbg !25
+  %59 = sext i32 %18 to i64, !dbg !26
+  %60 = getelementptr half, ptr addrspace(1) %1, i64 %59, !dbg !26
+  %61 = sext i32 %19 to i64, !dbg !26
+  %62 = getelementptr half, ptr addrspace(1) %1, i64 %61, !dbg !26
+  %63 = sext i32 %20 to i64, !dbg !26
+  %64 = getelementptr half, ptr addrspace(1) %1, i64 %63, !dbg !26
+  br i1 %21, label %65, label %68, !dbg !27
+
+65:                                               ; preds = %57
+  %66 = sext i32 %17 to i64
+  %67 = getelementptr half, ptr addrspace(1) %1, i64 %66
+  store <1 x half> %46, ptr addrspace(1) %67, align 2, !dbg !27
+  br label %68, !dbg !27
+
+68:                                               ; preds = %65, %57
+  br i1 %22, label %69, label %70, !dbg !27
+
+69:                                               ; preds = %68
+  store <1 x half> %50, ptr addrspace(1) %60, align 2, !dbg !27
+  br label %70, !dbg !27
+
+70:                                               ; preds = %69, %68
+  br i1 %23, label %71, label %72, !dbg !27
+
+71:                                               ; preds = %70
+  store <1 x half> %54, ptr addrspace(1) %62, align 2, !dbg !27
+  br label %72, !dbg !27
+
+72:                                               ; preds = %71, %70
+  br i1 %24, label %73, label %144, !dbg !27
+
+73:                                               ; preds = %72
+  store <1 x half> %58, ptr addrspace(1) %64, align 2, !dbg !27
+  br label %144, !dbg !27
+
+74:                                               ; preds = %7
+  %75 = add i32 %4, 511, !dbg !28
+  %76 = sdiv i32 %75, 512, !dbg !30
+  %77 = add nsw i32 %76, %10, !dbg !31
+  %78 = icmp slt i32 %8, %77, !dbg !32
+  br i1 %78, label %79, label %144, !dbg !33
+
+79:                                               ; preds = %74
+  %80 = sub nsw i32 %8, %10, !dbg !34
+  %81 = shl i32 %80, 9, !dbg !35
+  %82 = tail call i32 @llvm.amdgcn.workitem.id.x(), !dbg !36
+  %83 = shl nuw nsw i32 %82, 2, !dbg !36
+  %84 = and i32 %83, 508, !dbg !36
+  %85 = or disjoint i32 %81, %84, !dbg !37
+  %86 = or disjoint i32 %85, 1, !dbg !37
+  %87 = or disjoint i32 %85, 2, !dbg !37
+  %88 = or disjoint i32 %85, 3, !dbg !37
+  %89 = icmp slt i32 %85, %4, !dbg !38
+  %90 = icmp slt i32 %86, %4, !dbg !38
+  %91 = icmp slt i32 %87, %4, !dbg !38
+  %92 = icmp slt i32 %88, %4, !dbg !38
+  %93 = srem i32 %86, 24, !dbg !39
+  %94 = srem i32 %87, 24, !dbg !39
+  %95 = srem i32 %88, 24, !dbg !39
+  %.frozen = freeze i32 %85, !dbg !40
+  %96 = sdiv i32 %.frozen, 24, !dbg !40
+  %97 = mul i32 %96, 48, !dbg !41
+  %98 = add i32 %97, 24, !dbg !42
+  %99 = add i32 %98, %93, !dbg !43
+  %100 = add i32 %98, %94, !dbg !43
+  %101 = add i32 %98, %95, !dbg !43
+  %102 = sext i32 %99 to i64, !dbg !44
+  %103 = getelementptr half, ptr addrspace(1) %0, i64 %102, !dbg !44
+  %104 = sext i32 %100 to i64, !dbg !44
+  %105 = getelementptr half, ptr addrspace(1) %0, i64 %104, !dbg !44
+  %106 = sext i32 %101 to i64, !dbg !44
+  %107 = getelementptr half, ptr addrspace(1) %0, i64 %106, !dbg !44
+  br i1 %89, label %108, label %115, !dbg !45
+
+108:                                              ; preds = %79
+  %109 = mul i32 %96, 24, !dbg !39
+  %.decomposed7 = sub i32 %.frozen, %109, !dbg !39
+  %110 = add nsw i32 %.decomposed7, 24, !dbg !42
+  %111 = add i32 %110, %97, !dbg !43
+  %112 = sext i32 %111 to i64, !dbg !44
+  %113 = getelementptr half, ptr addrspace(1) %0, i64 %112, !dbg !44
+  %114 = load <1 x half>, ptr addrspace(1) %113, align 2, !dbg !45
+  br label %115, !dbg !45
+
+115:                                              ; preds = %108, %79
+  %116 = phi <1 x half> [ %114, %108 ], [ zeroinitializer, %79 ], !dbg !45
+  br i1 %90, label %117, label %119, !dbg !45
+
+117:                                              ; preds = %115
+  %118 = load <1 x half>, ptr addrspace(1) %103, align 2, !dbg !45
+  br label %119, !dbg !45
+
+119:                                              ; preds = %117, %115
+  %120 = phi <1 x half> [ %118, %117 ], [ zeroinitializer, %115 ], !dbg !45
+  br i1 %91, label %121, label %123, !dbg !45
+
+121:                                              ; preds = %119
+  %122 = load <1 x half>, ptr addrspace(1) %105, align 2, !dbg !45
+  br label %123, !dbg !45
+
+123:                                              ; preds = %121, %119
+  %124 = phi <1 x half> [ %122, %121 ], [ zeroinitializer, %119 ], !dbg !45
+  br i1 %92, label %125, label %127, !dbg !45
+
+125:                                              ; preds = %123
+  %126 = load <1 x half>, ptr addrspace(1) %107, align 2, !dbg !45
+  br label %127, !dbg !45
+
+127:                                              ; preds = %125, %123
+  %128 = phi <1 x half> [ %126, %125 ], [ zeroinitializer, %123 ], !dbg !45
+  %129 = sext i32 %86 to i64, !dbg !46
+  %130 = getelementptr half, ptr addrspace(1) %2, i64 %129, !dbg !46
+  %131 = sext i32 %87 to i64, !dbg !46
+  %132 = getelementptr half, ptr addrspace(1) %2, i64 %131, !dbg !46
+  %133 = sext i32 %88 to i64, !dbg !46
+  %134 = getelementptr half, ptr addrspace(1) %2, i64 %133, !dbg !46
+  br i1 %89, label %135, label %138, !dbg !47
+
+135:                                              ; preds = %127
+  %136 = sext i32 %85 to i64
+  %137 = getelementptr half, ptr addrspace(1) %2, i64 %136
+  store <1 x half> %116, ptr addrspace(1) %137, align 2, !dbg !47
+  br label %138, !dbg !47
+
+138:                                              ; preds = %135, %127
+  br i1 %90, label %139, label %140, !dbg !47
+
+139:                                              ; preds = %138
+  store <1 x half> %120, ptr addrspace(1) %130, align 2, !dbg !47
+  br label %140, !dbg !47
+
+140:                                              ; preds = %139, %138
+  br i1 %91, label %141, label %142, !dbg !47
+
+141:                                              ; preds = %140
+  store <1 x half> %124, ptr addrspace(1) %132, align 2, !dbg !47
+  br label %142, !dbg !47
+
+142:                                              ; preds = %141, %140
+  br i1 %92, label %143, label %144, !dbg !47
+
+143:                                              ; preds = %142
+  store <1 x half> %128, ptr addrspace(1) %134, align 2, !dbg !47
+  br label %144, !dbg !47
+
+144:                                              ; preds = %142, %143, %74, %72, %73
+  ret void, !dbg !48
+}
+
+; Function Attrs: mustprogress nocallback nofree nosync nounwind speculatable willreturn memory(none)
+declare noundef i32 @llvm.amdgcn.workgroup.id.x() #1
+
+; Function Attrs: mustprogress nocallback nofree nosync nounwind speculatable willreturn memory(none)
+declare noundef range(i32 0, 1024) i32 @llvm.amdgcn.workitem.id.x() #1
+
+attributes #0 = { mustprogress nofree norecurse nosync nounwind willreturn memory(argmem: readwrite) "amdgpu-agpr-alloc"="0" "amdgpu-flat-work-group-size"="1,128" "amdgpu-no-cluster-id-x" "amdgpu-no-cluster-id-y" "amdgpu-no-cluster-id-z" "amdgpu-no-completion-action" "amdgpu-no-default-queue" "amdgpu-no-dispatch-id" "amdgpu-no-dispatch-ptr" "amdgpu-no-flat-scratch-init" "amdgpu-no-heap-ptr" "amdgpu-no-hostcall-ptr" "amdgpu-no-implicitarg-ptr" "amdgpu-no-lds-kernel-id" "amdgpu-no-multigrid-sync-arg" "amdgpu-no-queue-ptr" "amdgpu-no-workgroup-id-x" "amdgpu-no-workgroup-id-y" "amdgpu-no-workgroup-id-z" "amdgpu-no-workitem-id-x" "amdgpu-no-workitem-id-y" "amdgpu-no-workitem-id-z" "amdgpu-waves-per-eu"="0, 0" "denormal-fp-math-f32"="ieee" "uniform-work-group-size"="true" }
+attributes #1 = { mustprogress nocallback nofree nosync nounwind speculatable willreturn memory(none) }
+
+!llvm.dbg.cu = !{!0}
+!llvm.module.flags = !{!2, !3}
+
+!0 = distinct !DICompileUnit(language: DW_LANG_C, file: !1, producer: "triton", isOptimized: true, runtimeVersion: 0, emissionKind: LineTablesOnly)
+!1 = !DIFile(filename: "cnksnqrv3f3avzziechizvquvacu37imupic6ihd6f6uuqszx7vj.py", directory: "/compile-cache/torch_compile_cache/torch_aot_compile/d7204f1f34e6c77165926f0ab12c850fae4d90351461363e3eba42a413c914ff/inductor_cache/nk")
+!2 = !{i32 2, !"Debug Info Version", i32 3}
+!3 = !{i32 1, !"amdhsa_code_object_version", i32 500}
+!4 = distinct !DISubprogram(name: "triton_poi_fused_6", linkageName: "triton_poi_fused_6", scope: !1, file: !1, line: 20, type: !5, scopeLine: 20, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0)
+!5 = !DISubroutineType(cc: DW_CC_normal, types: !6)
+!6 = !{}
+!7 = !DILocation(line: 21, column: 24, scope: !4)
+!8 = !DILocation(line: 43, column: 17, scope: !9, inlinedAt: !11)
+!9 = distinct !DILexicalBlockFile(scope: !4, file: !10, discriminator: 0)
+!10 = !DIFile(filename: "standard.py", directory: "/usr/local/lib/python3.12/dist-packages/triton/language")
+!11 = !DILocation(line: 22, column: 38, scope: !12)
+!12 = distinct !DILexicalBlockFile(scope: !4, file: !1, discriminator: 0)
+!13 = !DILocation(line: 43, column: 30, scope: !9, inlinedAt: !11)
+!14 = !DILocation(line: 24, column: 13, scope: !4)
+!15 = !DILocation(line: 24, column: 7, scope: !4)
+!16 = !DILocation(line: 27, column: 31, scope: !4)
+!17 = !DILocation(line: 28, column: 40, scope: !4)
+!18 = !DILocation(line: 28, column: 27, scope: !4)
+!19 = !DILocation(line: 29, column: 25, scope: !4)
+!20 = !DILocation(line: 30, column: 23, scope: !4)
+!21 = !DILocation(line: 31, column: 23, scope: !4)
+!22 = !DILocation(line: 33, column: 42, scope: !4)
+!23 = !DILocation(line: 33, column: 39, scope: !4)
+!24 = !DILocation(line: 33, column: 34, scope: !4)
+!25 = !DILocation(line: 33, column: 47, scope: !4)
+!26 = !DILocation(line: 34, column: 29, scope: !4)
+!27 = !DILocation(line: 34, column: 40, scope: !4)
+!28 = !DILocation(line: 43, column: 17, scope: !9, inlinedAt: !29)
+!29 = !DILocation(line: 23, column: 54, scope: !12)
+!30 = !DILocation(line: 43, column: 30, scope: !9, inlinedAt: !29)
+!31 = !DILocation(line: 23, column: 36, scope: !4)
+!32 = !DILocation(line: 35, column: 15, scope: !4)
+!33 = !DILocation(line: 35, column: 9, scope: !4)
+!34 = !DILocation(line: 36, column: 27, scope: !4)
+!35 = !DILocation(line: 38, column: 31, scope: !4)
+!36 = !DILocation(line: 39, column: 40, scope: !4)
+!37 = !DILocation(line: 39, column: 27, scope: !4)
+!38 = !DILocation(line: 40, column: 25, scope: !4)
+!39 = !DILocation(line: 41, column: 23, scope: !4)
+!40 = !DILocation(line: 42, column: 23, scope: !4)
+!41 = !DILocation(line: 44, column: 47, scope: !4)
+!42 = !DILocation(line: 44, column: 39, scope: !4)
+!43 = !DILocation(line: 44, column: 44, scope: !4)
+!44 = !DILocation(line: 44, column: 34, scope: !4)
+!45 = !DILocation(line: 44, column: 52, scope: !4)
+!46 = !DILocation(line: 45, column: 29, scope: !4)
+!47 = !DILocation(line: 45, column: 40, scope: !4)
+!48 = !DILocation(line: 24, column: 4, scope: !4)

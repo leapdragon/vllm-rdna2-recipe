@@ -1,0 +1,3635 @@
+	.amdgcn_target "amdgcn-amd-amdhsa--gfx1030"
+	.amdhsa_code_object_version 5
+	.text
+	.globl	sample_recovered_tokens_kernel  ; -- Begin function sample_recovered_tokens_kernel
+	.p2align	8
+	.type	sample_recovered_tokens_kernel,@function
+sample_recovered_tokens_kernel:         ; @sample_recovered_tokens_kernel
+.Lfunc_begin0:
+	.file	1 "/app/vllm-src/vllm/v1/sample" "rejection_sampler.py"
+	.loc	1 873 0                         ; rejection_sampler.py:873:0
+	.cfi_sections .debug_frame
+	.cfi_startproc
+; %bb.0:
+	s_load_dwordx2 s[2:3], s[4:5], 0x8
+	s_mov_b32 s0, s7
+.Ltmp0:
+	.loc	1 888 22 prologue_end           ; rejection_sampler.py:888:22
+	s_cmp_eq_u32 s6, 0
+	s_mov_b32 s1, 0
+	.loc	1 888 11 is_stmt 0              ; rejection_sampler.py:888:11
+	s_cbranch_scc1 .LBB0_2
+; %bb.1:
+	.loc	1 0 11                          ; rejection_sampler.py:0:11
+	s_add_i32 s8, s6, -1
+	s_ashr_i32 s9, s8, 31
+	s_lshl_b64 s[8:9], s[8:9], 2
+	s_waitcnt lgkmcnt(0)
+	s_add_u32 s8, s2, s8
+	s_addc_u32 s9, s3, s9
+	.loc	1 889 21 is_stmt 1              ; rejection_sampler.py:889:21
+	s_load_dword s1, s[8:9], 0x0
+.LBB0_2:
+	.loc	1 891 22                        ; rejection_sampler.py:891:22
+	s_ashr_i32 s7, s6, 31
+	s_lshl_b64 s[8:9], s[6:7], 2
+	s_waitcnt lgkmcnt(0)
+	s_add_u32 s2, s2, s8
+	s_addc_u32 s3, s3, s9
+	s_load_dword s2, s[2:3], 0x0
+	.loc	1 892 33                        ; rejection_sampler.py:892:33
+	s_waitcnt lgkmcnt(0)
+	s_sub_i32 s2, s2, s1
+	.loc	1 896 14                        ; rejection_sampler.py:896:14
+	s_cmp_lt_i32 s0, s2
+	s_cbranch_scc0 .LBB0_17
+; %bb.3:
+	.loc	1 0 14 is_stmt 0                ; rejection_sampler.py:0:14
+	s_clause 0x1
+	s_load_dword s28, s[4:5], 0x28
+	s_load_dwordx2 s[24:25], s[4:5], 0x0
+	.loc	1 910 40 is_stmt 1              ; rejection_sampler.py:910:40
+	v_and_b32_e32 v21, 31, v0
+	.loc	1 899 28                        ; rejection_sampler.py:899:28
+	s_add_i32 s26, s1, s0
+	.loc	1 902 33                        ; rejection_sampler.py:902:33
+	s_ashr_i32 s27, s26, 31
+	v_cmp_eq_u32_e32 vcc_lo, 0, v21
+	.loc	1 909 34                        ; rejection_sampler.py:909:34
+	s_waitcnt lgkmcnt(0)
+	s_cmp_lt_i32 s28, 1
+	s_cbranch_scc1 .LBB0_14
+; %bb.4:                                ; %.lr.ph
+	.loc	1 0 34 is_stmt 0                ; rejection_sampler.py:0:34
+	s_clause 0x1
+	s_load_dwordx4 s[0:3], s[4:5], 0x10
+	s_load_dwordx2 s[16:17], s[4:5], 0x20
+	.loc	1 902 33 is_stmt 1              ; rejection_sampler.py:902:33
+	s_lshl_b64 s[4:5], s[26:27], 2
+	.loc	1 910 40                        ; rejection_sampler.py:910:40
+	v_lshlrev_b32_e32 v22, 2, v0
+	v_lshrrev_b32_e32 v1, 3, v0
+	v_and_b32_e32 v2, 3, v0
+	v_lshl_add_u32 v79, v0, 2, 0
+	v_mov_b32_e32 v136, 0xff800000
+	v_or_b32_e32 v43, 0xe00, v22
+	v_or_b32_e32 v61, 0x1e00, v22
+	v_and_b32_e32 v1, 12, v1
+	v_or_b32_e32 v44, 0xe01, v22
+	v_or_b32_e32 v45, 0xe02, v22
+	v_or_b32_e32 v46, 0xe03, v22
+	.loc	1 909 34                        ; rejection_sampler.py:909:34
+	v_lshlrev_b32_e32 v3, 2, v43
+	v_add_nc_u32_e32 v62, 0, v1
+	v_lshlrev_b32_e32 v1, 2, v61
+	.loc	1 910 40                        ; rejection_sampler.py:910:40
+	v_or_b32_e32 v75, 0x1e03, v22
+	v_or_b32_e32 v76, 0x1e02, v22
+	v_or_b32_e32 v77, 0x1e01, v22
+	.loc	1 902 33                        ; rejection_sampler.py:902:33
+	s_waitcnt lgkmcnt(0)
+	s_add_u32 s0, s0, s4
+	s_addc_u32 s1, s1, s5
+	.loc	1 909 34                        ; rejection_sampler.py:909:34
+	s_mul_i32 s5, s28, s26
+	.loc	1 902 33                        ; rejection_sampler.py:902:33
+	s_load_dword s4, s[0:1], 0x0
+	v_cmp_gt_u32_e64 s0, 4, v0
+	v_cmp_eq_u32_e64 s1, 0, v2
+	.loc	1 909 34                        ; rejection_sampler.py:909:34
+	v_lshlrev_b32_e32 v2, 4, v0
+	s_lshl_b32 s5, s5, 2
+	.loc	1 910 40                        ; rejection_sampler.py:910:40
+	v_or_b32_e32 v23, 2, v22
+	v_or_b32_e32 v24, 3, v22
+	s_and_b32 s30, s0, s1
+	.loc	1 909 34                        ; rejection_sampler.py:909:34
+	s_mul_i32 s1, s6, s28
+	.loc	1 910 40                        ; rejection_sampler.py:910:40
+	v_or_b32_e32 v25, 0x201, v22
+	.loc	1 909 34                        ; rejection_sampler.py:909:34
+	s_lshl_b32 s1, s1, 2
+	.loc	1 910 40                        ; rejection_sampler.py:910:40
+	v_or_b32_e32 v26, 0x202, v22
+	v_or_b32_e32 v27, 0x203, v22
+	v_or_b32_e32 v28, 0x401, v22
+	v_or_b32_e32 v29, 0x402, v22
+	v_or_b32_e32 v30, 0x403, v22
+	v_or_b32_e32 v31, 0x601, v22
+	v_or_b32_e32 v32, 0x602, v22
+	v_or_b32_e32 v33, 0x603, v22
+	v_or_b32_e32 v34, 0x801, v22
+	.loc	1 909 34                        ; rejection_sampler.py:909:34
+	s_waitcnt lgkmcnt(0)
+	v_sub_nc_u32_e32 v86, s4, v22
+	.loc	1 910 40                        ; rejection_sampler.py:910:40
+	v_or_b32_e32 v35, 0x802, v22
+	v_or_b32_e32 v36, 0x803, v22
+	v_or_b32_e32 v37, 0xa01, v22
+	v_or_b32_e32 v38, 0xa02, v22
+	v_or_b32_e32 v39, 0xa03, v22
+	v_or_b32_e32 v40, 0xc01, v22
+	v_or_b32_e32 v41, 0xc02, v22
+	v_or_b32_e32 v42, 0xc03, v22
+	v_or_b32_e32 v47, 0x1001, v22
+	v_or_b32_e32 v48, 0x1002, v22
+	v_or_b32_e32 v49, 0x1003, v22
+	v_or_b32_e32 v50, 0x1201, v22
+	v_or_b32_e32 v51, 0x1202, v22
+	v_or_b32_e32 v52, 0x1203, v22
+	v_or_b32_e32 v53, 0x1401, v22
+	v_or_b32_e32 v54, 0x1402, v22
+	v_or_b32_e32 v55, 0x1403, v22
+	v_or_b32_e32 v56, 0x1601, v22
+	v_or_b32_e32 v57, 0x1602, v22
+	v_or_b32_e32 v58, 0x1603, v22
+	v_or_b32_e32 v59, 0x1801, v22
+	v_or_b32_e32 v60, 0x1802, v22
+	.loc	1 909 34                        ; rejection_sampler.py:909:34
+	v_add_nc_u32_e32 v63, s1, v1
+	v_add_nc_u32_e32 v64, s1, v2
+	v_add_nc_u32_e32 v65, s1, v3
+	v_add_nc_u32_e32 v66, s5, v1
+	v_add_nc_u32_e32 v67, s5, v2
+	v_add_nc_u32_e32 v68, s5, v3
+	.loc	1 910 40                        ; rejection_sampler.py:910:40
+	v_or_b32_e32 v69, 0x1803, v22
+	v_or_b32_e32 v70, 0x1a01, v22
+	v_or_b32_e32 v71, 0x1a02, v22
+	v_or_b32_e32 v72, 0x1a03, v22
+	v_or_b32_e32 v73, 0x1c01, v22
+	v_or_b32_e32 v74, 0x1c02, v22
+	v_or_b32_e32 v78, 0x1c03, v22
+	.loc	1 909 34                        ; rejection_sampler.py:909:34
+	v_lshl_add_u32 v80, v75, 2, s5
+	v_lshl_add_u32 v81, v76, 2, s5
+	v_lshl_add_u32 v82, v77, 2, s5
+	v_lshl_add_u32 v83, v46, 2, s5
+	v_lshl_add_u32 v84, v45, 2, s5
+	v_lshl_add_u32 v85, v44, 2, s5
+	.loc	1 911 36                        ; rejection_sampler.py:911:36
+	v_subrev_nc_u32_e32 v87, s4, v75
+	.loc	1 910 27                        ; rejection_sampler.py:910:27
+	v_subrev_nc_u32_e32 v88, s4, v76
+	v_subrev_nc_u32_e32 v89, s4, v77
+	v_subrev_nc_u32_e32 v90, s4, v61
+	.loc	1 909 34                        ; rejection_sampler.py:909:34
+	v_add_nc_u32_e32 v91, 0xffffea00, v86
+	v_add_nc_u32_e32 v92, 0xffffebfd, v86
+	v_add_nc_u32_e32 v93, 0xffffebfe, v86
+	v_add_nc_u32_e32 v94, 0xffffebff, v86
+	v_add_nc_u32_e32 v95, 0xffffec00, v86
+	v_add_nc_u32_e32 v96, 0xffffedfd, v86
+	v_add_nc_u32_e32 v97, 0xffffedfe, v86
+	v_add_nc_u32_e32 v98, 0xffffedff, v86
+	v_add_nc_u32_e32 v99, 0xffffee00, v86
+	v_add_nc_u32_e32 v100, 0xffffeffd, v86
+	v_add_nc_u32_e32 v101, 0xffffeffe, v86
+	v_add_nc_u32_e32 v102, 0xffffefff, v86
+	v_add_nc_u32_e32 v103, 0xfffff000, v86
+	.loc	1 910 27                        ; rejection_sampler.py:910:27
+	v_subrev_nc_u32_e32 v104, s4, v46
+	v_subrev_nc_u32_e32 v105, s4, v45
+	v_subrev_nc_u32_e32 v106, s4, v44
+	v_subrev_nc_u32_e32 v107, s4, v43
+	.loc	1 909 34                        ; rejection_sampler.py:909:34
+	v_add_nc_u32_e32 v108, 0xfffff3fd, v86
+	v_add_nc_u32_e32 v109, 0xfffff3fe, v86
+	v_add_nc_u32_e32 v111, 0xfffff3ff, v86
+	v_add_nc_u32_e32 v112, 0xfffff400, v86
+	v_add_nc_u32_e32 v113, 0xfffff5fd, v86
+	v_add_nc_u32_e32 v114, 0xfffff5fe, v86
+	v_add_nc_u32_e32 v115, 0xfffff5ff, v86
+	v_add_nc_u32_e32 v116, 0xfffff600, v86
+	v_add_nc_u32_e32 v117, 0xfffff7fd, v86
+	v_add_nc_u32_e32 v118, 0xfffff7fe, v86
+	v_add_nc_u32_e32 v119, 0xfffff7ff, v86
+	v_add_nc_u32_e32 v120, 0xfffff800, v86
+	v_add_nc_u32_e32 v121, 0xfffff9fd, v86
+	v_add_nc_u32_e32 v122, 0xfffff9fe, v86
+	v_add_nc_u32_e32 v123, 0xfffff9ff, v86
+	v_add_nc_u32_e32 v124, 0xfffffa00, v86
+	v_add_nc_u32_e32 v125, 0xfffffbfd, v86
+	v_add_nc_u32_e32 v126, 0xfffffbfe, v86
+	v_add_nc_u32_e32 v127, 0xfffffbff, v86
+	v_add_nc_u32_e32 v128, 0xfffffc00, v86
+	v_add_nc_u32_e32 v129, 0xfffffdfd, v86
+	v_add_nc_u32_e32 v130, 0xfffffdfe, v86
+	v_add_nc_u32_e32 v131, 0xfffffdff, v86
+	v_add_nc_u32_e32 v132, 0xfffffe00, v86
+	v_add_nc_u32_e32 v133, -3, v86
+	v_add_nc_u32_e32 v134, -2, v86
+	v_add_nc_u32_e32 v135, -1, v86
+	v_mov_b32_e32 v137, 0
+	v_mov_b32_e32 v110, 0
+	.loc	1 910 40                        ; rejection_sampler.py:910:40
+	v_or_b32_e32 v138, 1, v22
+	v_or_b32_e32 v139, 0x200, v22
+	v_or_b32_e32 v140, 0x400, v22
+	v_or_b32_e32 v141, 0x600, v22
+	v_or_b32_e32 v142, 0x800, v22
+	v_or_b32_e32 v143, 0xa00, v22
+	v_or_b32_e32 v144, 0xc00, v22
+	v_or_b32_e32 v145, 0x1000, v22
+	v_or_b32_e32 v146, 0x1200, v22
+	v_or_b32_e32 v147, 0x1400, v22
+	v_or_b32_e32 v148, 0x1600, v22
+	v_or_b32_e32 v149, 0x1800, v22
+	v_or_b32_e32 v150, 0x1a00, v22
+	v_or_b32_e32 v151, 0x1c00, v22
+	.loc	1 909 34                        ; rejection_sampler.py:909:34
+	v_add_nc_u32_e32 v152, 0xffffe3fd, v86
+	v_add_nc_u32_e32 v153, 0xffffe3fe, v86
+	v_add_nc_u32_e32 v154, 0xffffe3ff, v86
+	v_add_nc_u32_e32 v155, 0xffffe400, v86
+	v_add_nc_u32_e32 v156, 0xffffe5fd, v86
+	v_add_nc_u32_e32 v157, 0xffffe5fe, v86
+	v_add_nc_u32_e32 v158, 0xffffe5ff, v86
+	v_add_nc_u32_e32 v159, 0xffffe600, v86
+	v_add_nc_u32_e32 v160, 0xffffe7fd, v86
+	v_add_nc_u32_e32 v161, 0xffffe7fe, v86
+	v_add_nc_u32_e32 v162, 0xffffe7ff, v86
+	v_add_nc_u32_e32 v163, 0xffffe800, v86
+	v_add_nc_u32_e32 v164, 0xffffe9fd, v86
+	v_add_nc_u32_e32 v165, 0xffffe9fe, v86
+	v_add_nc_u32_e32 v166, 0xffffe9ff, v86
+	s_mov_b32 s23, 0x31027000
+	s_mov_b32 s22, 0x7ffffffe
+	s_and_b32 s21, s3, 0xffff
+	s_and_b32 s17, s17, 0xffff
+	s_mov_b32 s29, 0
+	s_mov_b32 s20, s2
+	s_mov_b32 s31, 0x76543210
+	s_mov_b32 s18, s22
+	s_mov_b32 s19, s23
+	s_mov_b32 s33, 0
+	s_branch .LBB0_6
+.LBB0_5:                                ; %.critedge2
+                                        ;   in Loop: Header=BB0_6 Depth=1
+	.loc	1 0 34 is_stmt 0                ; rejection_sampler.py:0:34
+	s_or_b32 exec_lo, exec_lo, s4
+.Ltmp1:
+	.file	2 "/usr/local/lib/python3.12/dist-packages/triton/language" "standard.py"
+	.loc	2 181 58 is_stmt 1              ; standard.py:181:58 @[ rejection_sampler.py:946:37 ]
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_read2_b32 v[1:2], v137 offset1:4
+.Ltmp2:
+	.loc	1 909 34                        ; rejection_sampler.py:909:34
+	s_add_i32 s29, s29, 0x8000
+	.loc	1 948 11                        ; rejection_sampler.py:948:11
+	s_waitcnt lgkmcnt(0)
+	v_add_nc_u32_e32 v2, s33, v2
+	.loc	1 948 23 is_stmt 0              ; rejection_sampler.py:948:23
+	v_cmp_gt_f32_e64 s1, v1, v136
+	.loc	1 909 34 is_stmt 1              ; rejection_sampler.py:909:34
+	s_addk_i32 s33, 0x2000
+	s_cmp_lt_i32 s33, s28
+	.loc	1 948 11                        ; rejection_sampler.py:948:11
+	v_cndmask_b32_e64 v136, v136, v1, s1
+	v_cndmask_b32_e64 v110, v110, v2, s1
+	.loc	1 909 34                        ; rejection_sampler.py:909:34
+	s_cbranch_scc0 .LBB0_15
+.LBB0_6:                                ; =>This Inner Loop Header: Depth=1
+	.loc	1 910 27                        ; rejection_sampler.py:910:27
+	v_add_nc_u32_e32 v17, s33, v22
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v18, s29, v67
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s2, s33, v86
+	v_cmp_ne_u32_e64 s1, s33, v135
+	v_cmp_ne_u32_e64 s4, s33, v134
+	.loc	1 911 36                        ; rejection_sampler.py:911:36
+	v_cmp_gt_i32_e64 s3, s28, v17
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_add_nc_u32_e32 v19, s29, v64
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v1, 4, v18
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s5, s33, v133
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v2, 8, v18
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s2, s3, s2
+	s_and_b32 s1, s3, s1
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v5, 12, v18
+	v_cndmask_b32_e64 v4, 0x80000000, v18, s2
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_cndmask_b32_e64 v3, 0x80000000, v19, s3
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v6, 0x80000000, v1, s1
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s1, s3, s4
+	s_and_b32 s2, s3, s5
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v7, 0x80000000, v2, s1
+	v_cndmask_b32_e64 v8, 0x80000000, v5, s2
+	buffer_load_dword v1, v4, s[20:23], 0 offen
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	buffer_load_dwordx4 v[2:5], v3, s[16:19], 0 offen
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	s_clause 0x2
+	buffer_load_dword v6, v6, s[20:23], 0 offen
+	buffer_load_dword v7, v7, s[20:23], 0 offen
+	buffer_load_dword v8, v8, s[20:23], 0 offen
+	.loc	1 910 27                        ; rejection_sampler.py:910:27
+	v_add_nc_u32_e32 v9, s33, v43
+	v_add_nc_u32_e32 v11, s33, v107
+	v_add_nc_u32_e32 v12, s33, v106
+	v_add_nc_u32_e32 v13, s33, v105
+	v_add_nc_u32_e32 v14, s33, v104
+	.loc	1 911 36                        ; rejection_sampler.py:911:36
+	v_cmp_gt_i32_e64 s2, s28, v9
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s12, 0, v11
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_add_nc_u32_e32 v10, s29, v65
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s13, 0, v12
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v15, s29, v68
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s14, 0, v13
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v16, s29, v85
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s15, 0, v14
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v20, s29, v84
+	v_add_nc_u32_e32 v167, s29, v83
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s12, s2, s12
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_cndmask_b32_e64 v9, 0x80000000, v10, s2
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s13, s2, s13
+	s_and_b32 s14, s2, s14
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v13, 0x80000000, v15, s12
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s15, s2, s15
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v14, 0x80000000, v16, s13
+	v_cndmask_b32_e64 v15, 0x80000000, v20, s14
+	v_cndmask_b32_e64 v16, 0x80000000, v167, s15
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	buffer_load_dwordx4 v[9:12], v9, s[16:19], 0 offen
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	s_clause 0x3
+	buffer_load_dword v20, v13, s[20:23], 0 offen
+	buffer_load_dword v167, v14, s[20:23], 0 offen
+	buffer_load_dword v178, v15, s[20:23], 0 offen
+	buffer_load_dword v179, v16, s[20:23], 0 offen
+	.loc	1 910 27                        ; rejection_sampler.py:910:27
+	v_add_nc_u32_e32 v168, 0x200, v17
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s5, s33, v132
+	v_cmp_ne_u32_e64 s9, s33, v131
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_add_nc_u32_e32 v169, 0x800, v19
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s10, s33, v130
+	.loc	1 911 36                        ; rejection_sampler.py:911:36
+	v_cmp_gt_i32_e64 s6, s28, v168
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v170, 0x800, v18
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s11, s33, v129
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v171, 0x804, v18
+	v_add_nc_u32_e32 v172, 0x808, v18
+	v_add_nc_u32_e32 v173, 0x80c, v18
+	.loc	1 910 27                        ; rejection_sampler.py:910:27
+	v_add_nc_u32_e32 v13, 0x400, v17
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s5, s6, s5
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_cndmask_b32_e64 v14, 0x80000000, v169, s6
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s9, s6, s9
+	s_and_b32 s10, s6, s10
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v15, 0x80000000, v170, s5
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s11, s6, s11
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v16, 0x80000000, v171, s9
+	v_cndmask_b32_e64 v168, 0x80000000, v172, s10
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s1, s33, v128
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v169, 0x80000000, v173, s11
+	.loc	1 911 36                        ; rejection_sampler.py:911:36
+	v_cmp_gt_i32_e64 s5, s28, v13
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s4, s33, v127
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	buffer_load_dwordx4 v[170:173], v14, s[16:19], 0 offen
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	s_clause 0x3
+	buffer_load_dword v180, v15, s[20:23], 0 offen
+	buffer_load_dword v181, v16, s[20:23], 0 offen
+	buffer_load_dword v182, v168, s[20:23], 0 offen
+	buffer_load_dword v183, v169, s[20:23], 0 offen
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_add_nc_u32_e32 v14, 0x1000, v19
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s7, s33, v126
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v13, 0x1000, v18
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s8, s33, v125
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v15, 0x1004, v18
+	v_add_nc_u32_e32 v16, 0x1008, v18
+	v_add_nc_u32_e32 v168, 0x100c, v18
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s1, s5, s1
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_cndmask_b32_e64 v14, 0x80000000, v14, s5
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s4, s5, s4
+	s_and_b32 s7, s5, s7
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v13, 0x80000000, v13, s1
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s8, s5, s8
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v15, 0x80000000, v15, s4
+	v_cndmask_b32_e64 v16, 0x80000000, v16, s7
+	v_cndmask_b32_e64 v168, 0x80000000, v168, s8
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	buffer_load_dwordx4 v[174:177], v14, s[16:19], 0 offen
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	s_clause 0x3
+	buffer_load_dword v184, v13, s[20:23], 0 offen
+	buffer_load_dword v185, v15, s[20:23], 0 offen
+	buffer_load_dword v186, v16, s[20:23], 0 offen
+	buffer_load_dword v187, v168, s[20:23], 0 offen
+	.loc	1 910 27                        ; rejection_sampler.py:910:27
+	v_add_nc_u32_e32 v13, 0x600, v17
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s1, s33, v124
+	v_cmp_ne_u32_e64 s7, s33, v123
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_add_nc_u32_e32 v14, 0x1800, v19
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s8, s33, v122
+	.loc	1 911 36                        ; rejection_sampler.py:911:36
+	v_cmp_gt_i32_e64 s4, s28, v13
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v13, 0x1800, v18
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s9, s33, v121
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v15, 0x1804, v18
+	v_add_nc_u32_e32 v16, 0x1808, v18
+	v_add_nc_u32_e32 v168, 0x180c, v18
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s1, s4, s1
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_cndmask_b32_e64 v14, 0x80000000, v14, s4
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s7, s4, s7
+	s_and_b32 s8, s4, s8
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v13, 0x80000000, v13, s1
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s9, s4, s9
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v15, 0x80000000, v15, s7
+	v_cndmask_b32_e64 v16, 0x80000000, v16, s8
+	v_cndmask_b32_e64 v168, 0x80000000, v168, s9
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s8, s33, v119
+	v_cmp_ne_u32_e64 s7, s33, v120
+	v_cmp_ne_u32_e64 s9, s33, v118
+	v_cmp_ne_u32_e64 s10, s33, v117
+	v_cmp_ne_u32_e64 s11, s33, v116
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(18)
+	v_mul_f32_e32 v188, v1, v2
+	s_waitcnt vmcnt(17)
+	v_mul_f32_e32 v189, v6, v3
+	s_waitcnt vmcnt(16)
+	v_mul_f32_e32 v190, v7, v4
+	s_waitcnt vmcnt(15)
+	v_mul_f32_e32 v191, v8, v5
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	buffer_load_dwordx4 v[5:8], v14, s[16:19], 0 offen
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	s_clause 0x3
+	buffer_load_dword v14, v13, s[20:23], 0 offen
+	buffer_load_dword v15, v15, s[20:23], 0 offen
+	buffer_load_dword v16, v16, s[20:23], 0 offen
+	buffer_load_dword v13, v168, s[20:23], 0 offen
+	.loc	1 910 27                        ; rejection_sampler.py:910:27
+	v_add_nc_u32_e32 v1, 0x800, v17
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_add_nc_u32_e32 v2, 0x2000, v19
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v3, 0x2004, v18
+	v_add_nc_u32_e32 v4, 0x2008, v18
+	.loc	1 911 36                        ; rejection_sampler.py:911:36
+	v_cmp_gt_i32_e64 s1, s28, v1
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v1, 0x2000, v18
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s8, s1, s8
+	s_and_b32 s7, s1, s7
+	s_and_b32 s9, s1, s9
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_cndmask_b32_e64 v2, 0x80000000, v2, s1
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s10, s1, s10
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(18)
+	v_mul_f32_e32 v169, v20, v9
+	s_waitcnt vmcnt(17)
+	v_mul_f32_e32 v168, v167, v10
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v10, 0x200c, v18
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(16)
+	v_mul_f32_e32 v167, v178, v11
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v11, 0x80000000, v3, s8
+	v_cndmask_b32_e64 v9, 0x80000000, v1, s7
+	v_cndmask_b32_e64 v178, 0x80000000, v4, s9
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(15)
+	v_mul_f32_e32 v20, v179, v12
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v179, 0x80000000, v10, s10
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	buffer_load_dwordx4 v[1:4], v2, s[16:19], 0 offen
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	s_clause 0x3
+	buffer_load_dword v9, v9, s[20:23], 0 offen
+	buffer_load_dword v12, v11, s[20:23], 0 offen
+	buffer_load_dword v10, v178, s[20:23], 0 offen
+	buffer_load_dword v11, v179, s[20:23], 0 offen
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v178, 0xff800000, v188, s3
+	v_cndmask_b32_e64 v179, 0xff800000, v189, s3
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s8, s33, v115
+	v_cmp_ne_u32_e64 s9, s33, v114
+	v_cmp_ne_u32_e64 s10, s33, v113
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v169, 0xff800000, v169, s2
+.Ltmp3:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_ge_f32_e64 s7, v178, v179
+.Ltmp4:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v168, 0xff800000, v168, s2
+	v_cndmask_b32_e64 v167, 0xff800000, v167, s2
+	v_cndmask_b32_e64 v20, 0xff800000, v20, s2
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(18)
+	v_mul_f32_e32 v170, v180, v170
+	.loc	1 910 27                        ; rejection_sampler.py:910:27
+	v_add_nc_u32_e32 v180, 0xa00, v17
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(17)
+	v_mul_f32_e32 v171, v181, v171
+	s_waitcnt vmcnt(15)
+	v_mul_f32_e32 v173, v183, v173
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_add_nc_u32_e32 v181, 0x2800, v19
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	v_mul_f32_e32 v172, v182, v172
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v182, 0x2804, v18
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v170, 0xff800000, v170, s6
+	v_cndmask_b32_e64 v171, 0xff800000, v171, s6
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(13)
+	v_mul_f32_e32 v174, v184, v174
+	s_waitcnt vmcnt(12)
+	v_mul_f32_e32 v183, v185, v175
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v175, 0xff800000, v190, s3
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(10)
+	v_mul_f32_e32 v184, v187, v177
+.Ltmp5:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v177, v179, v178, s7
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v178, v138, v22, s7
+.Ltmp6:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	v_mul_f32_e32 v176, v186, v176
+	.loc	1 911 36                        ; rejection_sampler.py:911:36
+	v_cmp_gt_i32_e64 s7, s28, v180
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v186, 0xff800000, v191, s3
+.Ltmp7:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s12, v177, v175
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_u32_e64 s13, v178, v23
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s14, v177, v175
+.Ltmp8:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v179, 0x2800, v18
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s11, s7, s11
+	s_and_b32 s3, s7, s8
+.Ltmp9:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s12, s12, s13
+.Ltmp10:
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s8, s7, s9
+.Ltmp11:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s12, s14, s12
+.Ltmp12:
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s9, s7, s10
+.Ltmp13:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v175, v175, v177, s12
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v177, v23, v178, s12
+.Ltmp14:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v180, 0x2808, v18
+	v_cndmask_b32_e64 v178, 0x80000000, v179, s11
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_cndmask_b32_e64 v181, 0x80000000, v181, s7
+.Ltmp15:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s10, v175, v186
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_u32_e64 s12, v177, v24
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s11, v175, v186
+.Ltmp16:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v187, 0x80000000, v182, s3
+	v_cndmask_b32_e64 v188, 0x80000000, v180, s8
+	v_add_nc_u32_e32 v185, 0x280c, v18
+.Ltmp17:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s3, s10, s12
+.Ltmp18:
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s12, s33, v109
+.Ltmp19:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s3, s11, s3
+.Ltmp20:
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s11, s33, v111
+.Ltmp21:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v175, v186, v175, s3
+.Ltmp22:
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	buffer_load_dwordx4 v[179:182], v181, s[16:19], 0 offen
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	s_clause 0x2
+	buffer_load_dword v186, v178, s[20:23], 0 offen
+	buffer_load_dword v187, v187, s[20:23], 0 offen
+	buffer_load_dword v188, v188, s[20:23], 0 offen
+	v_cndmask_b32_e64 v185, 0x80000000, v185, s9
+.Ltmp23:
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v177, v24, v177, s3
+.Ltmp24:
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s9, s33, v112
+.Ltmp25:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_ge_f32_e64 s8, v175, v170
+.Ltmp26:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	buffer_load_dword v185, v185, s[20:23], 0 offen
+.Ltmp27:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v170, v170, v175, s8
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v175, v139, v177, s8
+.Ltmp28:
+	.loc	1 910 27                        ; rejection_sampler.py:910:27
+	v_add_nc_u32_e32 v177, 0xc00, v17
+.Ltmp29:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s3, v170, v171
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_u32_e64 s8, v175, v25
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s10, v170, v171
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s3, s3, s8
+.Ltmp30:
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s8, s33, v108
+.Ltmp31:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s3, s10, s3
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v170, v171, v170, s3
+.Ltmp32:
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_add_nc_u32_e32 v171, 0x3000, v19
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(13)
+	v_mul_f32_e32 v5, v14, v5
+	s_waitcnt vmcnt(12)
+	v_mul_f32_e32 v189, v15, v6
+	s_waitcnt vmcnt(11)
+	v_mul_f32_e32 v190, v16, v7
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v6, 0xff800000, v172, s6
+.Ltmp33:
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v7, v25, v175, s3
+.Ltmp34:
+	.loc	1 911 36                        ; rejection_sampler.py:911:36
+	v_cmp_gt_i32_e64 s3, s28, v177
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(10)
+	v_mul_f32_e32 v191, v13, v8
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v8, 0x3000, v18
+.Ltmp35:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s10, v170, v6
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s13, v7, v26
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s14, v170, v6
+.Ltmp36:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v13, 0x3004, v18
+	v_add_nc_u32_e32 v14, 0x3008, v18
+	v_add_nc_u32_e32 v15, 0x300c, v18
+.Ltmp37:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s10, s10, s13
+.Ltmp38:
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_cndmask_b32_e64 v16, 0x80000000, v171, s3
+.Ltmp39:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s10, s14, s10
+.Ltmp40:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v171, 0xff800000, v173, s6
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s6, s3, s9
+	s_and_b32 s9, s3, s11
+.Ltmp41:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v6, v6, v170, s10
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v7, v26, v7, s10
+.Ltmp42:
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s10, s3, s12
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v8, 0x80000000, v8, s6
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s8, s3, s8
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v170, 0x80000000, v13, s9
+	v_cndmask_b32_e64 v172, 0x80000000, v14, s10
+	v_cndmask_b32_e64 v173, 0x80000000, v15, s8
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	buffer_load_dwordx4 v[13:16], v16, s[16:19], 0 offen
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	s_clause 0x3
+	buffer_load_dword v175, v8, s[20:23], 0 offen
+	buffer_load_dword v177, v170, s[20:23], 0 offen
+	buffer_load_dword v178, v172, s[20:23], 0 offen
+	buffer_load_dword v170, v173, s[20:23], 0 offen
+.Ltmp43:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s11, v6, v171
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s12, v7, v27
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s13, v6, v171
+.Ltmp44:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v8, 0xff800000, v174, s5
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_add_nc_u32_e32 v172, 0x4000, v19
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(11)
+	v_mul_f32_e32 v3, v10, v3
+.Ltmp45:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s6, s11, s12
+.Ltmp46:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v10, 0xff800000, v184, s5
+.Ltmp47:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s6, s13, s6
+.Ltmp48:
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s9, s33, v102
+.Ltmp49:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v6, v171, v6, s6
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v7, v27, v7, s6
+.Ltmp50:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v171, 0xff800000, v183, s5
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	v_mul_f32_e32 v1, v9, v1
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v9, 0x4000, v18
+.Ltmp51:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_ge_f32_e64 s8, v6, v8
+.Ltmp52:
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s11, s33, v101
+	v_cmp_ne_u32_e64 s13, s33, v100
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	v_mul_f32_e32 v2, v12, v2
+	s_waitcnt vmcnt(10)
+	v_mul_f32_e32 v4, v11, v4
+.Ltmp53:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v6, v8, v6, s8
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v7, v140, v7, s8
+.Ltmp54:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v8, 0xff800000, v176, s5
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s8, s33, v103
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v11, 0x4008, v18
+.Ltmp55:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s6, v6, v171
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s10, v7, v28
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s12, v6, v171
+.Ltmp56:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v12, 0x400c, v18
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v173, 0xff800000, v5, s4
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s14, s33, v99
+.Ltmp57:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s6, s6, s10
+.Ltmp58:
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s10, s33, v98
+.Ltmp59:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s6, s12, s6
+.Ltmp60:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v1, 0xff800000, v1, s1
+.Ltmp61:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v6, v171, v6, s6
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v7, v28, v7, s6
+.Ltmp62:
+	.loc	1 910 27                        ; rejection_sampler.py:910:27
+	v_add_nc_u32_e32 v171, 0x1000, v17
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v2, 0xff800000, v2, s1
+	v_cndmask_b32_e64 v3, 0xff800000, v3, s1
+.Ltmp63:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s6, v6, v8
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s12, v7, v29
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s15, v6, v8
+.Ltmp64:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v4, 0xff800000, v4, s1
+.Ltmp65:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s6, s6, s12
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s6, s15, s6
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v6, v8, v6, s6
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v7, v29, v7, s6
+.Ltmp66:
+	.loc	1 911 36                        ; rejection_sampler.py:911:36
+	v_cmp_gt_i32_e64 s6, s28, v171
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v8, 0x4004, v18
+.Ltmp67:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s5, v6, v10
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s12, v7, v30
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s15, v6, v10
+.Ltmp68:
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s8, s6, s8
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_cndmask_b32_e64 v171, 0x80000000, v172, s6
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v9, 0x80000000, v9, s8
+.Ltmp69:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s12, s5, s12
+.Ltmp70:
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s5, s6, s9
+.Ltmp71:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s9, s15, s12
+.Ltmp72:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v174, 0x80000000, v8, s5
+.Ltmp73:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v10, v10, v6, s9
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v176, v30, v7, s9
+.Ltmp74:
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	buffer_load_dwordx4 v[5:8], v171, s[16:19], 0 offen
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	buffer_load_dword v172, v9, s[20:23], 0 offen
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s11, s6, s11
+	s_and_b32 s12, s6, s13
+.Ltmp75:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_ge_f32_e64 s5, v10, v173
+.Ltmp76:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v11, 0x80000000, v11, s11
+	v_cndmask_b32_e64 v12, 0x80000000, v12, s12
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v9, 0xff800000, v189, s4
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	buffer_load_dword v174, v174, s[20:23], 0 offen
+.Ltmp77:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v10, v173, v10, s5
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v171, v141, v176, s5
+.Ltmp78:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	s_clause 0x1
+	buffer_load_dword v173, v11, s[20:23], 0 offen
+	buffer_load_dword v183, v12, s[20:23], 0 offen
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v12, 0xff800000, v190, s4
+.Ltmp79:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s5, v10, v9
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s8, v171, v31
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s9, v10, v9
+.Ltmp80:
+	.loc	1 910 27                        ; rejection_sampler.py:910:27
+	v_add_nc_u32_e32 v11, 0x1200, v17
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s11, s33, v97
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(13)
+	v_mul_f32_e32 v184, v186, v179
+.Ltmp81:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s5, s5, s8
+.Ltmp82:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(12)
+	v_mul_f32_e32 v186, v187, v180
+.Ltmp83:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s5, s9, s5
+.Ltmp84:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(11)
+	v_mul_f32_e32 v187, v188, v181
+.Ltmp85:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v9, v9, v10, s5
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v171, v31, v171, s5
+.Ltmp86:
+	.loc	1 911 36                        ; rejection_sampler.py:911:36
+	v_cmp_gt_i32_e64 s5, s28, v11
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v181, 0xff800000, v191, s4
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_add_nc_u32_e32 v10, 0x4800, v19
+.Ltmp87:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s9, v9, v12
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s12, v171, v32
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s13, v9, v12
+.Ltmp88:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v176, 0x4800, v18
+	v_add_nc_u32_e32 v179, 0x4804, v18
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s8, s33, v96
+.Ltmp89:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s9, s9, s12
+.Ltmp90:
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s4, s5, s14
+.Ltmp91:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s9, s13, s9
+.Ltmp92:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v11, 0x4808, v18
+.Ltmp93:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v9, v12, v9, s9
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v171, v32, v171, s9
+.Ltmp94:
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s9, s5, s10
+	s_and_b32 s10, s5, s11
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_cndmask_b32_e64 v10, 0x80000000, v10, s5
+.Ltmp95:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s11, v9, v181
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s12, v171, v33
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s13, v9, v181
+.Ltmp96:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v180, 0x480c, v18
+	v_cndmask_b32_e64 v176, 0x80000000, v176, s4
+	v_cndmask_b32_e64 v179, 0x80000000, v179, s9
+.Ltmp97:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s4, s11, s12
+.Ltmp98:
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s8, s5, s8
+.Ltmp99:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s4, s13, s4
+.Ltmp100:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(10)
+	v_mul_f32_e32 v185, v185, v182
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v182, 0x80000000, v11, s10
+.Ltmp101:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v188, v181, v9, s4
+.Ltmp102:
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	buffer_load_dwordx4 v[9:12], v10, s[16:19], 0 offen
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	s_clause 0x1
+	buffer_load_dword v176, v176, s[20:23], 0 offen
+	buffer_load_dword v181, v179, s[20:23], 0 offen
+	v_cndmask_b32_e64 v180, 0x80000000, v180, s8
+.Ltmp103:
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v179, v33, v171, s4
+.Ltmp104:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	s_clause 0x1
+	buffer_load_dword v182, v182, s[20:23], 0 offen
+	buffer_load_dword v171, v180, s[20:23], 0 offen
+.Ltmp105:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_ge_f32_e64 s8, v188, v1
+.Ltmp106:
+	.loc	1 910 27                        ; rejection_sampler.py:910:27
+	v_add_nc_u32_e32 v180, 0x1400, v17
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s9, s33, v95
+	v_cmp_ne_u32_e64 s11, s33, v94
+	v_cmp_ne_u32_e64 s12, s33, v93
+.Ltmp107:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v1, v1, v188, s8
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v179, v142, v179, s8
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s4, v1, v2
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s8, v179, v34
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s10, v1, v2
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s4, s4, s8
+.Ltmp108:
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s8, s33, v92
+.Ltmp109:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s4, s10, s4
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v1, v2, v1, s4
+.Ltmp110:
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_add_nc_u32_e32 v2, 0x5000, v19
+.Ltmp111:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s10, v1, v3
+	.loc	2 152 18                        ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s14, v1, v3
+.Ltmp112:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(13)
+	v_mul_f32_e32 v175, v175, v13
+.Ltmp113:
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v13, v34, v179, s4
+.Ltmp114:
+	.loc	1 911 36                        ; rejection_sampler.py:911:36
+	v_cmp_gt_i32_e64 s4, s28, v180
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(12)
+	v_mul_f32_e32 v188, v177, v14
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v14, 0x5000, v18
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(11)
+	v_mul_f32_e32 v189, v178, v15
+.Ltmp115:
+	.loc	2 149 44                        ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s13, v13, v35
+.Ltmp116:
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s1, s4, s9
+	s_and_b32 s9, s4, s11
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v15, 0x5004, v18
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(10)
+	v_mul_f32_e32 v170, v170, v16
+.Ltmp117:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s10, s10, s13
+.Ltmp118:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v16, 0x5008, v18
+.Ltmp119:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s10, s14, s10
+.Ltmp120:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v177, 0x500c, v18
+.Ltmp121:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v1, v3, v1, s10
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v3, v35, v13, s10
+.Ltmp122:
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s10, s4, s12
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_cndmask_b32_e64 v2, 0x80000000, v2, s4
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v178, 0x80000000, v14, s1
+.Ltmp123:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s11, v1, v4
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s12, v3, v36
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s13, v1, v4
+.Ltmp124:
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s8, s4, s8
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v180, 0x80000000, v15, s9
+	v_cndmask_b32_e64 v190, 0x80000000, v16, s10
+.Ltmp125:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s1, s11, s12
+.Ltmp126:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v191, 0x80000000, v177, s8
+.Ltmp127:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s1, s13, s1
+.Ltmp128:
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	buffer_load_dwordx4 v[13:16], v2, s[16:19], 0 offen
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	s_clause 0x3
+	buffer_load_dword v179, v178, s[20:23], 0 offen
+	buffer_load_dword v180, v180, s[20:23], 0 offen
+	buffer_load_dword v177, v190, s[20:23], 0 offen
+	buffer_load_dword v178, v191, s[20:23], 0 offen
+.Ltmp129:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v1, v4, v1, s1
+.Ltmp130:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v2, 0xff800000, v184, s7
+.Ltmp131:
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v3, v36, v3, s1
+.Ltmp132:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v4, 0xff800000, v186, s7
+	v_cndmask_b32_e64 v186, 0xff800000, v188, s3
+	v_cndmask_b32_e64 v170, 0xff800000, v170, s3
+.Ltmp133:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_ge_f32_e64 s8, v1, v2
+.Ltmp134:
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s12, s33, v162
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v188, 0x6004, v18
+	v_add_nc_u32_e32 v190, s29, v82
+.Ltmp135:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v1, v2, v1, s8
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v143, v3, s8
+.Ltmp136:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v3, 0xff800000, v187, s7
+	v_cndmask_b32_e64 v187, 0xff800000, v189, s3
+.Ltmp137:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s1, v1, v4
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s8, v2, v37
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s9, v1, v4
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s1, s1, s8
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s1, s9, s1
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v1, v4, v1, s1
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v37, v2, s1
+.Ltmp138:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v4, 0xff800000, v185, s7
+.Ltmp139:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s1, v1, v3
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s8, v2, v38
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s9, v1, v3
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s1, s1, s8
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s1, s9, s1
+.Ltmp140:
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s9, s33, v91
+.Ltmp141:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v1, v3, v1, s1
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v184, v38, v2, s1
+.Ltmp142:
+	.loc	1 910 27                        ; rejection_sampler.py:910:27
+	v_add_nc_u32_e32 v2, 0x1600, v17
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_add_nc_u32_e32 v3, 0x5800, v19
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(13)
+	v_mul_f32_e32 v5, v172, v5
+.Ltmp143:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s1, v1, v4
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s7, v184, v39
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s8, v1, v4
+.Ltmp144:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(12)
+	v_mul_f32_e32 v174, v174, v6
+	s_waitcnt vmcnt(11)
+	v_mul_f32_e32 v173, v173, v7
+.Ltmp145:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s7, s1, s7
+.Ltmp146:
+	.loc	1 911 36                        ; rejection_sampler.py:911:36
+	v_cmp_gt_i32_e64 s1, s28, v2
+.Ltmp147:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s7, s8, s7
+.Ltmp148:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v2, 0xff800000, v175, s3
+.Ltmp149:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v1, v4, v1, s7
+.Ltmp150:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v4, 0x5800, v18
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s8, s1, s9
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_cndmask_b32_e64 v3, 0x80000000, v3, s1
+.Ltmp151:
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v184, v39, v184, s7
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_ge_f32_e64 s9, v1, v2
+.Ltmp152:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v175, 0x80000000, v4, s8
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(10)
+	v_mul_f32_e32 v183, v183, v8
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v174, 0xff800000, v174, s6
+	v_cndmask_b32_e64 v173, 0xff800000, v173, s6
+.Ltmp153:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v185, v2, v1, s9
+.Ltmp154:
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	buffer_load_dwordx4 v[1:4], v3, s[16:19], 0 offen
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	buffer_load_dword v175, v175, s[20:23], 0 offen
+.Ltmp155:
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v184, v144, v184, s9
+.Ltmp156:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v183, 0xff800000, v183, s6
+.Ltmp157:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s7, v185, v186
+	.loc	2 152 18                        ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s9, v185, v186
+	.loc	2 149 44                        ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s8, v184, v40
+	.loc	2 149 35 is_stmt 0              ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s7, s7, s8
+	.loc	2 152 28 is_stmt 1              ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s7, s9, s7
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v185, v186, v185, s7
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v184, v40, v184, s7
+.Ltmp158:
+	.loc	1 910 27                        ; rejection_sampler.py:910:27
+	v_add_nc_u32_e32 v186, 0x1800, v17
+.Ltmp159:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s7, v185, v187
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s8, v184, v41
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s9, v185, v187
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s7, s7, s8
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s7, s9, s7
+.Ltmp160:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(9)
+	v_mul_f32_e32 v181, v181, v10
+.Ltmp161:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v185, v187, v185, s7
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v184, v41, v184, s7
+.Ltmp162:
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_add_nc_u32_e32 v187, 0x6000, v19
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	v_mul_f32_e32 v176, v176, v9
+	s_waitcnt vmcnt(8)
+	v_mul_f32_e32 v182, v182, v11
+.Ltmp163:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s3, v185, v170
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s7, v184, v42
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s8, v185, v170
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s3, s3, s7
+.Ltmp164:
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s7, s33, v166
+.Ltmp165:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s3, s8, s3
+.Ltmp166:
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s8, s33, v165
+.Ltmp167:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v170, v170, v185, s3
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v184, v42, v184, s3
+.Ltmp168:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v185, 0x5804, v18
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s3, s1, s7
+	.loc	1 916 52 is_stmt 0              ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s7, s33, v164
+.Ltmp169:
+	.loc	2 152 28 is_stmt 1              ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_ge_f32_e64 s9, v170, v169
+.Ltmp170:
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s7, s1, s7
+.Ltmp171:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v169, v169, v170, s9
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v184, v43, v184, s9
+.Ltmp172:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v170, 0x80000000, v185, s3
+	v_add_nc_u32_e32 v185, 0x5808, v18
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s9, s33, v163
+.Ltmp173:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s3, v169, v168
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s10, v184, v44
+.Ltmp174:
+	.loc	1 915 16 is_stmt 1              ; rejection_sampler.py:915:16
+	buffer_load_dword v170, v170, s[20:23], 0 offen
+.Ltmp175:
+	.loc	2 152 18                        ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s11, v169, v168
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s10, s3, s10
+.Ltmp176:
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s3, s1, s8
+.Ltmp177:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s8, s11, s10
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v168, v168, v169, s8
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v184, v44, v184, s8
+.Ltmp178:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v169, 0x80000000, v185, s3
+	v_add_nc_u32_e32 v185, 0x580c, v18
+	.loc	1 911 36                        ; rejection_sampler.py:911:36
+	v_cmp_gt_i32_e64 s3, s28, v186
+.Ltmp179:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s8, v168, v167
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s10, v184, v45
+.Ltmp180:
+	.loc	1 915 16 is_stmt 1              ; rejection_sampler.py:915:16
+	buffer_load_dword v169, v169, s[20:23], 0 offen
+.Ltmp181:
+	.loc	2 152 18                        ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s11, v168, v167
+.Ltmp182:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v186, 0x6000, v18
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s2, s3, s9
+.Ltmp183:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s8, s8, s10
+.Ltmp184:
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s9, s3, s12
+.Ltmp185:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s8, s11, s8
+.Ltmp186:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v172, 0x80000000, v186, s2
+.Ltmp187:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v167, v167, v168, s8
+.Ltmp188:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v168, 0x80000000, v185, s7
+.Ltmp189:
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v184, v45, v184, s8
+.Ltmp190:
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_cndmask_b32_e64 v185, 0x80000000, v187, s3
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v186, 0xff800000, v5, s6
+.Ltmp191:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s7, v167, v20
+.Ltmp192:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	buffer_load_dword v168, v168, s[20:23], 0 offen
+.Ltmp193:
+	.loc	2 149 44                        ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s8, v184, v46
+	.loc	2 152 18                        ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s10, v167, v20
+.Ltmp194:
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_add_nc_u32_e32 v187, 0x6800, v19
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s12, s33, v158
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_add_nc_u32_e32 v19, 0x7000, v19
+.Ltmp195:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s2, s7, s8
+.Ltmp196:
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s8, s33, v159
+.Ltmp197:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s2, s10, s2
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v20, v20, v167, s2
+.Ltmp198:
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	buffer_load_dwordx4 v[5:8], v185, s[16:19], 0 offen
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	buffer_load_dword v167, v172, s[20:23], 0 offen
+.Ltmp199:
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v172, v46, v184, s2
+.Ltmp200:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v184, 0x80000000, v188, s9
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s2, s33, v161
+.Ltmp201:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_ge_f32_e64 s7, v20, v186
+.Ltmp202:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v188, 0x6804, v18
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s2, s3, s2
+.Ltmp203:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v20, v186, v20, s7
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v185, v145, v172, s7
+.Ltmp204:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	buffer_load_dword v172, v184, s[20:23], 0 offen
+	v_add_nc_u32_e32 v184, 0x6008, v18
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s7, s33, v160
+.Ltmp205:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s9, v20, v174
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s10, v185, v47
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s11, v20, v174
+.Ltmp206:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v184, 0x80000000, v184, s2
+	.loc	1 910 27                        ; rejection_sampler.py:910:27
+	v_add_nc_u32_e32 v186, 0x1a00, v17
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s7, s3, s7
+.Ltmp207:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s9, s9, s10
+.Ltmp208:
+	.loc	1 910 27                        ; rejection_sampler.py:910:27
+	v_add_nc_u32_e32 v17, 0x1c00, v17
+.Ltmp209:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s2, s11, s9
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v20, v174, v20, s2
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v185, v47, v185, s2
+.Ltmp210:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	buffer_load_dword v174, v184, s[20:23], 0 offen
+	v_add_nc_u32_e32 v184, 0x600c, v18
+	.loc	1 911 36                        ; rejection_sampler.py:911:36
+	v_cmp_gt_i32_e64 s2, s28, v186
+.Ltmp211:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s9, v20, v173
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s10, v185, v48
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s11, v20, v173
+.Ltmp212:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v184, 0x80000000, v184, s7
+	v_add_nc_u32_e32 v186, 0x6800, v18
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s7, s2, s8
+.Ltmp213:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s9, s9, s10
+.Ltmp214:
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_cndmask_b32_e64 v187, 0x80000000, v187, s2
+.Ltmp215:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s9, s11, s9
+.Ltmp216:
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s10, s33, v155
+.Ltmp217:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v20, v173, v20, s9
+.Ltmp218:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	buffer_load_dword v173, v184, s[20:23], 0 offen
+.Ltmp219:
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v184, v48, v185, s9
+.Ltmp220:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v185, 0x80000000, v186, s7
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(15)
+	v_mul_f32_e32 v186, v171, v12
+.Ltmp221:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s6, v20, v183
+.Ltmp222:
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	buffer_load_dwordx4 v[9:12], v187, s[16:19], 0 offen
+.Ltmp223:
+	.loc	2 149 44                        ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s7, v184, v49
+.Ltmp224:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v187, 0xff800000, v181, s5
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v181, 0x6808, v18
+.Ltmp225:
+	.loc	2 152 18                        ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s8, v20, v183
+.Ltmp226:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	buffer_load_dword v171, v185, s[20:23], 0 offen
+.Ltmp227:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s6, s6, s7
+.Ltmp228:
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s7, s33, v157
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v186, 0xff800000, v186, s5
+.Ltmp229:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s8, s8, s6
+.Ltmp230:
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s6, s2, s12
+.Ltmp231:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v20, v183, v20, s8
+.Ltmp232:
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s7, s2, s7
+.Ltmp233:
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v183, v49, v184, s8
+.Ltmp234:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v181, 0x80000000, v181, s7
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s11, s33, v154
+	.loc	1 910 27                        ; rejection_sampler.py:910:27
+	v_add_nc_u32_e32 v184, s33, v90
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	buffer_load_dword v181, v181, s[20:23], 0 offen
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v185, 0xff800000, v176, s5
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v176, 0x80000000, v188, s6
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s6, s33, v156
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v188, 0xff800000, v182, s5
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v182, 0x680c, v18
+.Ltmp235:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_ge_f32_e64 s9, v20, v185
+.Ltmp236:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	buffer_load_dword v176, v176, s[20:23], 0 offen
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s6, s2, s6
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v182, 0x80000000, v182, s6
+.Ltmp237:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v20, v185, v20, s9
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v183, v146, v183, s9
+.Ltmp238:
+	.loc	1 911 36                        ; rejection_sampler.py:911:36
+	v_cmp_gt_i32_e64 s6, s28, v17
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v17, 0x7000, v18
+	buffer_load_dword v182, v182, s[20:23], 0 offen
+.Ltmp239:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s8, v20, v187
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s9, v183, v50
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s7, v20, v187
+.Ltmp240:
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_cndmask_b32_e64 v19, 0x80000000, v19, s6
+	.loc	1 910 27                        ; rejection_sampler.py:910:27
+	v_add_nc_u32_e32 v185, s33, v61
+.Ltmp241:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s8, s8, s9
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s7, s7, s8
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v20, v187, v20, s7
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v183, v50, v183, s7
+.Ltmp242:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v187, 0x7004, v18
+.Ltmp243:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s7, v20, v188
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s8, v183, v51
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s9, v20, v188
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s7, s7, s8
+.Ltmp244:
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s8, s6, s10
+.Ltmp245:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s7, s9, s7
+.Ltmp246:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v17, 0x80000000, v17, s8
+.Ltmp247:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v20, v188, v20, s7
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v183, v51, v183, s7
+.Ltmp248:
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s9, s6, s11
+	.loc	1 916 52 is_stmt 0              ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s11, 0, v184
+.Ltmp249:
+	.loc	2 149 24 is_stmt 1              ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s5, v20, v186
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s7, v183, v52
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s8, v20, v186
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s5, s5, s7
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s7, s8, s5
+.Ltmp250:
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s8, s33, v153
+.Ltmp251:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v20, v186, v20, s7
+.Ltmp252:
+	.loc	1 911 36                        ; rejection_sampler.py:911:36
+	v_cmp_gt_i32_e64 s5, s28, v185
+	.loc	1 910 27                        ; rejection_sampler.py:910:27
+	v_add_nc_u32_e32 v186, s33, v88
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_add_nc_u32_e32 v185, s29, v63
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s11, s5, s11
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(18)
+	v_mul_f32_e32 v179, v179, v13
+	s_waitcnt vmcnt(17)
+	v_mul_f32_e32 v180, v180, v14
+	s_waitcnt vmcnt(16)
+	v_mul_f32_e32 v188, v177, v15
+	s_waitcnt vmcnt(15)
+	v_mul_f32_e32 v189, v178, v16
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	buffer_load_dwordx4 v[13:16], v19, s[16:19], 0 offen
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	buffer_load_dword v177, v17, s[20:23], 0 offen
+	v_cndmask_b32_e64 v19, 0x80000000, v187, s9
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v179, 0xff800000, v179, s4
+	v_cndmask_b32_e64 v180, 0xff800000, v180, s4
+	v_cndmask_b32_e64 v187, 0xff800000, v188, s4
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	buffer_load_dword v178, v19, s[20:23], 0 offen
+.Ltmp253:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_ge_f32_e64 s9, v20, v179
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v19, v52, v183, s7
+.Ltmp254:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v183, 0x7008, v18
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s7, s6, s8
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v18, 0x700c, v18
+.Ltmp255:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v20, v179, v20, s9
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v19, v147, v19, s9
+.Ltmp256:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v179, 0x80000000, v183, s7
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s7, s33, v152
+	.loc	1 911 36                        ; rejection_sampler.py:911:36
+	v_add_nc_u32_e32 v183, s33, v87
+.Ltmp257:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s8, v20, v180
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s9, v19, v53
+.Ltmp258:
+	.loc	1 915 16 is_stmt 1              ; rejection_sampler.py:915:16
+	buffer_load_dword v179, v179, s[20:23], 0 offen
+.Ltmp259:
+	.loc	2 152 18                        ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s10, v20, v180
+.Ltmp260:
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s7, s6, s7
+.Ltmp261:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s8, s8, s9
+.Ltmp262:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v18, 0x80000000, v18, s7
+.Ltmp263:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s8, s10, s8
+.Ltmp264:
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s10, 0, v186
+.Ltmp265:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v20, v180, v20, s8
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v188, v53, v19, s8
+.Ltmp266:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	buffer_load_dword v184, v18, s[20:23], 0 offen
+	.loc	1 910 27                        ; rejection_sampler.py:910:27
+	v_add_nc_u32_e32 v17, s33, v89
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v180, s29, v66
+.Ltmp267:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s7, v20, v187
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s9, v188, v54
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s12, v20, v187
+.Ltmp268:
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s8, 0, v17
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	v_cndmask_b32_e64 v17, 0x80000000, v185, s5
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v186, 0xff800000, v189, s4
+.Ltmp269:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s7, s7, s9
+.Ltmp270:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v180, 0x80000000, v180, s11
+.Ltmp271:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s9, s12, s7
+.Ltmp272:
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s4, s5, s8
+.Ltmp273:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v185, v187, v20, s9
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v187, v54, v188, s9
+.Ltmp274:
+	.loc	1 916 52                        ; rejection_sampler.py:916:52
+	v_cmp_ne_u32_e64 s7, 0, v183
+	.loc	1 935 12                        ; rejection_sampler.py:935:12
+	buffer_load_dwordx4 v[17:20], v17, s[16:19], 0 offen
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	buffer_load_dword v183, v180, s[20:23], 0 offen
+	v_cndmask_b32_e64 v180, 0x80000000, v190, s4
+.Ltmp275:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s4, v185, v186
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s8, v187, v55
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s9, v185, v186
+.Ltmp276:
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s7, s5, s7
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	buffer_load_dword v180, v180, s[20:23], 0 offen
+.Ltmp277:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s4, s4, s8
+.Ltmp278:
+	.loc	1 916 36                        ; rejection_sampler.py:916:36
+	s_and_b32 s8, s5, s10
+.Ltmp279:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s4, s9, s4
+.Ltmp280:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	s_waitcnt vmcnt(21)
+	v_mul_f32_e32 v1, v175, v1
+.Ltmp281:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v175, v186, v185, s4
+.Ltmp282:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_add_nc_u32_e32 v185, s29, v81
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v186, 0xff800000, v1, s1
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v1, 0x80000000, v185, s8
+	v_add_nc_u32_e32 v185, s29, v80
+.Ltmp283:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_ge_f32_e64 s8, v175, v186
+.Ltmp284:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	v_cndmask_b32_e64 v185, 0x80000000, v185, s7
+.Ltmp285:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v175, v186, v175, s8
+.Ltmp286:
+	.loc	1 915 16                        ; rejection_sampler.py:915:16
+	s_clause 0x1
+	buffer_load_dword v185, v185, s[20:23], 0 offen
+	buffer_load_dword v1, v1, s[20:23], 0 offen
+.Ltmp287:
+	.loc	2 181 58                        ; standard.py:181:58 @[ rejection_sampler.py:946:37 ]
+	s_waitcnt vmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+.Ltmp288:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	v_mul_f32_e32 v2, v170, v2
+.Ltmp289:
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v170, v55, v187, s4
+.Ltmp290:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v2, 0xff800000, v2, s1
+.Ltmp291:
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v170, v148, v170, s8
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s4, v175, v2
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s7, v170, v56
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s8, v175, v2
+.Ltmp292:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	v_mul_f32_e32 v3, v169, v3
+.Ltmp293:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s4, s4, s7
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s4, s8, s4
+.Ltmp294:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v3, 0xff800000, v3, s1
+.Ltmp295:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v2, v175, s4
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v169, v56, v170, s4
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s4, v2, v3
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s7, v169, v57
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s8, v2, v3
+.Ltmp296:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	v_mul_f32_e32 v4, v168, v4
+.Ltmp297:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s4, s4, s7
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s4, s8, s4
+.Ltmp298:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v4, 0xff800000, v4, s1
+.Ltmp299:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v3, v2, s4
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v3, v57, v169, s4
+.Ltmp300:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	v_mul_f32_e32 v5, v167, v5
+.Ltmp301:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s1, v2, v4
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s4, v3, v58
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s7, v2, v4
+.Ltmp302:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v5, 0xff800000, v5, s3
+.Ltmp303:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s1, s1, s4
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s1, s7, s1
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v4, v2, s1
+.Ltmp304:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	v_mul_f32_e32 v4, v172, v6
+.Ltmp305:
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v3, v58, v3, s1
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_ge_f32_e64 s4, v2, v5
+.Ltmp306:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v4, 0xff800000, v4, s3
+.Ltmp307:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v5, v2, s4
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v3, v149, v3, s4
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s1, v2, v4
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s4, v3, v59
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s7, v2, v4
+.Ltmp308:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	v_mul_f32_e32 v5, v174, v7
+.Ltmp309:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s1, s1, s4
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s1, s7, s1
+.Ltmp310:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v5, 0xff800000, v5, s3
+.Ltmp311:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v4, v2, s1
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v3, v59, v3, s1
+.Ltmp312:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	v_mul_f32_e32 v4, v173, v8
+.Ltmp313:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s1, v2, v5
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s4, v3, v60
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s7, v2, v5
+.Ltmp314:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v4, 0xff800000, v4, s3
+.Ltmp315:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s1, s1, s4
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s1, s7, s1
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v5, v2, s1
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v3, v60, v3, s1
+.Ltmp316:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	v_mul_f32_e32 v5, v171, v9
+.Ltmp317:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s1, v2, v4
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s3, v3, v69
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s4, v2, v4
+.Ltmp318:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v5, 0xff800000, v5, s2
+.Ltmp319:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s1, s1, s3
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s1, s4, s1
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v4, v2, s1
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v3, v69, v3, s1
+.Ltmp320:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	v_mul_f32_e32 v4, v176, v10
+.Ltmp321:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_ge_f32_e64 s3, v2, v5
+.Ltmp322:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v4, 0xff800000, v4, s2
+.Ltmp323:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v5, v2, s3
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v3, v150, v3, s3
+.Ltmp324:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	v_mul_f32_e32 v5, v181, v11
+.Ltmp325:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s1, v2, v4
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s3, v3, v70
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s4, v2, v4
+.Ltmp326:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v5, 0xff800000, v5, s2
+.Ltmp327:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s1, s1, s3
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s1, s4, s1
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v4, v2, s1
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v3, v70, v3, s1
+.Ltmp328:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	v_mul_f32_e32 v4, v182, v12
+.Ltmp329:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s1, v2, v5
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s3, v3, v71
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s4, v2, v5
+.Ltmp330:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v4, 0xff800000, v4, s2
+.Ltmp331:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s1, s1, s3
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s1, s4, s1
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v5, v2, s1
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v3, v71, v3, s1
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s1, v2, v4
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s2, v3, v72
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s3, v2, v4
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s1, s1, s2
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s1, s3, s1
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v4, v2, s1
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v3, v72, v3, s1
+.Ltmp332:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	v_mul_f32_e32 v5, v177, v13
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v5, 0xff800000, v5, s6
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	v_mul_f32_e32 v4, v178, v14
+.Ltmp333:
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_ge_f32_e64 s2, v2, v5
+.Ltmp334:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v4, 0xff800000, v4, s6
+.Ltmp335:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v5, v2, s2
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v3, v151, v3, s2
+.Ltmp336:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	v_mul_f32_e32 v5, v179, v15
+.Ltmp337:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s1, v2, v4
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s2, v3, v73
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s3, v2, v4
+.Ltmp338:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v5, 0xff800000, v5, s6
+.Ltmp339:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s1, s1, s2
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s1, s3, s1
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v4, v2, s1
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v3, v73, v3, s1
+.Ltmp340:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	v_mul_f32_e32 v4, v184, v16
+.Ltmp341:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s1, v2, v5
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s2, v3, v74
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s3, v2, v5
+.Ltmp342:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v4, 0xff800000, v4, s6
+.Ltmp343:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s1, s1, s2
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s1, s3, s1
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v5, v2, s1
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v3, v74, v3, s1
+.Ltmp344:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	v_mul_f32_e32 v5, v183, v17
+.Ltmp345:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s1, v2, v4
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s2, v3, v78
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s3, v2, v4
+.Ltmp346:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v5, 0xff800000, v5, s5
+.Ltmp347:
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s1, s1, s2
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s1, s3, s1
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v4, v2, s1
+.Ltmp348:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	v_mul_f32_e32 v4, v180, v18
+.Ltmp349:
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v3, v78, v3, s1
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_ge_f32_e64 s2, v2, v5
+.Ltmp350:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v4, 0xff800000, v4, s5
+.Ltmp351:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v5, v2, s2
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v3, v61, v3, s2
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s1, v2, v4
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s2, v3, v77
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s3, v2, v4
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s1, s1, s2
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s1, s3, s1
+.Ltmp352:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	v_mul_f32_e32 v1, v1, v19
+.Ltmp353:
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v4, v2, s1
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v3, v77, v3, s1
+.Ltmp354:
+	.loc	1 944 23                        ; rejection_sampler.py:944:23
+	v_mul_f32_e32 v4, v185, v20
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v1, 0xff800000, v1, s5
+.Ltmp355:
+	.loc	2 149 44                        ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s2, v3, v76
+.Ltmp356:
+	.loc	1 945 44                        ; rejection_sampler.py:945:44
+	v_cndmask_b32_e64 v4, 0xff800000, v4, s5
+.Ltmp357:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s1, v2, v1
+	.loc	2 152 18                        ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s3, v2, v1
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s1, s1, s2
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s1, s3, s1
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v1, v1, v2, s1
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v76, v3, s1
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s1, v1, v4
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s2, v2, v75
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s3, v1, v4
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s1, s1, s2
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s1, s3, s1
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v1, v4, v1, s1
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v75, v2, s1
+.Ltmp358:
+	.loc	2 181 58                        ; standard.py:181:58 @[ rejection_sampler.py:946:37 ]
+	v_permlanex16_b32 v3, v1, s31, 0xfedcba98 op_sel:[1,0]
+	v_permlanex16_b32 v4, v2, s31, 0xfedcba98 op_sel:[1,0]
+.Ltmp359:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_eq_f32_e64 s1, v1, v3
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_lt_i32_e64 s2, v2, v4
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s3, v1, v3
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s1, s1, s2
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s1, s3, s1
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v1, v3, v1, s1
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v4, v2, s1
+.Ltmp360:
+	.loc	2 181 58                        ; standard.py:181:58 @[ rejection_sampler.py:946:37 ]
+	ds_swizzle_b32 v3, v1 offset:swizzle(SWAP,8)
+	ds_swizzle_b32 v4, v2 offset:swizzle(SWAP,8)
+.Ltmp361:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_waitcnt lgkmcnt(1)
+	v_cmp_eq_f32_e64 s1, v1, v3
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_waitcnt lgkmcnt(0)
+	v_cmp_lt_i32_e64 s2, v2, v4
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s3, v1, v3
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s1, s1, s2
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s1, s3, s1
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v1, v3, v1, s1
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v4, v2, s1
+.Ltmp362:
+	.loc	2 181 58                        ; standard.py:181:58 @[ rejection_sampler.py:946:37 ]
+	ds_swizzle_b32 v3, v1 offset:swizzle(SWAP,4)
+	ds_swizzle_b32 v4, v2 offset:swizzle(SWAP,4)
+.Ltmp363:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_waitcnt lgkmcnt(1)
+	v_cmp_eq_f32_e64 s1, v1, v3
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_waitcnt lgkmcnt(0)
+	v_cmp_lt_i32_e64 s2, v2, v4
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s3, v1, v3
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s1, s1, s2
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s1, s3, s1
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v1, v3, v1, s1
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v4, v2, s1
+.Ltmp364:
+	.loc	2 181 58                        ; standard.py:181:58 @[ rejection_sampler.py:946:37 ]
+	ds_swizzle_b32 v3, v1 offset:swizzle(SWAP,2)
+	ds_swizzle_b32 v4, v2 offset:swizzle(SWAP,2)
+.Ltmp365:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_waitcnt lgkmcnt(1)
+	v_cmp_eq_f32_e64 s1, v1, v3
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_waitcnt lgkmcnt(0)
+	v_cmp_lt_i32_e64 s2, v2, v4
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s3, v1, v3
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s1, s1, s2
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s1, s3, s1
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v1, v3, v1, s1
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v4, v2, s1
+.Ltmp366:
+	.loc	2 181 58                        ; standard.py:181:58 @[ rejection_sampler.py:946:37 ]
+	ds_swizzle_b32 v3, v1 offset:swizzle(SWAP,1)
+	ds_swizzle_b32 v4, v2 offset:swizzle(SWAP,1)
+	s_and_saveexec_b32 s4, vcc_lo
+	s_cbranch_execz .LBB0_8
+; %bb.7:                                ;   in Loop: Header=BB0_6 Depth=1
+.Ltmp367:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_waitcnt lgkmcnt(1)
+	v_cmp_eq_f32_e64 s1, v1, v3
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_waitcnt lgkmcnt(0)
+	v_cmp_lt_i32_e64 s2, v2, v4
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s3, v1, v3
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s1, s1, s2
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s1, s3, s1
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v4, v2, s1
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v1, v3, v1, s1
+.Ltmp368:
+	.loc	2 181 58                        ; standard.py:181:58 @[ rejection_sampler.py:946:37 ]
+	ds_write2_b32 v62, v1, v2 offset1:4
+.LBB0_8:                                ; %.critedge
+                                        ;   in Loop: Header=BB0_6 Depth=1
+	.loc	2 0 58 is_stmt 0                ; standard.py:0:58
+	s_or_b32 exec_lo, exec_lo, s4
+	v_mov_b32_e32 v1, 0
+	v_mov_b32_e32 v2, 0
+	.loc	2 181 58                        ; standard.py:181:58 @[ rejection_sampler.py:946:37 ]
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	s_and_saveexec_b32 s1, s0
+; %bb.9:                                ;   in Loop: Header=BB0_6 Depth=1
+	ds_read_b32 v2, v79
+; %bb.10:                               ;   in Loop: Header=BB0_6 Depth=1
+	.loc	2 0 58                          ; standard.py:0:58
+	s_or_b32 exec_lo, exec_lo, s1
+	.loc	2 181 58                        ; standard.py:181:58 @[ rejection_sampler.py:946:37 ]
+	s_and_saveexec_b32 s1, s0
+; %bb.11:                               ;   in Loop: Header=BB0_6 Depth=1
+	ds_read_b32 v1, v79 offset:16
+; %bb.12:                               ;   in Loop: Header=BB0_6 Depth=1
+	.loc	2 0 58                          ; standard.py:0:58
+	s_or_b32 exec_lo, exec_lo, s1
+	.loc	2 181 58                        ; standard.py:181:58 @[ rejection_sampler.py:946:37 ]
+	s_waitcnt lgkmcnt(0)
+	ds_swizzle_b32 v3, v2 offset:swizzle(SWAP,2)
+	ds_swizzle_b32 v4, v1 offset:swizzle(SWAP,2)
+.Ltmp369:
+	.loc	2 149 24 is_stmt 1              ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_waitcnt lgkmcnt(1)
+	v_cmp_eq_f32_e64 s1, v2, v3
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_waitcnt lgkmcnt(0)
+	v_cmp_lt_i32_e64 s2, v1, v4
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s3, v2, v3
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s1, s1, s2
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s1, s3, s1
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v3, v2, s1
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v1, v4, v1, s1
+.Ltmp370:
+	.loc	2 181 58                        ; standard.py:181:58 @[ rejection_sampler.py:946:37 ]
+	ds_swizzle_b32 v3, v2 offset:swizzle(SWAP,1)
+	ds_swizzle_b32 v4, v1 offset:swizzle(SWAP,1)
+	s_and_saveexec_b32 s4, s30
+	s_cbranch_execz .LBB0_5
+; %bb.13:                               ;   in Loop: Header=BB0_6 Depth=1
+.Ltmp371:
+	.loc	2 149 24                        ; standard.py:149:24 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_waitcnt lgkmcnt(1)
+	v_cmp_eq_f32_e64 s1, v2, v3
+	.loc	2 149 44 is_stmt 0              ; standard.py:149:44 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_waitcnt lgkmcnt(0)
+	v_cmp_lt_i32_e64 s2, v1, v4
+	.loc	2 152 18 is_stmt 1              ; standard.py:152:18 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cmp_gt_f32_e64 s3, v2, v3
+	.loc	2 149 35                        ; standard.py:149:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_and_b32 s1, s1, s2
+	.loc	2 152 28                        ; standard.py:152:28 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	s_or_b32 s1, s3, s1
+	.loc	2 154 35                        ; standard.py:154:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v1, v4, v1, s1
+	.loc	2 153 35                        ; standard.py:153:35 @[ standard.py:160:59 @[ standard.py:181:58 @[ rejection_sampler.py:946:37 ] ] ]
+	v_cndmask_b32_e64 v2, v3, v2, s1
+.Ltmp372:
+	.loc	2 181 58                        ; standard.py:181:58 @[ rejection_sampler.py:946:37 ]
+	ds_write2_b32 v79, v2, v1 offset1:4
+	s_branch .LBB0_5
+.Ltmp373:
+.LBB0_14:
+	.loc	2 0 58 is_stmt 0                ; standard.py:0:58
+	v_mov_b32_e32 v110, 0
+.LBB0_15:                               ; %._crit_edge
+	.loc	1 953 47 is_stmt 1              ; rejection_sampler.py:953:47
+	v_cmp_eq_u32_e32 vcc_lo, 0, v21
+	v_cmp_gt_u32_e64 s0, 32, v0
+	s_and_b32 s0, vcc_lo, s0
+	s_and_saveexec_b32 s1, s0
+	s_xor_b32 s1, exec_lo, s1
+	s_cbranch_execz .LBB0_17
+; %bb.16:
+	.loc	1 0 47 is_stmt 0                ; rejection_sampler.py:0:47
+	s_lshl_b64 s[0:1], s[26:27], 2
+	v_mov_b32_e32 v0, 0
+	s_add_u32 s0, s24, s0
+	s_addc_u32 s1, s25, s1
+	s_add_i32 s28, s28, -1
+	v_min_i32_e32 v1, s28, v110
+	.loc	1 953 47                        ; rejection_sampler.py:953:47
+	global_store_dword v0, v1, s[0:1]
+.LBB0_17:
+	.loc	1 897 8 is_stmt 1               ; rejection_sampler.py:897:8
+	s_endpgm
+.Ltmp374:
+	.section	.rodata,"a",@progbits
+	.p2align	6, 0x0
+	.amdhsa_kernel sample_recovered_tokens_kernel
+		.amdhsa_group_segment_fixed_size 0
+		.amdhsa_private_segment_fixed_size 0
+		.amdhsa_kernarg_size 64
+		.amdhsa_user_sgpr_count 6
+		.amdhsa_user_sgpr_private_segment_buffer 1
+		.amdhsa_user_sgpr_dispatch_ptr 0
+		.amdhsa_user_sgpr_queue_ptr 0
+		.amdhsa_user_sgpr_kernarg_segment_ptr 1
+		.amdhsa_user_sgpr_dispatch_id 0
+		.amdhsa_user_sgpr_flat_scratch_init 0
+		.amdhsa_user_sgpr_private_segment_size 0
+		.amdhsa_wavefront_size32 1
+		.amdhsa_uses_dynamic_stack 0
+		.amdhsa_system_sgpr_private_segment_wavefront_offset 0
+		.amdhsa_system_sgpr_workgroup_id_x 1
+		.amdhsa_system_sgpr_workgroup_id_y 1
+		.amdhsa_system_sgpr_workgroup_id_z 0
+		.amdhsa_system_sgpr_workgroup_info 0
+		.amdhsa_system_vgpr_workitem_id 0
+		.amdhsa_next_free_vgpr 192
+		.amdhsa_next_free_sgpr 34
+		.amdhsa_reserve_vcc 1
+		.amdhsa_reserve_flat_scratch 0
+		.amdhsa_float_round_mode_32 0
+		.amdhsa_float_round_mode_16_64 0
+		.amdhsa_float_denorm_mode_32 3
+		.amdhsa_float_denorm_mode_16_64 3
+		.amdhsa_dx10_clamp 1
+		.amdhsa_ieee_mode 1
+		.amdhsa_fp16_overflow 0
+		.amdhsa_workgroup_processor_mode 1
+		.amdhsa_memory_ordered 1
+		.amdhsa_forward_progress 1
+		.amdhsa_shared_vgpr_count 0
+		.amdhsa_exception_fp_ieee_invalid_op 0
+		.amdhsa_exception_fp_denorm_src 0
+		.amdhsa_exception_fp_ieee_div_zero 0
+		.amdhsa_exception_fp_ieee_overflow 0
+		.amdhsa_exception_fp_ieee_underflow 0
+		.amdhsa_exception_fp_ieee_inexact 0
+		.amdhsa_exception_int_div_zero 0
+	.end_amdhsa_kernel
+	.text
+.Lfunc_end0:
+	.size	sample_recovered_tokens_kernel, .Lfunc_end0-sample_recovered_tokens_kernel
+	.cfi_endproc
+                                        ; -- End function
+	.set sample_recovered_tokens_kernel.num_vgpr, 192
+	.set sample_recovered_tokens_kernel.num_agpr, 0
+	.set sample_recovered_tokens_kernel.numbered_sgpr, 34
+	.set sample_recovered_tokens_kernel.num_named_barrier, 0
+	.set sample_recovered_tokens_kernel.private_seg_size, 0
+	.set sample_recovered_tokens_kernel.uses_vcc, 1
+	.set sample_recovered_tokens_kernel.uses_flat_scratch, 0
+	.set sample_recovered_tokens_kernel.has_dyn_sized_stack, 0
+	.set sample_recovered_tokens_kernel.has_recursion, 0
+	.set sample_recovered_tokens_kernel.has_indirect_call, 0
+	.section	.AMDGPU.csdata,"",@progbits
+; Kernel info:
+; codeLenInByte = 9248
+; TotalNumSgprs: 36
+; NumVgprs: 192
+; ScratchSize: 0
+; MemoryBound: 0
+; FloatMode: 240
+; IeeeMode: 1
+; LDSByteSize: 0 bytes/workgroup (compile time only)
+; SGPRBlocks: 0
+; VGPRBlocks: 23
+; NumSGPRsForWavesPerEU: 36
+; NumVGPRsForWavesPerEU: 192
+; Occupancy: 5
+; WaveLimiterHint : 0
+; COMPUTE_PGM_RSRC2:SCRATCH_EN: 0
+; COMPUTE_PGM_RSRC2:USER_SGPR: 6
+; COMPUTE_PGM_RSRC2:TRAP_HANDLER: 0
+; COMPUTE_PGM_RSRC2:TGID_X_EN: 1
+; COMPUTE_PGM_RSRC2:TGID_Y_EN: 1
+; COMPUTE_PGM_RSRC2:TGID_Z_EN: 0
+; COMPUTE_PGM_RSRC2:TIDIG_COMP_CNT: 0
+	.text
+	.p2alignl 6, 3214868480
+	.fill 48, 4, 3214868480
+	.section	.AMDGPU.gpr_maximums,"",@progbits
+	.set amdgpu.max_num_vgpr, 0
+	.set amdgpu.max_num_agpr, 0
+	.set amdgpu.max_num_sgpr, 0
+	.text
+	.section	.debug_abbrev,"",@progbits
+	.byte	1                               ; Abbreviation Code
+	.byte	17                              ; DW_TAG_compile_unit
+	.byte	1                               ; DW_CHILDREN_yes
+	.byte	37                              ; DW_AT_producer
+	.byte	14                              ; DW_FORM_strp
+	.byte	19                              ; DW_AT_language
+	.byte	5                               ; DW_FORM_data2
+	.byte	3                               ; DW_AT_name
+	.byte	14                              ; DW_FORM_strp
+	.byte	16                              ; DW_AT_stmt_list
+	.byte	23                              ; DW_FORM_sec_offset
+	.byte	27                              ; DW_AT_comp_dir
+	.byte	14                              ; DW_FORM_strp
+	.byte	17                              ; DW_AT_low_pc
+	.byte	1                               ; DW_FORM_addr
+	.byte	18                              ; DW_AT_high_pc
+	.byte	6                               ; DW_FORM_data4
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	2                               ; Abbreviation Code
+	.byte	46                              ; DW_TAG_subprogram
+	.byte	0                               ; DW_CHILDREN_no
+	.byte	3                               ; DW_AT_name
+	.byte	14                              ; DW_FORM_strp
+	.byte	32                              ; DW_AT_inline
+	.byte	11                              ; DW_FORM_data1
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	3                               ; Abbreviation Code
+	.byte	46                              ; DW_TAG_subprogram
+	.byte	1                               ; DW_CHILDREN_yes
+	.byte	17                              ; DW_AT_low_pc
+	.byte	1                               ; DW_FORM_addr
+	.byte	18                              ; DW_AT_high_pc
+	.byte	6                               ; DW_FORM_data4
+	.byte	49                              ; DW_AT_abstract_origin
+	.byte	19                              ; DW_FORM_ref4
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	4                               ; Abbreviation Code
+	.byte	29                              ; DW_TAG_inlined_subroutine
+	.byte	1                               ; DW_CHILDREN_yes
+	.byte	49                              ; DW_AT_abstract_origin
+	.byte	19                              ; DW_FORM_ref4
+	.byte	85                              ; DW_AT_ranges
+	.byte	23                              ; DW_FORM_sec_offset
+	.byte	88                              ; DW_AT_call_file
+	.byte	11                              ; DW_FORM_data1
+	.byte	89                              ; DW_AT_call_line
+	.byte	5                               ; DW_FORM_data2
+	.byte	87                              ; DW_AT_call_column
+	.byte	11                              ; DW_FORM_data1
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	5                               ; Abbreviation Code
+	.byte	29                              ; DW_TAG_inlined_subroutine
+	.byte	1                               ; DW_CHILDREN_yes
+	.byte	49                              ; DW_AT_abstract_origin
+	.byte	19                              ; DW_FORM_ref4
+	.byte	85                              ; DW_AT_ranges
+	.byte	23                              ; DW_FORM_sec_offset
+	.byte	88                              ; DW_AT_call_file
+	.byte	11                              ; DW_FORM_data1
+	.byte	89                              ; DW_AT_call_line
+	.byte	11                              ; DW_FORM_data1
+	.byte	87                              ; DW_AT_call_column
+	.byte	11                              ; DW_FORM_data1
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	6                               ; Abbreviation Code
+	.byte	29                              ; DW_TAG_inlined_subroutine
+	.byte	0                               ; DW_CHILDREN_no
+	.byte	49                              ; DW_AT_abstract_origin
+	.byte	19                              ; DW_FORM_ref4
+	.byte	85                              ; DW_AT_ranges
+	.byte	23                              ; DW_FORM_sec_offset
+	.byte	88                              ; DW_AT_call_file
+	.byte	11                              ; DW_FORM_data1
+	.byte	89                              ; DW_AT_call_line
+	.byte	11                              ; DW_FORM_data1
+	.byte	87                              ; DW_AT_call_column
+	.byte	11                              ; DW_FORM_data1
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	0                               ; EOM(3)
+	.section	.debug_info,"",@progbits
+.Lcu_begin0:
+	.long	.Ldebug_info_end0-.Ldebug_info_start0 ; Length of Unit
+.Ldebug_info_start0:
+	.short	4                               ; DWARF version number
+	.long	.debug_abbrev                   ; Offset Into Abbrev. Section
+	.byte	8                               ; Address Size (in bytes)
+	.byte	1                               ; Abbrev [1] 0xb:0x5f DW_TAG_compile_unit
+	.long	.Linfo_string0                  ; DW_AT_producer
+	.short	2                               ; DW_AT_language
+	.long	.Linfo_string1                  ; DW_AT_name
+	.long	.Lline_table_start0             ; DW_AT_stmt_list
+	.long	.Linfo_string2                  ; DW_AT_comp_dir
+	.quad	.Lfunc_begin0                   ; DW_AT_low_pc
+	.long	.Lfunc_end0-.Lfunc_begin0       ; DW_AT_high_pc
+	.byte	2                               ; Abbrev [2] 0x2a:0x6 DW_TAG_subprogram
+	.long	.Linfo_string3                  ; DW_AT_name
+	.byte	1                               ; DW_AT_inline
+	.byte	3                               ; Abbrev [3] 0x30:0x39 DW_TAG_subprogram
+	.quad	.Lfunc_begin0                   ; DW_AT_low_pc
+	.long	.Lfunc_end0-.Lfunc_begin0       ; DW_AT_high_pc
+	.long	42                              ; DW_AT_abstract_origin
+	.byte	4                               ; Abbrev [4] 0x41:0x27 DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges0                 ; DW_AT_ranges
+	.byte	1                               ; DW_AT_call_file
+	.short	946                             ; DW_AT_call_line
+	.byte	37                              ; DW_AT_call_column
+	.byte	5                               ; Abbrev [5] 0x4e:0x19 DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges1                 ; DW_AT_ranges
+	.byte	2                               ; DW_AT_call_file
+	.byte	181                             ; DW_AT_call_line
+	.byte	58                              ; DW_AT_call_column
+	.byte	6                               ; Abbrev [6] 0x5a:0xc DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges1                 ; DW_AT_ranges
+	.byte	2                               ; DW_AT_call_file
+	.byte	160                             ; DW_AT_call_line
+	.byte	59                              ; DW_AT_call_column
+	.byte	0                               ; End Of Children Mark
+	.byte	0                               ; End Of Children Mark
+	.byte	0                               ; End Of Children Mark
+	.byte	0                               ; End Of Children Mark
+.Ldebug_info_end0:
+	.section	.debug_ranges,"",@progbits
+.Ldebug_ranges0:
+	.quad	.Ltmp1-.Lfunc_begin0
+	.quad	.Ltmp2-.Lfunc_begin0
+	.quad	.Ltmp3-.Lfunc_begin0
+	.quad	.Ltmp4-.Lfunc_begin0
+	.quad	.Ltmp5-.Lfunc_begin0
+	.quad	.Ltmp6-.Lfunc_begin0
+	.quad	.Ltmp7-.Lfunc_begin0
+	.quad	.Ltmp8-.Lfunc_begin0
+	.quad	.Ltmp9-.Lfunc_begin0
+	.quad	.Ltmp10-.Lfunc_begin0
+	.quad	.Ltmp11-.Lfunc_begin0
+	.quad	.Ltmp12-.Lfunc_begin0
+	.quad	.Ltmp13-.Lfunc_begin0
+	.quad	.Ltmp14-.Lfunc_begin0
+	.quad	.Ltmp15-.Lfunc_begin0
+	.quad	.Ltmp16-.Lfunc_begin0
+	.quad	.Ltmp17-.Lfunc_begin0
+	.quad	.Ltmp18-.Lfunc_begin0
+	.quad	.Ltmp19-.Lfunc_begin0
+	.quad	.Ltmp20-.Lfunc_begin0
+	.quad	.Ltmp21-.Lfunc_begin0
+	.quad	.Ltmp22-.Lfunc_begin0
+	.quad	.Ltmp23-.Lfunc_begin0
+	.quad	.Ltmp24-.Lfunc_begin0
+	.quad	.Ltmp25-.Lfunc_begin0
+	.quad	.Ltmp26-.Lfunc_begin0
+	.quad	.Ltmp27-.Lfunc_begin0
+	.quad	.Ltmp28-.Lfunc_begin0
+	.quad	.Ltmp29-.Lfunc_begin0
+	.quad	.Ltmp30-.Lfunc_begin0
+	.quad	.Ltmp31-.Lfunc_begin0
+	.quad	.Ltmp32-.Lfunc_begin0
+	.quad	.Ltmp33-.Lfunc_begin0
+	.quad	.Ltmp34-.Lfunc_begin0
+	.quad	.Ltmp35-.Lfunc_begin0
+	.quad	.Ltmp36-.Lfunc_begin0
+	.quad	.Ltmp37-.Lfunc_begin0
+	.quad	.Ltmp38-.Lfunc_begin0
+	.quad	.Ltmp39-.Lfunc_begin0
+	.quad	.Ltmp40-.Lfunc_begin0
+	.quad	.Ltmp41-.Lfunc_begin0
+	.quad	.Ltmp42-.Lfunc_begin0
+	.quad	.Ltmp43-.Lfunc_begin0
+	.quad	.Ltmp44-.Lfunc_begin0
+	.quad	.Ltmp45-.Lfunc_begin0
+	.quad	.Ltmp46-.Lfunc_begin0
+	.quad	.Ltmp47-.Lfunc_begin0
+	.quad	.Ltmp48-.Lfunc_begin0
+	.quad	.Ltmp49-.Lfunc_begin0
+	.quad	.Ltmp50-.Lfunc_begin0
+	.quad	.Ltmp51-.Lfunc_begin0
+	.quad	.Ltmp52-.Lfunc_begin0
+	.quad	.Ltmp53-.Lfunc_begin0
+	.quad	.Ltmp54-.Lfunc_begin0
+	.quad	.Ltmp55-.Lfunc_begin0
+	.quad	.Ltmp56-.Lfunc_begin0
+	.quad	.Ltmp57-.Lfunc_begin0
+	.quad	.Ltmp58-.Lfunc_begin0
+	.quad	.Ltmp59-.Lfunc_begin0
+	.quad	.Ltmp60-.Lfunc_begin0
+	.quad	.Ltmp61-.Lfunc_begin0
+	.quad	.Ltmp62-.Lfunc_begin0
+	.quad	.Ltmp63-.Lfunc_begin0
+	.quad	.Ltmp64-.Lfunc_begin0
+	.quad	.Ltmp65-.Lfunc_begin0
+	.quad	.Ltmp66-.Lfunc_begin0
+	.quad	.Ltmp67-.Lfunc_begin0
+	.quad	.Ltmp68-.Lfunc_begin0
+	.quad	.Ltmp69-.Lfunc_begin0
+	.quad	.Ltmp70-.Lfunc_begin0
+	.quad	.Ltmp71-.Lfunc_begin0
+	.quad	.Ltmp72-.Lfunc_begin0
+	.quad	.Ltmp73-.Lfunc_begin0
+	.quad	.Ltmp74-.Lfunc_begin0
+	.quad	.Ltmp75-.Lfunc_begin0
+	.quad	.Ltmp76-.Lfunc_begin0
+	.quad	.Ltmp77-.Lfunc_begin0
+	.quad	.Ltmp78-.Lfunc_begin0
+	.quad	.Ltmp79-.Lfunc_begin0
+	.quad	.Ltmp80-.Lfunc_begin0
+	.quad	.Ltmp81-.Lfunc_begin0
+	.quad	.Ltmp82-.Lfunc_begin0
+	.quad	.Ltmp83-.Lfunc_begin0
+	.quad	.Ltmp84-.Lfunc_begin0
+	.quad	.Ltmp85-.Lfunc_begin0
+	.quad	.Ltmp86-.Lfunc_begin0
+	.quad	.Ltmp87-.Lfunc_begin0
+	.quad	.Ltmp88-.Lfunc_begin0
+	.quad	.Ltmp89-.Lfunc_begin0
+	.quad	.Ltmp90-.Lfunc_begin0
+	.quad	.Ltmp91-.Lfunc_begin0
+	.quad	.Ltmp92-.Lfunc_begin0
+	.quad	.Ltmp93-.Lfunc_begin0
+	.quad	.Ltmp94-.Lfunc_begin0
+	.quad	.Ltmp95-.Lfunc_begin0
+	.quad	.Ltmp96-.Lfunc_begin0
+	.quad	.Ltmp97-.Lfunc_begin0
+	.quad	.Ltmp98-.Lfunc_begin0
+	.quad	.Ltmp99-.Lfunc_begin0
+	.quad	.Ltmp100-.Lfunc_begin0
+	.quad	.Ltmp101-.Lfunc_begin0
+	.quad	.Ltmp102-.Lfunc_begin0
+	.quad	.Ltmp103-.Lfunc_begin0
+	.quad	.Ltmp104-.Lfunc_begin0
+	.quad	.Ltmp105-.Lfunc_begin0
+	.quad	.Ltmp106-.Lfunc_begin0
+	.quad	.Ltmp107-.Lfunc_begin0
+	.quad	.Ltmp108-.Lfunc_begin0
+	.quad	.Ltmp109-.Lfunc_begin0
+	.quad	.Ltmp110-.Lfunc_begin0
+	.quad	.Ltmp111-.Lfunc_begin0
+	.quad	.Ltmp112-.Lfunc_begin0
+	.quad	.Ltmp113-.Lfunc_begin0
+	.quad	.Ltmp114-.Lfunc_begin0
+	.quad	.Ltmp115-.Lfunc_begin0
+	.quad	.Ltmp116-.Lfunc_begin0
+	.quad	.Ltmp117-.Lfunc_begin0
+	.quad	.Ltmp118-.Lfunc_begin0
+	.quad	.Ltmp119-.Lfunc_begin0
+	.quad	.Ltmp120-.Lfunc_begin0
+	.quad	.Ltmp121-.Lfunc_begin0
+	.quad	.Ltmp122-.Lfunc_begin0
+	.quad	.Ltmp123-.Lfunc_begin0
+	.quad	.Ltmp124-.Lfunc_begin0
+	.quad	.Ltmp125-.Lfunc_begin0
+	.quad	.Ltmp126-.Lfunc_begin0
+	.quad	.Ltmp127-.Lfunc_begin0
+	.quad	.Ltmp128-.Lfunc_begin0
+	.quad	.Ltmp129-.Lfunc_begin0
+	.quad	.Ltmp130-.Lfunc_begin0
+	.quad	.Ltmp131-.Lfunc_begin0
+	.quad	.Ltmp132-.Lfunc_begin0
+	.quad	.Ltmp133-.Lfunc_begin0
+	.quad	.Ltmp134-.Lfunc_begin0
+	.quad	.Ltmp135-.Lfunc_begin0
+	.quad	.Ltmp136-.Lfunc_begin0
+	.quad	.Ltmp137-.Lfunc_begin0
+	.quad	.Ltmp138-.Lfunc_begin0
+	.quad	.Ltmp139-.Lfunc_begin0
+	.quad	.Ltmp140-.Lfunc_begin0
+	.quad	.Ltmp141-.Lfunc_begin0
+	.quad	.Ltmp142-.Lfunc_begin0
+	.quad	.Ltmp143-.Lfunc_begin0
+	.quad	.Ltmp144-.Lfunc_begin0
+	.quad	.Ltmp145-.Lfunc_begin0
+	.quad	.Ltmp146-.Lfunc_begin0
+	.quad	.Ltmp147-.Lfunc_begin0
+	.quad	.Ltmp148-.Lfunc_begin0
+	.quad	.Ltmp149-.Lfunc_begin0
+	.quad	.Ltmp150-.Lfunc_begin0
+	.quad	.Ltmp151-.Lfunc_begin0
+	.quad	.Ltmp152-.Lfunc_begin0
+	.quad	.Ltmp153-.Lfunc_begin0
+	.quad	.Ltmp154-.Lfunc_begin0
+	.quad	.Ltmp155-.Lfunc_begin0
+	.quad	.Ltmp156-.Lfunc_begin0
+	.quad	.Ltmp157-.Lfunc_begin0
+	.quad	.Ltmp158-.Lfunc_begin0
+	.quad	.Ltmp159-.Lfunc_begin0
+	.quad	.Ltmp160-.Lfunc_begin0
+	.quad	.Ltmp161-.Lfunc_begin0
+	.quad	.Ltmp162-.Lfunc_begin0
+	.quad	.Ltmp163-.Lfunc_begin0
+	.quad	.Ltmp164-.Lfunc_begin0
+	.quad	.Ltmp165-.Lfunc_begin0
+	.quad	.Ltmp166-.Lfunc_begin0
+	.quad	.Ltmp167-.Lfunc_begin0
+	.quad	.Ltmp168-.Lfunc_begin0
+	.quad	.Ltmp169-.Lfunc_begin0
+	.quad	.Ltmp170-.Lfunc_begin0
+	.quad	.Ltmp171-.Lfunc_begin0
+	.quad	.Ltmp172-.Lfunc_begin0
+	.quad	.Ltmp173-.Lfunc_begin0
+	.quad	.Ltmp174-.Lfunc_begin0
+	.quad	.Ltmp175-.Lfunc_begin0
+	.quad	.Ltmp176-.Lfunc_begin0
+	.quad	.Ltmp177-.Lfunc_begin0
+	.quad	.Ltmp178-.Lfunc_begin0
+	.quad	.Ltmp179-.Lfunc_begin0
+	.quad	.Ltmp180-.Lfunc_begin0
+	.quad	.Ltmp181-.Lfunc_begin0
+	.quad	.Ltmp182-.Lfunc_begin0
+	.quad	.Ltmp183-.Lfunc_begin0
+	.quad	.Ltmp184-.Lfunc_begin0
+	.quad	.Ltmp185-.Lfunc_begin0
+	.quad	.Ltmp186-.Lfunc_begin0
+	.quad	.Ltmp187-.Lfunc_begin0
+	.quad	.Ltmp188-.Lfunc_begin0
+	.quad	.Ltmp189-.Lfunc_begin0
+	.quad	.Ltmp190-.Lfunc_begin0
+	.quad	.Ltmp191-.Lfunc_begin0
+	.quad	.Ltmp192-.Lfunc_begin0
+	.quad	.Ltmp193-.Lfunc_begin0
+	.quad	.Ltmp194-.Lfunc_begin0
+	.quad	.Ltmp195-.Lfunc_begin0
+	.quad	.Ltmp196-.Lfunc_begin0
+	.quad	.Ltmp197-.Lfunc_begin0
+	.quad	.Ltmp198-.Lfunc_begin0
+	.quad	.Ltmp199-.Lfunc_begin0
+	.quad	.Ltmp200-.Lfunc_begin0
+	.quad	.Ltmp201-.Lfunc_begin0
+	.quad	.Ltmp202-.Lfunc_begin0
+	.quad	.Ltmp203-.Lfunc_begin0
+	.quad	.Ltmp204-.Lfunc_begin0
+	.quad	.Ltmp205-.Lfunc_begin0
+	.quad	.Ltmp206-.Lfunc_begin0
+	.quad	.Ltmp207-.Lfunc_begin0
+	.quad	.Ltmp208-.Lfunc_begin0
+	.quad	.Ltmp209-.Lfunc_begin0
+	.quad	.Ltmp210-.Lfunc_begin0
+	.quad	.Ltmp211-.Lfunc_begin0
+	.quad	.Ltmp212-.Lfunc_begin0
+	.quad	.Ltmp213-.Lfunc_begin0
+	.quad	.Ltmp214-.Lfunc_begin0
+	.quad	.Ltmp215-.Lfunc_begin0
+	.quad	.Ltmp216-.Lfunc_begin0
+	.quad	.Ltmp217-.Lfunc_begin0
+	.quad	.Ltmp218-.Lfunc_begin0
+	.quad	.Ltmp219-.Lfunc_begin0
+	.quad	.Ltmp220-.Lfunc_begin0
+	.quad	.Ltmp221-.Lfunc_begin0
+	.quad	.Ltmp222-.Lfunc_begin0
+	.quad	.Ltmp223-.Lfunc_begin0
+	.quad	.Ltmp224-.Lfunc_begin0
+	.quad	.Ltmp225-.Lfunc_begin0
+	.quad	.Ltmp226-.Lfunc_begin0
+	.quad	.Ltmp227-.Lfunc_begin0
+	.quad	.Ltmp228-.Lfunc_begin0
+	.quad	.Ltmp229-.Lfunc_begin0
+	.quad	.Ltmp230-.Lfunc_begin0
+	.quad	.Ltmp231-.Lfunc_begin0
+	.quad	.Ltmp232-.Lfunc_begin0
+	.quad	.Ltmp233-.Lfunc_begin0
+	.quad	.Ltmp234-.Lfunc_begin0
+	.quad	.Ltmp235-.Lfunc_begin0
+	.quad	.Ltmp236-.Lfunc_begin0
+	.quad	.Ltmp237-.Lfunc_begin0
+	.quad	.Ltmp238-.Lfunc_begin0
+	.quad	.Ltmp239-.Lfunc_begin0
+	.quad	.Ltmp240-.Lfunc_begin0
+	.quad	.Ltmp241-.Lfunc_begin0
+	.quad	.Ltmp242-.Lfunc_begin0
+	.quad	.Ltmp243-.Lfunc_begin0
+	.quad	.Ltmp244-.Lfunc_begin0
+	.quad	.Ltmp245-.Lfunc_begin0
+	.quad	.Ltmp246-.Lfunc_begin0
+	.quad	.Ltmp247-.Lfunc_begin0
+	.quad	.Ltmp248-.Lfunc_begin0
+	.quad	.Ltmp249-.Lfunc_begin0
+	.quad	.Ltmp250-.Lfunc_begin0
+	.quad	.Ltmp251-.Lfunc_begin0
+	.quad	.Ltmp252-.Lfunc_begin0
+	.quad	.Ltmp253-.Lfunc_begin0
+	.quad	.Ltmp254-.Lfunc_begin0
+	.quad	.Ltmp255-.Lfunc_begin0
+	.quad	.Ltmp256-.Lfunc_begin0
+	.quad	.Ltmp257-.Lfunc_begin0
+	.quad	.Ltmp258-.Lfunc_begin0
+	.quad	.Ltmp259-.Lfunc_begin0
+	.quad	.Ltmp260-.Lfunc_begin0
+	.quad	.Ltmp261-.Lfunc_begin0
+	.quad	.Ltmp262-.Lfunc_begin0
+	.quad	.Ltmp263-.Lfunc_begin0
+	.quad	.Ltmp264-.Lfunc_begin0
+	.quad	.Ltmp265-.Lfunc_begin0
+	.quad	.Ltmp266-.Lfunc_begin0
+	.quad	.Ltmp267-.Lfunc_begin0
+	.quad	.Ltmp268-.Lfunc_begin0
+	.quad	.Ltmp269-.Lfunc_begin0
+	.quad	.Ltmp270-.Lfunc_begin0
+	.quad	.Ltmp271-.Lfunc_begin0
+	.quad	.Ltmp272-.Lfunc_begin0
+	.quad	.Ltmp273-.Lfunc_begin0
+	.quad	.Ltmp274-.Lfunc_begin0
+	.quad	.Ltmp275-.Lfunc_begin0
+	.quad	.Ltmp276-.Lfunc_begin0
+	.quad	.Ltmp277-.Lfunc_begin0
+	.quad	.Ltmp278-.Lfunc_begin0
+	.quad	.Ltmp279-.Lfunc_begin0
+	.quad	.Ltmp280-.Lfunc_begin0
+	.quad	.Ltmp281-.Lfunc_begin0
+	.quad	.Ltmp282-.Lfunc_begin0
+	.quad	.Ltmp283-.Lfunc_begin0
+	.quad	.Ltmp284-.Lfunc_begin0
+	.quad	.Ltmp285-.Lfunc_begin0
+	.quad	.Ltmp286-.Lfunc_begin0
+	.quad	.Ltmp287-.Lfunc_begin0
+	.quad	.Ltmp288-.Lfunc_begin0
+	.quad	.Ltmp289-.Lfunc_begin0
+	.quad	.Ltmp290-.Lfunc_begin0
+	.quad	.Ltmp291-.Lfunc_begin0
+	.quad	.Ltmp292-.Lfunc_begin0
+	.quad	.Ltmp293-.Lfunc_begin0
+	.quad	.Ltmp294-.Lfunc_begin0
+	.quad	.Ltmp295-.Lfunc_begin0
+	.quad	.Ltmp296-.Lfunc_begin0
+	.quad	.Ltmp297-.Lfunc_begin0
+	.quad	.Ltmp298-.Lfunc_begin0
+	.quad	.Ltmp299-.Lfunc_begin0
+	.quad	.Ltmp300-.Lfunc_begin0
+	.quad	.Ltmp301-.Lfunc_begin0
+	.quad	.Ltmp302-.Lfunc_begin0
+	.quad	.Ltmp303-.Lfunc_begin0
+	.quad	.Ltmp304-.Lfunc_begin0
+	.quad	.Ltmp305-.Lfunc_begin0
+	.quad	.Ltmp306-.Lfunc_begin0
+	.quad	.Ltmp307-.Lfunc_begin0
+	.quad	.Ltmp308-.Lfunc_begin0
+	.quad	.Ltmp309-.Lfunc_begin0
+	.quad	.Ltmp310-.Lfunc_begin0
+	.quad	.Ltmp311-.Lfunc_begin0
+	.quad	.Ltmp312-.Lfunc_begin0
+	.quad	.Ltmp313-.Lfunc_begin0
+	.quad	.Ltmp314-.Lfunc_begin0
+	.quad	.Ltmp315-.Lfunc_begin0
+	.quad	.Ltmp316-.Lfunc_begin0
+	.quad	.Ltmp317-.Lfunc_begin0
+	.quad	.Ltmp318-.Lfunc_begin0
+	.quad	.Ltmp319-.Lfunc_begin0
+	.quad	.Ltmp320-.Lfunc_begin0
+	.quad	.Ltmp321-.Lfunc_begin0
+	.quad	.Ltmp322-.Lfunc_begin0
+	.quad	.Ltmp323-.Lfunc_begin0
+	.quad	.Ltmp324-.Lfunc_begin0
+	.quad	.Ltmp325-.Lfunc_begin0
+	.quad	.Ltmp326-.Lfunc_begin0
+	.quad	.Ltmp327-.Lfunc_begin0
+	.quad	.Ltmp328-.Lfunc_begin0
+	.quad	.Ltmp329-.Lfunc_begin0
+	.quad	.Ltmp330-.Lfunc_begin0
+	.quad	.Ltmp331-.Lfunc_begin0
+	.quad	.Ltmp332-.Lfunc_begin0
+	.quad	.Ltmp333-.Lfunc_begin0
+	.quad	.Ltmp334-.Lfunc_begin0
+	.quad	.Ltmp335-.Lfunc_begin0
+	.quad	.Ltmp336-.Lfunc_begin0
+	.quad	.Ltmp337-.Lfunc_begin0
+	.quad	.Ltmp338-.Lfunc_begin0
+	.quad	.Ltmp339-.Lfunc_begin0
+	.quad	.Ltmp340-.Lfunc_begin0
+	.quad	.Ltmp341-.Lfunc_begin0
+	.quad	.Ltmp342-.Lfunc_begin0
+	.quad	.Ltmp343-.Lfunc_begin0
+	.quad	.Ltmp344-.Lfunc_begin0
+	.quad	.Ltmp345-.Lfunc_begin0
+	.quad	.Ltmp346-.Lfunc_begin0
+	.quad	.Ltmp347-.Lfunc_begin0
+	.quad	.Ltmp348-.Lfunc_begin0
+	.quad	.Ltmp349-.Lfunc_begin0
+	.quad	.Ltmp350-.Lfunc_begin0
+	.quad	.Ltmp351-.Lfunc_begin0
+	.quad	.Ltmp352-.Lfunc_begin0
+	.quad	.Ltmp353-.Lfunc_begin0
+	.quad	.Ltmp354-.Lfunc_begin0
+	.quad	.Ltmp355-.Lfunc_begin0
+	.quad	.Ltmp356-.Lfunc_begin0
+	.quad	.Ltmp357-.Lfunc_begin0
+	.quad	.Ltmp373-.Lfunc_begin0
+	.quad	0
+	.quad	0
+.Ldebug_ranges1:
+	.quad	.Ltmp3-.Lfunc_begin0
+	.quad	.Ltmp4-.Lfunc_begin0
+	.quad	.Ltmp5-.Lfunc_begin0
+	.quad	.Ltmp6-.Lfunc_begin0
+	.quad	.Ltmp7-.Lfunc_begin0
+	.quad	.Ltmp8-.Lfunc_begin0
+	.quad	.Ltmp9-.Lfunc_begin0
+	.quad	.Ltmp10-.Lfunc_begin0
+	.quad	.Ltmp11-.Lfunc_begin0
+	.quad	.Ltmp12-.Lfunc_begin0
+	.quad	.Ltmp13-.Lfunc_begin0
+	.quad	.Ltmp14-.Lfunc_begin0
+	.quad	.Ltmp15-.Lfunc_begin0
+	.quad	.Ltmp16-.Lfunc_begin0
+	.quad	.Ltmp17-.Lfunc_begin0
+	.quad	.Ltmp18-.Lfunc_begin0
+	.quad	.Ltmp19-.Lfunc_begin0
+	.quad	.Ltmp20-.Lfunc_begin0
+	.quad	.Ltmp21-.Lfunc_begin0
+	.quad	.Ltmp22-.Lfunc_begin0
+	.quad	.Ltmp23-.Lfunc_begin0
+	.quad	.Ltmp24-.Lfunc_begin0
+	.quad	.Ltmp25-.Lfunc_begin0
+	.quad	.Ltmp26-.Lfunc_begin0
+	.quad	.Ltmp27-.Lfunc_begin0
+	.quad	.Ltmp28-.Lfunc_begin0
+	.quad	.Ltmp29-.Lfunc_begin0
+	.quad	.Ltmp30-.Lfunc_begin0
+	.quad	.Ltmp31-.Lfunc_begin0
+	.quad	.Ltmp32-.Lfunc_begin0
+	.quad	.Ltmp33-.Lfunc_begin0
+	.quad	.Ltmp34-.Lfunc_begin0
+	.quad	.Ltmp35-.Lfunc_begin0
+	.quad	.Ltmp36-.Lfunc_begin0
+	.quad	.Ltmp37-.Lfunc_begin0
+	.quad	.Ltmp38-.Lfunc_begin0
+	.quad	.Ltmp39-.Lfunc_begin0
+	.quad	.Ltmp40-.Lfunc_begin0
+	.quad	.Ltmp41-.Lfunc_begin0
+	.quad	.Ltmp42-.Lfunc_begin0
+	.quad	.Ltmp43-.Lfunc_begin0
+	.quad	.Ltmp44-.Lfunc_begin0
+	.quad	.Ltmp45-.Lfunc_begin0
+	.quad	.Ltmp46-.Lfunc_begin0
+	.quad	.Ltmp47-.Lfunc_begin0
+	.quad	.Ltmp48-.Lfunc_begin0
+	.quad	.Ltmp49-.Lfunc_begin0
+	.quad	.Ltmp50-.Lfunc_begin0
+	.quad	.Ltmp51-.Lfunc_begin0
+	.quad	.Ltmp52-.Lfunc_begin0
+	.quad	.Ltmp53-.Lfunc_begin0
+	.quad	.Ltmp54-.Lfunc_begin0
+	.quad	.Ltmp55-.Lfunc_begin0
+	.quad	.Ltmp56-.Lfunc_begin0
+	.quad	.Ltmp57-.Lfunc_begin0
+	.quad	.Ltmp58-.Lfunc_begin0
+	.quad	.Ltmp59-.Lfunc_begin0
+	.quad	.Ltmp60-.Lfunc_begin0
+	.quad	.Ltmp61-.Lfunc_begin0
+	.quad	.Ltmp62-.Lfunc_begin0
+	.quad	.Ltmp63-.Lfunc_begin0
+	.quad	.Ltmp64-.Lfunc_begin0
+	.quad	.Ltmp65-.Lfunc_begin0
+	.quad	.Ltmp66-.Lfunc_begin0
+	.quad	.Ltmp67-.Lfunc_begin0
+	.quad	.Ltmp68-.Lfunc_begin0
+	.quad	.Ltmp69-.Lfunc_begin0
+	.quad	.Ltmp70-.Lfunc_begin0
+	.quad	.Ltmp71-.Lfunc_begin0
+	.quad	.Ltmp72-.Lfunc_begin0
+	.quad	.Ltmp73-.Lfunc_begin0
+	.quad	.Ltmp74-.Lfunc_begin0
+	.quad	.Ltmp75-.Lfunc_begin0
+	.quad	.Ltmp76-.Lfunc_begin0
+	.quad	.Ltmp77-.Lfunc_begin0
+	.quad	.Ltmp78-.Lfunc_begin0
+	.quad	.Ltmp79-.Lfunc_begin0
+	.quad	.Ltmp80-.Lfunc_begin0
+	.quad	.Ltmp81-.Lfunc_begin0
+	.quad	.Ltmp82-.Lfunc_begin0
+	.quad	.Ltmp83-.Lfunc_begin0
+	.quad	.Ltmp84-.Lfunc_begin0
+	.quad	.Ltmp85-.Lfunc_begin0
+	.quad	.Ltmp86-.Lfunc_begin0
+	.quad	.Ltmp87-.Lfunc_begin0
+	.quad	.Ltmp88-.Lfunc_begin0
+	.quad	.Ltmp89-.Lfunc_begin0
+	.quad	.Ltmp90-.Lfunc_begin0
+	.quad	.Ltmp91-.Lfunc_begin0
+	.quad	.Ltmp92-.Lfunc_begin0
+	.quad	.Ltmp93-.Lfunc_begin0
+	.quad	.Ltmp94-.Lfunc_begin0
+	.quad	.Ltmp95-.Lfunc_begin0
+	.quad	.Ltmp96-.Lfunc_begin0
+	.quad	.Ltmp97-.Lfunc_begin0
+	.quad	.Ltmp98-.Lfunc_begin0
+	.quad	.Ltmp99-.Lfunc_begin0
+	.quad	.Ltmp100-.Lfunc_begin0
+	.quad	.Ltmp101-.Lfunc_begin0
+	.quad	.Ltmp102-.Lfunc_begin0
+	.quad	.Ltmp103-.Lfunc_begin0
+	.quad	.Ltmp104-.Lfunc_begin0
+	.quad	.Ltmp105-.Lfunc_begin0
+	.quad	.Ltmp106-.Lfunc_begin0
+	.quad	.Ltmp107-.Lfunc_begin0
+	.quad	.Ltmp108-.Lfunc_begin0
+	.quad	.Ltmp109-.Lfunc_begin0
+	.quad	.Ltmp110-.Lfunc_begin0
+	.quad	.Ltmp111-.Lfunc_begin0
+	.quad	.Ltmp112-.Lfunc_begin0
+	.quad	.Ltmp113-.Lfunc_begin0
+	.quad	.Ltmp114-.Lfunc_begin0
+	.quad	.Ltmp115-.Lfunc_begin0
+	.quad	.Ltmp116-.Lfunc_begin0
+	.quad	.Ltmp117-.Lfunc_begin0
+	.quad	.Ltmp118-.Lfunc_begin0
+	.quad	.Ltmp119-.Lfunc_begin0
+	.quad	.Ltmp120-.Lfunc_begin0
+	.quad	.Ltmp121-.Lfunc_begin0
+	.quad	.Ltmp122-.Lfunc_begin0
+	.quad	.Ltmp123-.Lfunc_begin0
+	.quad	.Ltmp124-.Lfunc_begin0
+	.quad	.Ltmp125-.Lfunc_begin0
+	.quad	.Ltmp126-.Lfunc_begin0
+	.quad	.Ltmp127-.Lfunc_begin0
+	.quad	.Ltmp128-.Lfunc_begin0
+	.quad	.Ltmp129-.Lfunc_begin0
+	.quad	.Ltmp130-.Lfunc_begin0
+	.quad	.Ltmp131-.Lfunc_begin0
+	.quad	.Ltmp132-.Lfunc_begin0
+	.quad	.Ltmp133-.Lfunc_begin0
+	.quad	.Ltmp134-.Lfunc_begin0
+	.quad	.Ltmp135-.Lfunc_begin0
+	.quad	.Ltmp136-.Lfunc_begin0
+	.quad	.Ltmp137-.Lfunc_begin0
+	.quad	.Ltmp138-.Lfunc_begin0
+	.quad	.Ltmp139-.Lfunc_begin0
+	.quad	.Ltmp140-.Lfunc_begin0
+	.quad	.Ltmp141-.Lfunc_begin0
+	.quad	.Ltmp142-.Lfunc_begin0
+	.quad	.Ltmp143-.Lfunc_begin0
+	.quad	.Ltmp144-.Lfunc_begin0
+	.quad	.Ltmp145-.Lfunc_begin0
+	.quad	.Ltmp146-.Lfunc_begin0
+	.quad	.Ltmp147-.Lfunc_begin0
+	.quad	.Ltmp148-.Lfunc_begin0
+	.quad	.Ltmp149-.Lfunc_begin0
+	.quad	.Ltmp150-.Lfunc_begin0
+	.quad	.Ltmp151-.Lfunc_begin0
+	.quad	.Ltmp152-.Lfunc_begin0
+	.quad	.Ltmp153-.Lfunc_begin0
+	.quad	.Ltmp154-.Lfunc_begin0
+	.quad	.Ltmp155-.Lfunc_begin0
+	.quad	.Ltmp156-.Lfunc_begin0
+	.quad	.Ltmp157-.Lfunc_begin0
+	.quad	.Ltmp158-.Lfunc_begin0
+	.quad	.Ltmp159-.Lfunc_begin0
+	.quad	.Ltmp160-.Lfunc_begin0
+	.quad	.Ltmp161-.Lfunc_begin0
+	.quad	.Ltmp162-.Lfunc_begin0
+	.quad	.Ltmp163-.Lfunc_begin0
+	.quad	.Ltmp164-.Lfunc_begin0
+	.quad	.Ltmp165-.Lfunc_begin0
+	.quad	.Ltmp166-.Lfunc_begin0
+	.quad	.Ltmp167-.Lfunc_begin0
+	.quad	.Ltmp168-.Lfunc_begin0
+	.quad	.Ltmp169-.Lfunc_begin0
+	.quad	.Ltmp170-.Lfunc_begin0
+	.quad	.Ltmp171-.Lfunc_begin0
+	.quad	.Ltmp172-.Lfunc_begin0
+	.quad	.Ltmp173-.Lfunc_begin0
+	.quad	.Ltmp174-.Lfunc_begin0
+	.quad	.Ltmp175-.Lfunc_begin0
+	.quad	.Ltmp176-.Lfunc_begin0
+	.quad	.Ltmp177-.Lfunc_begin0
+	.quad	.Ltmp178-.Lfunc_begin0
+	.quad	.Ltmp179-.Lfunc_begin0
+	.quad	.Ltmp180-.Lfunc_begin0
+	.quad	.Ltmp181-.Lfunc_begin0
+	.quad	.Ltmp182-.Lfunc_begin0
+	.quad	.Ltmp183-.Lfunc_begin0
+	.quad	.Ltmp184-.Lfunc_begin0
+	.quad	.Ltmp185-.Lfunc_begin0
+	.quad	.Ltmp186-.Lfunc_begin0
+	.quad	.Ltmp187-.Lfunc_begin0
+	.quad	.Ltmp188-.Lfunc_begin0
+	.quad	.Ltmp189-.Lfunc_begin0
+	.quad	.Ltmp190-.Lfunc_begin0
+	.quad	.Ltmp191-.Lfunc_begin0
+	.quad	.Ltmp192-.Lfunc_begin0
+	.quad	.Ltmp193-.Lfunc_begin0
+	.quad	.Ltmp194-.Lfunc_begin0
+	.quad	.Ltmp195-.Lfunc_begin0
+	.quad	.Ltmp196-.Lfunc_begin0
+	.quad	.Ltmp197-.Lfunc_begin0
+	.quad	.Ltmp198-.Lfunc_begin0
+	.quad	.Ltmp199-.Lfunc_begin0
+	.quad	.Ltmp200-.Lfunc_begin0
+	.quad	.Ltmp201-.Lfunc_begin0
+	.quad	.Ltmp202-.Lfunc_begin0
+	.quad	.Ltmp203-.Lfunc_begin0
+	.quad	.Ltmp204-.Lfunc_begin0
+	.quad	.Ltmp205-.Lfunc_begin0
+	.quad	.Ltmp206-.Lfunc_begin0
+	.quad	.Ltmp207-.Lfunc_begin0
+	.quad	.Ltmp208-.Lfunc_begin0
+	.quad	.Ltmp209-.Lfunc_begin0
+	.quad	.Ltmp210-.Lfunc_begin0
+	.quad	.Ltmp211-.Lfunc_begin0
+	.quad	.Ltmp212-.Lfunc_begin0
+	.quad	.Ltmp213-.Lfunc_begin0
+	.quad	.Ltmp214-.Lfunc_begin0
+	.quad	.Ltmp215-.Lfunc_begin0
+	.quad	.Ltmp216-.Lfunc_begin0
+	.quad	.Ltmp217-.Lfunc_begin0
+	.quad	.Ltmp218-.Lfunc_begin0
+	.quad	.Ltmp219-.Lfunc_begin0
+	.quad	.Ltmp220-.Lfunc_begin0
+	.quad	.Ltmp221-.Lfunc_begin0
+	.quad	.Ltmp222-.Lfunc_begin0
+	.quad	.Ltmp223-.Lfunc_begin0
+	.quad	.Ltmp224-.Lfunc_begin0
+	.quad	.Ltmp225-.Lfunc_begin0
+	.quad	.Ltmp226-.Lfunc_begin0
+	.quad	.Ltmp227-.Lfunc_begin0
+	.quad	.Ltmp228-.Lfunc_begin0
+	.quad	.Ltmp229-.Lfunc_begin0
+	.quad	.Ltmp230-.Lfunc_begin0
+	.quad	.Ltmp231-.Lfunc_begin0
+	.quad	.Ltmp232-.Lfunc_begin0
+	.quad	.Ltmp233-.Lfunc_begin0
+	.quad	.Ltmp234-.Lfunc_begin0
+	.quad	.Ltmp235-.Lfunc_begin0
+	.quad	.Ltmp236-.Lfunc_begin0
+	.quad	.Ltmp237-.Lfunc_begin0
+	.quad	.Ltmp238-.Lfunc_begin0
+	.quad	.Ltmp239-.Lfunc_begin0
+	.quad	.Ltmp240-.Lfunc_begin0
+	.quad	.Ltmp241-.Lfunc_begin0
+	.quad	.Ltmp242-.Lfunc_begin0
+	.quad	.Ltmp243-.Lfunc_begin0
+	.quad	.Ltmp244-.Lfunc_begin0
+	.quad	.Ltmp245-.Lfunc_begin0
+	.quad	.Ltmp246-.Lfunc_begin0
+	.quad	.Ltmp247-.Lfunc_begin0
+	.quad	.Ltmp248-.Lfunc_begin0
+	.quad	.Ltmp249-.Lfunc_begin0
+	.quad	.Ltmp250-.Lfunc_begin0
+	.quad	.Ltmp251-.Lfunc_begin0
+	.quad	.Ltmp252-.Lfunc_begin0
+	.quad	.Ltmp253-.Lfunc_begin0
+	.quad	.Ltmp254-.Lfunc_begin0
+	.quad	.Ltmp255-.Lfunc_begin0
+	.quad	.Ltmp256-.Lfunc_begin0
+	.quad	.Ltmp257-.Lfunc_begin0
+	.quad	.Ltmp258-.Lfunc_begin0
+	.quad	.Ltmp259-.Lfunc_begin0
+	.quad	.Ltmp260-.Lfunc_begin0
+	.quad	.Ltmp261-.Lfunc_begin0
+	.quad	.Ltmp262-.Lfunc_begin0
+	.quad	.Ltmp263-.Lfunc_begin0
+	.quad	.Ltmp264-.Lfunc_begin0
+	.quad	.Ltmp265-.Lfunc_begin0
+	.quad	.Ltmp266-.Lfunc_begin0
+	.quad	.Ltmp267-.Lfunc_begin0
+	.quad	.Ltmp268-.Lfunc_begin0
+	.quad	.Ltmp269-.Lfunc_begin0
+	.quad	.Ltmp270-.Lfunc_begin0
+	.quad	.Ltmp271-.Lfunc_begin0
+	.quad	.Ltmp272-.Lfunc_begin0
+	.quad	.Ltmp273-.Lfunc_begin0
+	.quad	.Ltmp274-.Lfunc_begin0
+	.quad	.Ltmp275-.Lfunc_begin0
+	.quad	.Ltmp276-.Lfunc_begin0
+	.quad	.Ltmp277-.Lfunc_begin0
+	.quad	.Ltmp278-.Lfunc_begin0
+	.quad	.Ltmp279-.Lfunc_begin0
+	.quad	.Ltmp280-.Lfunc_begin0
+	.quad	.Ltmp281-.Lfunc_begin0
+	.quad	.Ltmp282-.Lfunc_begin0
+	.quad	.Ltmp283-.Lfunc_begin0
+	.quad	.Ltmp284-.Lfunc_begin0
+	.quad	.Ltmp285-.Lfunc_begin0
+	.quad	.Ltmp286-.Lfunc_begin0
+	.quad	.Ltmp289-.Lfunc_begin0
+	.quad	.Ltmp290-.Lfunc_begin0
+	.quad	.Ltmp291-.Lfunc_begin0
+	.quad	.Ltmp292-.Lfunc_begin0
+	.quad	.Ltmp293-.Lfunc_begin0
+	.quad	.Ltmp294-.Lfunc_begin0
+	.quad	.Ltmp295-.Lfunc_begin0
+	.quad	.Ltmp296-.Lfunc_begin0
+	.quad	.Ltmp297-.Lfunc_begin0
+	.quad	.Ltmp298-.Lfunc_begin0
+	.quad	.Ltmp299-.Lfunc_begin0
+	.quad	.Ltmp300-.Lfunc_begin0
+	.quad	.Ltmp301-.Lfunc_begin0
+	.quad	.Ltmp302-.Lfunc_begin0
+	.quad	.Ltmp303-.Lfunc_begin0
+	.quad	.Ltmp304-.Lfunc_begin0
+	.quad	.Ltmp305-.Lfunc_begin0
+	.quad	.Ltmp306-.Lfunc_begin0
+	.quad	.Ltmp307-.Lfunc_begin0
+	.quad	.Ltmp308-.Lfunc_begin0
+	.quad	.Ltmp309-.Lfunc_begin0
+	.quad	.Ltmp310-.Lfunc_begin0
+	.quad	.Ltmp311-.Lfunc_begin0
+	.quad	.Ltmp312-.Lfunc_begin0
+	.quad	.Ltmp313-.Lfunc_begin0
+	.quad	.Ltmp314-.Lfunc_begin0
+	.quad	.Ltmp315-.Lfunc_begin0
+	.quad	.Ltmp316-.Lfunc_begin0
+	.quad	.Ltmp317-.Lfunc_begin0
+	.quad	.Ltmp318-.Lfunc_begin0
+	.quad	.Ltmp319-.Lfunc_begin0
+	.quad	.Ltmp320-.Lfunc_begin0
+	.quad	.Ltmp321-.Lfunc_begin0
+	.quad	.Ltmp322-.Lfunc_begin0
+	.quad	.Ltmp323-.Lfunc_begin0
+	.quad	.Ltmp324-.Lfunc_begin0
+	.quad	.Ltmp325-.Lfunc_begin0
+	.quad	.Ltmp326-.Lfunc_begin0
+	.quad	.Ltmp327-.Lfunc_begin0
+	.quad	.Ltmp328-.Lfunc_begin0
+	.quad	.Ltmp329-.Lfunc_begin0
+	.quad	.Ltmp330-.Lfunc_begin0
+	.quad	.Ltmp331-.Lfunc_begin0
+	.quad	.Ltmp332-.Lfunc_begin0
+	.quad	.Ltmp333-.Lfunc_begin0
+	.quad	.Ltmp334-.Lfunc_begin0
+	.quad	.Ltmp335-.Lfunc_begin0
+	.quad	.Ltmp336-.Lfunc_begin0
+	.quad	.Ltmp337-.Lfunc_begin0
+	.quad	.Ltmp338-.Lfunc_begin0
+	.quad	.Ltmp339-.Lfunc_begin0
+	.quad	.Ltmp340-.Lfunc_begin0
+	.quad	.Ltmp341-.Lfunc_begin0
+	.quad	.Ltmp342-.Lfunc_begin0
+	.quad	.Ltmp343-.Lfunc_begin0
+	.quad	.Ltmp344-.Lfunc_begin0
+	.quad	.Ltmp345-.Lfunc_begin0
+	.quad	.Ltmp346-.Lfunc_begin0
+	.quad	.Ltmp347-.Lfunc_begin0
+	.quad	.Ltmp348-.Lfunc_begin0
+	.quad	.Ltmp349-.Lfunc_begin0
+	.quad	.Ltmp350-.Lfunc_begin0
+	.quad	.Ltmp351-.Lfunc_begin0
+	.quad	.Ltmp352-.Lfunc_begin0
+	.quad	.Ltmp353-.Lfunc_begin0
+	.quad	.Ltmp354-.Lfunc_begin0
+	.quad	.Ltmp355-.Lfunc_begin0
+	.quad	.Ltmp356-.Lfunc_begin0
+	.quad	.Ltmp357-.Lfunc_begin0
+	.quad	.Ltmp358-.Lfunc_begin0
+	.quad	.Ltmp359-.Lfunc_begin0
+	.quad	.Ltmp360-.Lfunc_begin0
+	.quad	.Ltmp361-.Lfunc_begin0
+	.quad	.Ltmp362-.Lfunc_begin0
+	.quad	.Ltmp363-.Lfunc_begin0
+	.quad	.Ltmp364-.Lfunc_begin0
+	.quad	.Ltmp365-.Lfunc_begin0
+	.quad	.Ltmp366-.Lfunc_begin0
+	.quad	.Ltmp367-.Lfunc_begin0
+	.quad	.Ltmp368-.Lfunc_begin0
+	.quad	.Ltmp369-.Lfunc_begin0
+	.quad	.Ltmp370-.Lfunc_begin0
+	.quad	.Ltmp371-.Lfunc_begin0
+	.quad	.Ltmp372-.Lfunc_begin0
+	.quad	0
+	.quad	0
+	.section	.debug_str,"MS",@progbits,1
+.Linfo_string0:
+	.asciz	"triton"                        ; string offset=0
+.Linfo_string1:
+	.asciz	"rejection_sampler.py"          ; string offset=7
+.Linfo_string2:
+	.asciz	"/app/vllm-src/vllm/v1/sample"  ; string offset=28
+.Linfo_string3:
+	.asciz	"sample_recovered_tokens_kernel" ; string offset=57
+	.section	".note.GNU-stack","",@progbits
+	.amdgpu_metadata
+---
+amdhsa.kernels:
+  - .args:
+      - .address_space:  global
+        .offset:         0
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         8
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         16
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         24
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         32
+        .size:           8
+        .value_kind:     global_buffer
+      - .offset:         40
+        .size:           4
+        .value_kind:     by_value
+      - .address_space:  global
+        .offset:         48
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         56
+        .size:           8
+        .value_kind:     global_buffer
+    .group_segment_fixed_size: 0
+    .kernarg_segment_align: 8
+    .kernarg_segment_size: 64
+    .max_flat_workgroup_size: 128
+    .name:           sample_recovered_tokens_kernel
+    .private_segment_fixed_size: 0
+    .sgpr_count:     36
+    .sgpr_spill_count: 0
+    .symbol:         sample_recovered_tokens_kernel.kd
+    .uniform_work_group_size: 1
+    .uses_dynamic_stack: false
+    .vgpr_count:     192
+    .vgpr_spill_count: 0
+    .wavefront_size: 32
+    .workgroup_processor_mode: 1
+amdhsa.target:   amdgcn-amd-amdhsa--gfx1030
+amdhsa.version:
+  - 1
+  - 2
+...
+
+	.end_amdgpu_metadata
+	.section	.debug_line,"",@progbits
+.Lline_table_start0:

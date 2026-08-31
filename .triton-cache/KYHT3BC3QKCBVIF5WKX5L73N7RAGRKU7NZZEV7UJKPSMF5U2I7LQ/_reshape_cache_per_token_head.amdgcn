@@ -1,0 +1,1000 @@
+	.amdgcn_target "amdgcn-amd-amdhsa--gfx1030"
+	.amdhsa_code_object_version 5
+	.text
+	.globl	_reshape_cache_per_token_head   ; -- Begin function _reshape_cache_per_token_head
+	.p2align	8
+	.type	_reshape_cache_per_token_head,@function
+_reshape_cache_per_token_head:          ; @_reshape_cache_per_token_head
+.Lfunc_begin0:
+	.file	1 "/app/vllm-src/vllm/v1/attention/ops" "triton_reshape_and_cache_flash.py"
+	.loc	1 155 0                         ; triton_reshape_and_cache_flash.py:155:0
+	.cfi_sections .debug_frame
+	.cfi_startproc
+; %bb.0:
+	s_load_dwordx2 s[2:3], s[4:5], 0x30
+	s_mov_b32 s0, s7
+.Ltmp0:
+	.loc	1 190 19 prologue_end           ; triton_reshape_and_cache_flash.py:190:19
+	s_ashr_i32 s7, s6, 31
+	s_lshl_b64 s[8:9], s[6:7], 3
+	s_waitcnt lgkmcnt(0)
+	s_add_u32 s2, s2, s8
+	s_addc_u32 s3, s3, s9
+	s_load_dwordx2 s[22:23], s[2:3], 0x0
+	.loc	1 191 14                        ; triton_reshape_and_cache_flash.py:191:14
+	s_waitcnt lgkmcnt(0)
+	v_cmp_gt_i64_e64 s1, s[22:23], -1
+	s_and_b32 vcc_lo, exec_lo, s1
+	s_cbranch_vccz .LBB0_18
+; %bb.1:
+	.loc	1 0 14 is_stmt 0                ; triton_reshape_and_cache_flash.py:0:14
+	s_clause 0x1
+	s_load_dwordx4 s[8:11], s[4:5], 0x38
+	s_load_dwordx2 s[12:13], s[4:5], 0x0
+	.loc	1 227 8 is_stmt 1               ; triton_reshape_and_cache_flash.py:227:8
+	v_lshlrev_b32_e32 v2, 1, v0
+	s_mov_b32 s15, 0x31027000
+	s_mov_b32 s14, 0x7ffffffe
+	v_lshrrev_b32_e32 v9, 5, v0
+	v_and_b32_e32 v10, 0xfc, v2
+	.loc	1 202 24                        ; triton_reshape_and_cache_flash.py:202:24
+	s_waitcnt lgkmcnt(0)
+	s_mul_i32 s1, s8, s6
+	.loc	1 202 48 is_stmt 0              ; triton_reshape_and_cache_flash.py:202:48
+	s_mul_i32 s2, s10, s0
+	.loc	1 202 8                         ; triton_reshape_and_cache_flash.py:202:8
+	s_and_b32 s13, s13, 0xffff
+	.loc	1 202 0                         ; triton_reshape_and_cache_flash.py:202
+	s_add_i32 s2, s2, s1
+	s_mov_b32 s1, 0x76543210
+	.loc	1 202 8                         ; triton_reshape_and_cache_flash.py:202:8
+	v_add_lshl_u32 v1, v2, s2, 1
+	buffer_load_dword v1, v1, s[12:15], 0 offen
+	s_waitcnt vmcnt(0)
+	v_lshrrev_b32_e32 v3, 16, v1
+.Ltmp1:
+	.file	2 "/usr/local/lib/python3.12/dist-packages/triton/language" "standard.py"
+	.loc	2 170 27 is_stmt 1              ; standard.py:170:27 @[ standard.py:191:40 @[ triton_reshape_and_cache_flash.py:207:32 ] ]
+	v_max_f16_e64 v4, |v1|, |v1|
+	v_max_f16_e64 v5, |v3|, |v3|
+	v_max_f16_e32 v4, v4, v5
+	v_cvt_f32_f16_e32 v4, v4
+.Ltmp2:
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:207:32 ]
+	v_permlanex16_b32 v5, v4, s1, 0xfedcba98 op_sel:[1,0]
+.Ltmp3:
+	.loc	2 170 27                        ; standard.py:170:27 @[ standard.py:191:40 @[ triton_reshape_and_cache_flash.py:207:32 ] ]
+	v_max_f32_e32 v5, v5, v5
+	v_max_f32_e32 v4, v4, v5
+.Ltmp4:
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:207:32 ]
+	ds_swizzle_b32 v5, v4 offset:swizzle(SWAP,8)
+.Ltmp5:
+	.loc	2 170 27                        ; standard.py:170:27 @[ standard.py:191:40 @[ triton_reshape_and_cache_flash.py:207:32 ] ]
+	s_waitcnt lgkmcnt(0)
+	v_max_f32_e32 v5, v5, v5
+	v_max_f32_e32 v4, v4, v5
+.Ltmp6:
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:207:32 ]
+	ds_swizzle_b32 v5, v4 offset:swizzle(SWAP,4)
+.Ltmp7:
+	.loc	2 170 27                        ; standard.py:170:27 @[ standard.py:191:40 @[ triton_reshape_and_cache_flash.py:207:32 ] ]
+	s_waitcnt lgkmcnt(0)
+	v_max_f32_e32 v5, v5, v5
+	v_max_f32_e32 v7, v4, v5
+.Ltmp8:
+	.loc	1 227 8                         ; triton_reshape_and_cache_flash.py:227:8
+	v_lshl_or_b32 v4, v0, 2, v9
+	v_bfe_i32 v5, v0, 0, 1
+.Ltmp9:
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:207:32 ]
+	ds_swizzle_b32 v6, v7 offset:swizzle(SWAP,2)
+.Ltmp10:
+	.loc	1 227 8                         ; triton_reshape_and_cache_flash.py:227:8
+	v_and_b32_e32 v4, 0xfe, v4
+	v_and_b32_e32 v11, 0x140, v5
+	v_xor_b32_e32 v8, 64, v4
+	v_add_nc_u32_e32 v4, 0, v4
+	v_add_nc_u32_e32 v5, 0, v8
+	v_xor_b32_e32 v8, v11, v10
+	ds_write_b16 v4, v1
+	ds_write_b16 v5, v3 offset:256
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	.loc	1 197 28                        ; triton_reshape_and_cache_flash.py:197:28
+	v_and_b32_e32 v3, 31, v0
+.Ltmp11:
+	.loc	2 170 27                        ; standard.py:170:27 @[ standard.py:191:40 @[ triton_reshape_and_cache_flash.py:207:32 ] ]
+	v_max_f32_e32 v10, v6, v6
+.Ltmp12:
+	.loc	1 227 8                         ; triton_reshape_and_cache_flash.py:227:8
+	v_add_nc_u32_e32 v6, 0, v8
+.Ltmp13:
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:207:32 ]
+	v_cmp_eq_u32_e64 s1, 0, v3
+.Ltmp14:
+	.loc	2 170 27                        ; standard.py:170:27 @[ standard.py:191:40 @[ triton_reshape_and_cache_flash.py:207:32 ] ]
+	v_max_f32_e32 v1, v7, v10
+.Ltmp15:
+	.loc	1 227 8                         ; triton_reshape_and_cache_flash.py:227:8
+	ds_read_b32 v8, v6
+.Ltmp16:
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:207:32 ]
+	v_lshl_add_u32 v3, v9, 2, 0
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	ds_swizzle_b32 v7, v1 offset:swizzle(SWAP,1)
+	s_waitcnt lgkmcnt(0)
+	buffer_gl0_inv
+	s_and_saveexec_b32 s2, s1
+	s_cbranch_execz .LBB0_3
+; %bb.2:
+	.loc	2 0 40 is_stmt 0                ; standard.py:0:40
+	v_max_f32_e32 v7, v7, v7
+	v_max_f32_e32 v1, v1, v1
+	v_max_f32_e32 v1, v1, v7
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:207:32 ]
+	ds_write_b32 v3, v1
+.LBB0_3:
+	.loc	2 0 40                          ; standard.py:0:40
+	s_or_b32 exec_lo, exec_lo, s2
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:207:32 ]
+	v_cmp_gt_u32_e64 s2, 4, v0
+	v_lshl_add_u32 v1, v0, 2, 0
+	v_mov_b32_e32 v7, 0
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	s_and_saveexec_b32 s3, s2
+; %bb.4:
+	ds_read_b32 v7, v1
+; %bb.5:
+	.loc	2 0 40                          ; standard.py:0:40
+	s_or_b32 exec_lo, exec_lo, s3
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:207:32 ]
+	s_waitcnt lgkmcnt(0)
+	ds_swizzle_b32 v9, v7 offset:swizzle(SWAP,2)
+.Ltmp17:
+	.loc	2 170 27 is_stmt 1              ; standard.py:170:27 @[ standard.py:191:40 @[ triton_reshape_and_cache_flash.py:207:32 ] ]
+	v_max_f32_e32 v7, v7, v7
+	s_clause 0x2
+	s_load_dwordx2 s[24:25], s[4:5], 0x68
+	s_load_dwordx8 s[8:15], s[4:5], 0x48
+	s_load_dwordx4 s[16:19], s[4:5], 0x8
+.Ltmp18:
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:207:32 ]
+	v_and_b32_e32 v10, 3, v0
+	v_cmp_eq_u32_e32 vcc_lo, 0, v10
+	s_and_b32 s7, s2, vcc_lo
+.Ltmp19:
+	.loc	2 170 27                        ; standard.py:170:27 @[ standard.py:191:40 @[ triton_reshape_and_cache_flash.py:207:32 ] ]
+	s_waitcnt lgkmcnt(0)
+	v_max_f32_e32 v9, v9, v9
+	v_max_f32_e32 v7, v7, v9
+.Ltmp20:
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:207:32 ]
+	ds_swizzle_b32 v9, v7 offset:swizzle(SWAP,1)
+	s_and_saveexec_b32 s3, s7
+	s_cbranch_execz .LBB0_7
+; %bb.6:
+	.loc	2 0 40 is_stmt 0                ; standard.py:0:40
+	s_waitcnt lgkmcnt(0)
+	v_max_f32_e32 v9, v9, v9
+	v_max_f32_e32 v7, v7, v7
+	v_max_f32_e32 v7, v7, v9
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:207:32 ]
+	ds_write_b32 v1, v7
+.LBB0_7:
+	.loc	2 0 40                          ; standard.py:0:40
+	s_or_b32 exec_lo, exec_lo, s3
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:207:32 ]
+	v_mov_b32_e32 v7, 0
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+.Ltmp21:
+	.loc	1 194 18 is_stmt 1              ; triton_reshape_and_cache_flash.py:194:18
+	v_alignbit_b32 v12, s23, s22, 5
+.Ltmp22:
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:207:32 ]
+	ds_read_b32 v9, v7
+.Ltmp23:
+	.loc	1 194 18                        ; triton_reshape_and_cache_flash.py:194:18
+	s_lshr_b32 s13, s23, 5
+	s_mul_i32 s15, s13, 0x97829cbd
+	v_readfirstlane_b32 s3, v12
+	s_mul_hi_u32 s20, s13, 0x97829cbd
+	s_mul_hi_u32 s9, s3, 0xa72f053
+	s_mul_i32 s11, s3, 0xa72f053
+	s_mul_hi_u32 s3, s3, 0x97829cbd
+	s_add_u32 s3, s15, s3
+	s_addc_u32 s15, s20, 0
+	s_add_u32 s3, s11, s3
+	s_addc_u32 s3, s9, 0
+	s_mul_i32 s11, s13, 0xa72f053
+	s_add_u32 s3, s15, s3
+	s_addc_u32 s9, 0, 0
+	.loc	1 207 47                        ; triton_reshape_and_cache_flash.py:207:47
+	s_waitcnt lgkmcnt(0)
+	v_div_scale_f32 v10, null, 0x42fe0000, 0x42fe0000, v9
+	.loc	1 194 18                        ; triton_reshape_and_cache_flash.py:194:18
+	s_mul_hi_u32 s13, s13, 0xa72f053
+	s_add_u32 s20, s11, s3
+	s_addc_u32 s21, s13, s9
+	.loc	1 207 47                        ; triton_reshape_and_cache_flash.py:207:47
+	v_rcp_f32_e32 v11, v10
+	v_fma_f32 v12, -v10, v11, 1.0
+	v_fmac_f32_e32 v11, v12, v11
+	v_div_scale_f32 v12, vcc_lo, v9, 0x42fe0000, v9
+	v_mul_f32_e32 v13, v12, v11
+	v_fma_f32 v14, -v10, v13, v12
+	v_fmac_f32_e32 v13, v14, v11
+	v_fma_f32 v10, -v10, v13, v12
+	.loc	1 195 25                        ; triton_reshape_and_cache_flash.py:195:25
+	v_alignbit_b32 v12, s21, s20, 1
+	.loc	1 194 18                        ; triton_reshape_and_cache_flash.py:194:18
+	s_lshr_b64 s[20:21], s[20:21], 1
+	.loc	1 207 47                        ; triton_reshape_and_cache_flash.py:207:47
+	v_div_fmas_f32 v10, v10, v11, v13
+	.loc	1 195 25                        ; triton_reshape_and_cache_flash.py:195:25
+	v_readfirstlane_b32 s3, v12
+	.loc	1 213 8                         ; triton_reshape_and_cache_flash.py:213:8
+	v_cmp_gt_u32_e32 vcc_lo, 32, v0
+	.loc	1 207 47                        ; triton_reshape_and_cache_flash.py:207:47
+	v_div_fixup_f32 v9, v10, 0x42fe0000, v9
+	.loc	1 195 25                        ; triton_reshape_and_cache_flash.py:195:25
+	s_mulk_i32 s3, 0x620
+	.loc	1 213 8                         ; triton_reshape_and_cache_flash.py:213:8
+	s_and_b32 s21, s1, vcc_lo
+	.loc	1 195 25                        ; triton_reshape_and_cache_flash.py:195:25
+	s_sub_u32 s11, s22, s3
+.Ltmp24:
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:207:32 ]
+	s_mov_b32 s22, 0
+.Ltmp25:
+	.loc	1 207 58                        ; triton_reshape_and_cache_flash.py:207:58
+	v_max_f32_e32 v9, 0x358637bd, v9
+	.loc	1 213 8                         ; triton_reshape_and_cache_flash.py:213:8
+	s_and_saveexec_b32 s3, s21
+	s_cbranch_execz .LBB0_9
+; %bb.8:
+	.loc	1 0 8 is_stmt 0                 ; triton_reshape_and_cache_flash.py:0:8
+	s_clause 0x2
+	s_load_dwordx4 s[28:31], s[4:5], 0x88
+	s_load_dwordx2 s[26:27], s[4:5], 0x98
+	s_load_dwordx2 s[34:35], s[4:5], 0x20
+	.loc	1 211 24 is_stmt 1              ; triton_reshape_and_cache_flash.py:211:24
+	s_waitcnt lgkmcnt(0)
+	s_mul_i32 s9, s11, s30
+	.loc	1 212 17                        ; triton_reshape_and_cache_flash.py:212:17
+	s_mul_i32 s13, s26, s0
+	.loc	1 210 16                        ; triton_reshape_and_cache_flash.py:210:16
+	s_mul_i32 s15, s20, s28
+	.loc	1 0 0 is_stmt 0                 ; triton_reshape_and_cache_flash.py:0
+	s_add_i32 s9, s9, s13
+	s_add_i32 s23, s9, s15
+	.loc	1 213 8 is_stmt 1               ; triton_reshape_and_cache_flash.py:213:8
+	s_ashr_i64 s[22:23], s[22:23], 30
+	s_add_u32 s22, s34, s22
+	s_addc_u32 s23, s35, s23
+	global_store_dword v7, v9, s[22:23]
+.LBB0_9:
+	.loc	1 0 8 is_stmt 0                 ; triton_reshape_and_cache_flash.py:0:8
+	s_or_b32 exec_lo, exec_lo, s3
+	.loc	1 216 23 is_stmt 1              ; triton_reshape_and_cache_flash.py:216:23
+	v_div_scale_f32 v7, null, v9, v9, 1.0
+	v_div_scale_f32 v12, vcc_lo, 1.0, v9, 1.0
+	s_mov_b32 s3, 0xc3000000
+	v_rcp_f32_e32 v10, v7
+	.loc	1 224 24                        ; triton_reshape_and_cache_flash.py:224:24
+	s_mul_i32 s22, s11, s14
+	.loc	1 225 17                        ; triton_reshape_and_cache_flash.py:225:17
+	s_mul_i32 s23, s24, s0
+	.loc	1 223 16                        ; triton_reshape_and_cache_flash.py:223:16
+	s_mul_i32 s9, s20, s12
+	.loc	1 234 26                        ; triton_reshape_and_cache_flash.py:234:26
+	s_mul_i32 s6, s8, s6
+	.loc	1 234 50 is_stmt 0              ; triton_reshape_and_cache_flash.py:234:50
+	s_mul_i32 s8, s10, s0
+	.loc	1 0 0                           ; triton_reshape_and_cache_flash.py:0
+	s_add_i32 s10, s22, s23
+	.loc	1 234 0                         ; triton_reshape_and_cache_flash.py:234
+	s_add_i32 s8, s8, s6
+	.loc	1 0 0                           ; triton_reshape_and_cache_flash.py:0
+	s_add_i32 s10, s10, s9
+	.loc	1 234 8                         ; triton_reshape_and_cache_flash.py:234:8
+	v_add_lshl_u32 v2, v2, s8, 1
+	.loc	1 216 23 is_stmt 1              ; triton_reshape_and_cache_flash.py:216:23
+	v_fma_f32 v11, -v7, v10, 1.0
+	s_mov_b32 s15, 0x31027000
+	s_mov_b32 s14, 0x7ffffffe
+	.loc	1 227 8                         ; triton_reshape_and_cache_flash.py:227:8
+	s_and_b32 s13, s19, 0xffff
+	s_mov_b32 s12, s18
+	.loc	1 216 23                        ; triton_reshape_and_cache_flash.py:216:23
+	v_fmac_f32_e32 v10, v11, v10
+	.loc	1 234 8                         ; triton_reshape_and_cache_flash.py:234:8
+	s_and_b32 s17, s17, 0xffff
+	s_mov_b32 s18, s14
+	s_mov_b32 s19, s15
+	.loc	1 216 23                        ; triton_reshape_and_cache_flash.py:216:23
+	v_mul_f32_e32 v11, v12, v10
+	v_fma_f32 v13, -v7, v11, v12
+	v_fmac_f32_e32 v11, v13, v10
+	v_fma_f32 v7, -v7, v11, v12
+	.loc	1 205 9                         ; triton_reshape_and_cache_flash.py:205:9
+	v_cvt_f32_f16_sdwa v12, v8 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	.loc	1 216 23                        ; triton_reshape_and_cache_flash.py:216:23
+	v_div_fmas_f32 v10, v7, v10, v11
+	.loc	1 205 9                         ; triton_reshape_and_cache_flash.py:205:9
+	v_cvt_f32_f16_e32 v11, v8
+	.loc	1 197 28                        ; triton_reshape_and_cache_flash.py:197:28
+	v_or_b32_e32 v7, 0x80, v0
+	.loc	1 216 23                        ; triton_reshape_and_cache_flash.py:216:23
+	v_div_fixup_f32 v9, v10, v9, 1.0
+	.loc	1 216 17 is_stmt 0              ; triton_reshape_and_cache_flash.py:216:17
+	v_mul_f32_e32 v10, v9, v11
+	v_mul_f32_e32 v11, v9, v12
+	.loc	1 219 30 is_stmt 1              ; triton_reshape_and_cache_flash.py:219:30
+	v_cmp_le_f32_e32 vcc_lo, 0, v10
+	.loc	1 219 44 is_stmt 0              ; triton_reshape_and_cache_flash.py:219:44
+	v_cndmask_b32_e64 v10, -0.5, 0.5, vcc_lo
+	.loc	1 219 30                        ; triton_reshape_and_cache_flash.py:219:30
+	v_cmp_le_f32_e32 vcc_lo, 0, v11
+	.loc	1 219 44                        ; triton_reshape_and_cache_flash.py:219:44
+	v_fma_mix_f32 v10, v9, v8, v10 op_sel_hi:[0,1,0]
+	v_cndmask_b32_e64 v11, -0.5, 0.5, vcc_lo
+	v_fma_mix_f32 v8, v9, v8, v11 op_sel:[0,1,0] op_sel_hi:[0,1,0]
+	.loc	1 220 35 is_stmt 1              ; triton_reshape_and_cache_flash.py:220:35
+	v_med3_f32 v9, v10, s3, 0x42fe0000
+	.loc	1 226 10                        ; triton_reshape_and_cache_flash.py:226:10
+	v_add_nc_u32_e32 v10, s10, v0
+	v_add_nc_u32_e32 v11, s10, v7
+	.loc	1 220 35                        ; triton_reshape_and_cache_flash.py:220:35
+	v_med3_f32 v8, v8, s3, 0x42fe0000
+	.loc	1 227 8                         ; triton_reshape_and_cache_flash.py:227:8
+	v_cvt_i32_f32_e32 v9, v9
+	s_mov_b32 s3, 0x76543210
+	v_cvt_i32_f32_e32 v8, v8
+	buffer_store_byte v9, v10, s[12:15], 0 offen
+	buffer_store_byte v8, v11, s[12:15], 0 offen
+	.loc	1 234 8                         ; triton_reshape_and_cache_flash.py:234:8
+	buffer_load_dword v2, v2, s[16:19], 0 offen
+	.loc	1 259 8                         ; triton_reshape_and_cache_flash.py:259:8
+	s_waitcnt vmcnt(0)
+	s_waitcnt_vscnt null, 0x0
+	s_barrier
+	buffer_gl0_inv
+	.loc	1 234 8                         ; triton_reshape_and_cache_flash.py:234:8
+	v_lshrrev_b32_e32 v8, 16, v2
+.Ltmp26:
+	.loc	2 170 27                        ; standard.py:170:27 @[ standard.py:191:40 @[ triton_reshape_and_cache_flash.py:239:32 ] ]
+	v_max_f16_e64 v9, |v2|, |v2|
+.Ltmp27:
+	.loc	1 259 8                         ; triton_reshape_and_cache_flash.py:259:8
+	ds_write_b16 v4, v2
+	ds_write_b16 v5, v8 offset:256
+.Ltmp28:
+	.loc	2 170 27                        ; standard.py:170:27 @[ standard.py:191:40 @[ triton_reshape_and_cache_flash.py:239:32 ] ]
+	v_max_f16_e64 v10, |v8|, |v8|
+.Ltmp29:
+	.loc	1 259 8                         ; triton_reshape_and_cache_flash.py:259:8
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_read_b32 v2, v6
+.Ltmp30:
+	.loc	2 170 27                        ; standard.py:170:27 @[ standard.py:191:40 @[ triton_reshape_and_cache_flash.py:239:32 ] ]
+	v_max_f16_e32 v9, v9, v10
+.Ltmp31:
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:239:32 ]
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+.Ltmp32:
+	.loc	2 170 27                        ; standard.py:170:27 @[ standard.py:191:40 @[ triton_reshape_and_cache_flash.py:239:32 ] ]
+	v_cvt_f32_f16_e32 v9, v9
+.Ltmp33:
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:239:32 ]
+	v_permlanex16_b32 v10, v9, s3, 0xfedcba98 op_sel:[1,0]
+.Ltmp34:
+	.loc	2 170 27                        ; standard.py:170:27 @[ standard.py:191:40 @[ triton_reshape_and_cache_flash.py:239:32 ] ]
+	v_max_f32_e32 v10, v10, v10
+	v_max_f32_e32 v9, v9, v10
+.Ltmp35:
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:239:32 ]
+	ds_swizzle_b32 v10, v9 offset:swizzle(SWAP,8)
+.Ltmp36:
+	.loc	2 170 27                        ; standard.py:170:27 @[ standard.py:191:40 @[ triton_reshape_and_cache_flash.py:239:32 ] ]
+	s_waitcnt lgkmcnt(0)
+	v_max_f32_e32 v10, v10, v10
+	v_max_f32_e32 v9, v9, v10
+.Ltmp37:
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:239:32 ]
+	ds_swizzle_b32 v10, v9 offset:swizzle(SWAP,4)
+.Ltmp38:
+	.loc	2 170 27                        ; standard.py:170:27 @[ standard.py:191:40 @[ triton_reshape_and_cache_flash.py:239:32 ] ]
+	s_waitcnt lgkmcnt(0)
+	v_max_f32_e32 v10, v10, v10
+	v_max_f32_e32 v9, v9, v10
+.Ltmp39:
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:239:32 ]
+	ds_swizzle_b32 v10, v9 offset:swizzle(SWAP,2)
+.Ltmp40:
+	.loc	2 170 27                        ; standard.py:170:27 @[ standard.py:191:40 @[ triton_reshape_and_cache_flash.py:239:32 ] ]
+	s_waitcnt lgkmcnt(0)
+	v_max_f32_e32 v10, v10, v10
+	v_max_f32_e32 v4, v9, v10
+.Ltmp41:
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:239:32 ]
+	ds_swizzle_b32 v5, v4 offset:swizzle(SWAP,1)
+	s_and_saveexec_b32 s3, s1
+	s_cbranch_execz .LBB0_11
+; %bb.10:
+	.loc	2 0 40 is_stmt 0                ; standard.py:0:40
+	s_waitcnt lgkmcnt(0)
+	v_max_f32_e32 v5, v5, v5
+	v_max_f32_e32 v4, v4, v4
+	v_max_f32_e32 v4, v4, v5
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:239:32 ]
+	ds_write_b32 v3, v4
+.LBB0_11:
+	.loc	2 0 40                          ; standard.py:0:40
+	s_or_b32 exec_lo, exec_lo, s3
+	v_mov_b32_e32 v3, 0
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:239:32 ]
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	s_and_saveexec_b32 s1, s2
+; %bb.12:
+	ds_read_b32 v3, v1
+; %bb.13:
+	.loc	2 0 40                          ; standard.py:0:40
+	s_or_b32 exec_lo, exec_lo, s1
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:239:32 ]
+	s_waitcnt lgkmcnt(0)
+	ds_swizzle_b32 v4, v3 offset:swizzle(SWAP,2)
+.Ltmp42:
+	.loc	2 170 27 is_stmt 1              ; standard.py:170:27 @[ standard.py:191:40 @[ triton_reshape_and_cache_flash.py:239:32 ] ]
+	v_max_f32_e32 v3, v3, v3
+	s_clause 0x2
+	s_load_dwordx2 s[2:3], s[4:5], 0x80
+	s_load_dwordx4 s[12:15], s[4:5], 0x70
+	s_load_dwordx2 s[8:9], s[4:5], 0x18
+	s_waitcnt lgkmcnt(0)
+	v_max_f32_e32 v4, v4, v4
+	v_max_f32_e32 v3, v3, v4
+.Ltmp43:
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:239:32 ]
+	ds_swizzle_b32 v4, v3 offset:swizzle(SWAP,1)
+	s_and_saveexec_b32 s1, s7
+	s_cbranch_execz .LBB0_15
+; %bb.14:
+	.loc	2 0 40 is_stmt 0                ; standard.py:0:40
+	s_waitcnt lgkmcnt(0)
+	v_max_f32_e32 v4, v4, v4
+	v_max_f32_e32 v3, v3, v3
+	v_max_f32_e32 v3, v3, v4
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:239:32 ]
+	ds_write_b32 v1, v3
+.LBB0_15:
+	.loc	2 0 40                          ; standard.py:0:40
+	s_or_b32 exec_lo, exec_lo, s1
+	.loc	2 191 40                        ; standard.py:191:40 @[ triton_reshape_and_cache_flash.py:239:32 ]
+	v_mov_b32_e32 v3, 0
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	s_mov_b32 s6, 0
+	ds_read_b32 v1, v3
+.Ltmp44:
+	.loc	1 239 47 is_stmt 1              ; triton_reshape_and_cache_flash.py:239:47
+	s_waitcnt lgkmcnt(0)
+	v_div_scale_f32 v4, null, 0x42fe0000, 0x42fe0000, v1
+	v_rcp_f32_e32 v5, v4
+	v_fma_f32 v6, -v4, v5, 1.0
+	v_fmac_f32_e32 v5, v6, v5
+	v_div_scale_f32 v6, vcc_lo, v1, 0x42fe0000, v1
+	v_mul_f32_e32 v8, v6, v5
+	v_fma_f32 v9, -v4, v8, v6
+	v_fmac_f32_e32 v8, v9, v5
+	v_fma_f32 v4, -v4, v8, v6
+	v_div_fmas_f32 v4, v4, v5, v8
+	v_div_fixup_f32 v1, v4, 0x42fe0000, v1
+	.loc	1 239 58 is_stmt 0              ; triton_reshape_and_cache_flash.py:239:58
+	v_max_f32_e32 v1, 0x358637bd, v1
+	.loc	1 245 8 is_stmt 1               ; triton_reshape_and_cache_flash.py:245:8
+	s_and_saveexec_b32 s1, s21
+	s_cbranch_execz .LBB0_17
+; %bb.16:
+	.loc	1 0 8 is_stmt 0                 ; triton_reshape_and_cache_flash.py:0:8
+	s_clause 0x2
+	s_load_dwordx4 s[16:19], s[4:5], 0xa0
+	s_load_dwordx2 s[22:23], s[4:5], 0xb0
+	s_load_dwordx2 s[4:5], s[4:5], 0x28
+	.loc	1 243 24 is_stmt 1              ; triton_reshape_and_cache_flash.py:243:24
+	s_waitcnt lgkmcnt(0)
+	s_mul_i32 s3, s11, s18
+	.loc	1 244 17                        ; triton_reshape_and_cache_flash.py:244:17
+	s_mul_i32 s7, s22, s0
+	.loc	1 242 16                        ; triton_reshape_and_cache_flash.py:242:16
+	s_mul_i32 s10, s20, s16
+	.loc	1 0 0 is_stmt 0                 ; triton_reshape_and_cache_flash.py:0
+	s_add_i32 s3, s3, s7
+	s_add_i32 s7, s3, s10
+	.loc	1 245 8 is_stmt 1               ; triton_reshape_and_cache_flash.py:245:8
+	s_ashr_i64 s[6:7], s[6:7], 30
+	s_add_u32 s4, s4, s6
+	s_addc_u32 s5, s5, s7
+	global_store_dword v3, v1, s[4:5]
+.LBB0_17:
+	.loc	1 0 8 is_stmt 0                 ; triton_reshape_and_cache_flash.py:0:8
+	s_or_b32 exec_lo, exec_lo, s1
+	.loc	1 248 23 is_stmt 1              ; triton_reshape_and_cache_flash.py:248:23
+	v_div_scale_f32 v3, null, v1, v1, 1.0
+	v_div_scale_f32 v6, vcc_lo, 1.0, v1, 1.0
+	.loc	1 257 17                        ; triton_reshape_and_cache_flash.py:257:17
+	s_mul_i32 s0, s2, s0
+	.loc	1 248 23                        ; triton_reshape_and_cache_flash.py:248:23
+	v_rcp_f32_e32 v4, v3
+	s_mov_b32 s2, 0xc3000000
+	.loc	1 256 24                        ; triton_reshape_and_cache_flash.py:256:24
+	s_mul_i32 s3, s11, s14
+	.loc	1 255 16                        ; triton_reshape_and_cache_flash.py:255:16
+	s_mul_i32 s1, s20, s12
+	.loc	1 0 0 is_stmt 0                 ; triton_reshape_and_cache_flash.py:0
+	s_add_i32 s0, s3, s0
+	.loc	1 259 8 is_stmt 1               ; triton_reshape_and_cache_flash.py:259:8
+	s_and_b32 s9, s9, 0xffff
+	.loc	1 0 0 is_stmt 0                 ; triton_reshape_and_cache_flash.py:0
+	s_add_i32 s0, s0, s1
+	s_mov_b32 s11, 0x31027000
+	.loc	1 258 10 is_stmt 1              ; triton_reshape_and_cache_flash.py:258:10
+	v_add_nc_u32_e32 v0, s0, v0
+	s_mov_b32 s10, 0x7ffffffe
+	.loc	1 248 23                        ; triton_reshape_and_cache_flash.py:248:23
+	v_fma_f32 v5, -v3, v4, 1.0
+	v_fmac_f32_e32 v4, v5, v4
+	v_mul_f32_e32 v5, v6, v4
+	v_fma_f32 v8, -v3, v5, v6
+	v_fmac_f32_e32 v5, v8, v4
+	v_fma_f32 v3, -v3, v5, v6
+	v_div_fmas_f32 v3, v3, v4, v5
+	.loc	1 237 9                         ; triton_reshape_and_cache_flash.py:237:9
+	v_cvt_f32_f16_e32 v4, v2
+	.loc	1 248 23                        ; triton_reshape_and_cache_flash.py:248:23
+	v_div_fixup_f32 v1, v3, v1, 1.0
+	.loc	1 237 9                         ; triton_reshape_and_cache_flash.py:237:9
+	v_cvt_f32_f16_sdwa v3, v2 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	.loc	1 248 17                        ; triton_reshape_and_cache_flash.py:248:17
+	v_mul_f32_e32 v4, v1, v4
+	v_mul_f32_e32 v3, v1, v3
+	.loc	1 251 30                        ; triton_reshape_and_cache_flash.py:251:30
+	v_cmp_le_f32_e32 vcc_lo, 0, v4
+	.loc	1 251 44 is_stmt 0              ; triton_reshape_and_cache_flash.py:251:44
+	v_cndmask_b32_e64 v4, -0.5, 0.5, vcc_lo
+	.loc	1 251 30                        ; triton_reshape_and_cache_flash.py:251:30
+	v_cmp_le_f32_e32 vcc_lo, 0, v3
+	.loc	1 251 44                        ; triton_reshape_and_cache_flash.py:251:44
+	v_fma_mix_f32 v4, v1, v2, v4 op_sel_hi:[0,1,0]
+	v_cndmask_b32_e64 v3, -0.5, 0.5, vcc_lo
+	v_fma_mix_f32 v1, v1, v2, v3 op_sel:[0,1,0] op_sel_hi:[0,1,0]
+	.loc	1 252 35 is_stmt 1              ; triton_reshape_and_cache_flash.py:252:35
+	v_med3_f32 v2, v4, s2, 0x42fe0000
+	.loc	1 258 10                        ; triton_reshape_and_cache_flash.py:258:10
+	v_add_nc_u32_e32 v3, s0, v7
+	.loc	1 252 35                        ; triton_reshape_and_cache_flash.py:252:35
+	v_med3_f32 v1, v1, s2, 0x42fe0000
+	.loc	1 259 8                         ; triton_reshape_and_cache_flash.py:259:8
+	v_cvt_i32_f32_e32 v2, v2
+	v_cvt_i32_f32_e32 v1, v1
+	buffer_store_byte v2, v0, s[8:11], 0 offen
+	buffer_store_byte v1, v3, s[8:11], 0 offen
+.LBB0_18:                               ; %common.ret
+	.loc	1 0 0 is_stmt 0                 ; triton_reshape_and_cache_flash.py:0
+	s_endpgm
+.Ltmp45:
+	.section	.rodata,"a",@progbits
+	.p2align	6, 0x0
+	.amdhsa_kernel _reshape_cache_per_token_head
+		.amdhsa_group_segment_fixed_size 0
+		.amdhsa_private_segment_fixed_size 0
+		.amdhsa_kernarg_size 200
+		.amdhsa_user_sgpr_count 6
+		.amdhsa_user_sgpr_private_segment_buffer 1
+		.amdhsa_user_sgpr_dispatch_ptr 0
+		.amdhsa_user_sgpr_queue_ptr 0
+		.amdhsa_user_sgpr_kernarg_segment_ptr 1
+		.amdhsa_user_sgpr_dispatch_id 0
+		.amdhsa_user_sgpr_flat_scratch_init 0
+		.amdhsa_user_sgpr_private_segment_size 0
+		.amdhsa_wavefront_size32 1
+		.amdhsa_uses_dynamic_stack 0
+		.amdhsa_system_sgpr_private_segment_wavefront_offset 0
+		.amdhsa_system_sgpr_workgroup_id_x 1
+		.amdhsa_system_sgpr_workgroup_id_y 1
+		.amdhsa_system_sgpr_workgroup_id_z 0
+		.amdhsa_system_sgpr_workgroup_info 0
+		.amdhsa_system_vgpr_workitem_id 0
+		.amdhsa_next_free_vgpr 15
+		.amdhsa_next_free_sgpr 36
+		.amdhsa_reserve_vcc 1
+		.amdhsa_reserve_flat_scratch 0
+		.amdhsa_float_round_mode_32 0
+		.amdhsa_float_round_mode_16_64 0
+		.amdhsa_float_denorm_mode_32 3
+		.amdhsa_float_denorm_mode_16_64 3
+		.amdhsa_dx10_clamp 1
+		.amdhsa_ieee_mode 1
+		.amdhsa_fp16_overflow 0
+		.amdhsa_workgroup_processor_mode 1
+		.amdhsa_memory_ordered 1
+		.amdhsa_forward_progress 1
+		.amdhsa_shared_vgpr_count 0
+		.amdhsa_exception_fp_ieee_invalid_op 0
+		.amdhsa_exception_fp_denorm_src 0
+		.amdhsa_exception_fp_ieee_div_zero 0
+		.amdhsa_exception_fp_ieee_overflow 0
+		.amdhsa_exception_fp_ieee_underflow 0
+		.amdhsa_exception_fp_ieee_inexact 0
+		.amdhsa_exception_int_div_zero 0
+	.end_amdhsa_kernel
+	.text
+.Lfunc_end0:
+	.size	_reshape_cache_per_token_head, .Lfunc_end0-_reshape_cache_per_token_head
+	.cfi_endproc
+                                        ; -- End function
+	.set _reshape_cache_per_token_head.num_vgpr, 15
+	.set _reshape_cache_per_token_head.num_agpr, 0
+	.set _reshape_cache_per_token_head.numbered_sgpr, 36
+	.set _reshape_cache_per_token_head.num_named_barrier, 0
+	.set _reshape_cache_per_token_head.private_seg_size, 0
+	.set _reshape_cache_per_token_head.uses_vcc, 1
+	.set _reshape_cache_per_token_head.uses_flat_scratch, 0
+	.set _reshape_cache_per_token_head.has_dyn_sized_stack, 0
+	.set _reshape_cache_per_token_head.has_recursion, 0
+	.set _reshape_cache_per_token_head.has_indirect_call, 0
+	.section	.AMDGPU.csdata,"",@progbits
+; Kernel info:
+; codeLenInByte = 2076
+; TotalNumSgprs: 38
+; NumVgprs: 15
+; ScratchSize: 0
+; MemoryBound: 0
+; FloatMode: 240
+; IeeeMode: 1
+; LDSByteSize: 0 bytes/workgroup (compile time only)
+; SGPRBlocks: 0
+; VGPRBlocks: 1
+; NumSGPRsForWavesPerEU: 38
+; NumVGPRsForWavesPerEU: 15
+; Occupancy: 16
+; WaveLimiterHint : 1
+; COMPUTE_PGM_RSRC2:SCRATCH_EN: 0
+; COMPUTE_PGM_RSRC2:USER_SGPR: 6
+; COMPUTE_PGM_RSRC2:TRAP_HANDLER: 0
+; COMPUTE_PGM_RSRC2:TGID_X_EN: 1
+; COMPUTE_PGM_RSRC2:TGID_Y_EN: 1
+; COMPUTE_PGM_RSRC2:TGID_Z_EN: 0
+; COMPUTE_PGM_RSRC2:TIDIG_COMP_CNT: 0
+	.text
+	.p2alignl 6, 3214868480
+	.fill 48, 4, 3214868480
+	.section	.AMDGPU.gpr_maximums,"",@progbits
+	.set amdgpu.max_num_vgpr, 0
+	.set amdgpu.max_num_agpr, 0
+	.set amdgpu.max_num_sgpr, 0
+	.text
+	.section	.debug_abbrev,"",@progbits
+	.byte	1                               ; Abbreviation Code
+	.byte	17                              ; DW_TAG_compile_unit
+	.byte	1                               ; DW_CHILDREN_yes
+	.byte	37                              ; DW_AT_producer
+	.byte	14                              ; DW_FORM_strp
+	.byte	19                              ; DW_AT_language
+	.byte	5                               ; DW_FORM_data2
+	.byte	3                               ; DW_AT_name
+	.byte	14                              ; DW_FORM_strp
+	.byte	16                              ; DW_AT_stmt_list
+	.byte	23                              ; DW_FORM_sec_offset
+	.byte	27                              ; DW_AT_comp_dir
+	.byte	14                              ; DW_FORM_strp
+	.byte	17                              ; DW_AT_low_pc
+	.byte	1                               ; DW_FORM_addr
+	.byte	18                              ; DW_AT_high_pc
+	.byte	6                               ; DW_FORM_data4
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	2                               ; Abbreviation Code
+	.byte	46                              ; DW_TAG_subprogram
+	.byte	0                               ; DW_CHILDREN_no
+	.byte	3                               ; DW_AT_name
+	.byte	14                              ; DW_FORM_strp
+	.byte	32                              ; DW_AT_inline
+	.byte	11                              ; DW_FORM_data1
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	3                               ; Abbreviation Code
+	.byte	46                              ; DW_TAG_subprogram
+	.byte	1                               ; DW_CHILDREN_yes
+	.byte	17                              ; DW_AT_low_pc
+	.byte	1                               ; DW_FORM_addr
+	.byte	18                              ; DW_AT_high_pc
+	.byte	6                               ; DW_FORM_data4
+	.byte	49                              ; DW_AT_abstract_origin
+	.byte	19                              ; DW_FORM_ref4
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	4                               ; Abbreviation Code
+	.byte	29                              ; DW_TAG_inlined_subroutine
+	.byte	1                               ; DW_CHILDREN_yes
+	.byte	49                              ; DW_AT_abstract_origin
+	.byte	19                              ; DW_FORM_ref4
+	.byte	85                              ; DW_AT_ranges
+	.byte	23                              ; DW_FORM_sec_offset
+	.byte	88                              ; DW_AT_call_file
+	.byte	11                              ; DW_FORM_data1
+	.byte	89                              ; DW_AT_call_line
+	.byte	11                              ; DW_FORM_data1
+	.byte	87                              ; DW_AT_call_column
+	.byte	11                              ; DW_FORM_data1
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	5                               ; Abbreviation Code
+	.byte	29                              ; DW_TAG_inlined_subroutine
+	.byte	0                               ; DW_CHILDREN_no
+	.byte	49                              ; DW_AT_abstract_origin
+	.byte	19                              ; DW_FORM_ref4
+	.byte	85                              ; DW_AT_ranges
+	.byte	23                              ; DW_FORM_sec_offset
+	.byte	88                              ; DW_AT_call_file
+	.byte	11                              ; DW_FORM_data1
+	.byte	89                              ; DW_AT_call_line
+	.byte	11                              ; DW_FORM_data1
+	.byte	87                              ; DW_AT_call_column
+	.byte	11                              ; DW_FORM_data1
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	0                               ; EOM(3)
+	.section	.debug_info,"",@progbits
+.Lcu_begin0:
+	.long	.Ldebug_info_end0-.Ldebug_info_start0 ; Length of Unit
+.Ldebug_info_start0:
+	.short	4                               ; DWARF version number
+	.long	.debug_abbrev                   ; Offset Into Abbrev. Section
+	.byte	8                               ; Address Size (in bytes)
+	.byte	1                               ; Abbrev [1] 0xb:0x6a DW_TAG_compile_unit
+	.long	.Linfo_string0                  ; DW_AT_producer
+	.short	2                               ; DW_AT_language
+	.long	.Linfo_string1                  ; DW_AT_name
+	.long	.Lline_table_start0             ; DW_AT_stmt_list
+	.long	.Linfo_string2                  ; DW_AT_comp_dir
+	.quad	.Lfunc_begin0                   ; DW_AT_low_pc
+	.long	.Lfunc_end0-.Lfunc_begin0       ; DW_AT_high_pc
+	.byte	2                               ; Abbrev [2] 0x2a:0x6 DW_TAG_subprogram
+	.long	.Linfo_string3                  ; DW_AT_name
+	.byte	1                               ; DW_AT_inline
+	.byte	3                               ; Abbrev [3] 0x30:0x44 DW_TAG_subprogram
+	.quad	.Lfunc_begin0                   ; DW_AT_low_pc
+	.long	.Lfunc_end0-.Lfunc_begin0       ; DW_AT_high_pc
+	.long	42                              ; DW_AT_abstract_origin
+	.byte	4                               ; Abbrev [4] 0x41:0x19 DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges0                 ; DW_AT_ranges
+	.byte	1                               ; DW_AT_call_file
+	.byte	207                             ; DW_AT_call_line
+	.byte	32                              ; DW_AT_call_column
+	.byte	5                               ; Abbrev [5] 0x4d:0xc DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges1                 ; DW_AT_ranges
+	.byte	2                               ; DW_AT_call_file
+	.byte	191                             ; DW_AT_call_line
+	.byte	40                              ; DW_AT_call_column
+	.byte	0                               ; End Of Children Mark
+	.byte	4                               ; Abbrev [4] 0x5a:0x19 DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges2                 ; DW_AT_ranges
+	.byte	1                               ; DW_AT_call_file
+	.byte	239                             ; DW_AT_call_line
+	.byte	32                              ; DW_AT_call_column
+	.byte	5                               ; Abbrev [5] 0x66:0xc DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges3                 ; DW_AT_ranges
+	.byte	2                               ; DW_AT_call_file
+	.byte	191                             ; DW_AT_call_line
+	.byte	40                              ; DW_AT_call_column
+	.byte	0                               ; End Of Children Mark
+	.byte	0                               ; End Of Children Mark
+	.byte	0                               ; End Of Children Mark
+.Ldebug_info_end0:
+	.section	.debug_ranges,"",@progbits
+.Ldebug_ranges0:
+	.quad	.Ltmp1-.Lfunc_begin0
+	.quad	.Ltmp8-.Lfunc_begin0
+	.quad	.Ltmp9-.Lfunc_begin0
+	.quad	.Ltmp10-.Lfunc_begin0
+	.quad	.Ltmp11-.Lfunc_begin0
+	.quad	.Ltmp12-.Lfunc_begin0
+	.quad	.Ltmp13-.Lfunc_begin0
+	.quad	.Ltmp15-.Lfunc_begin0
+	.quad	.Ltmp16-.Lfunc_begin0
+	.quad	.Ltmp21-.Lfunc_begin0
+	.quad	.Ltmp22-.Lfunc_begin0
+	.quad	.Ltmp23-.Lfunc_begin0
+	.quad	.Ltmp24-.Lfunc_begin0
+	.quad	.Ltmp25-.Lfunc_begin0
+	.quad	0
+	.quad	0
+.Ldebug_ranges1:
+	.quad	.Ltmp1-.Lfunc_begin0
+	.quad	.Ltmp2-.Lfunc_begin0
+	.quad	.Ltmp3-.Lfunc_begin0
+	.quad	.Ltmp4-.Lfunc_begin0
+	.quad	.Ltmp5-.Lfunc_begin0
+	.quad	.Ltmp6-.Lfunc_begin0
+	.quad	.Ltmp7-.Lfunc_begin0
+	.quad	.Ltmp8-.Lfunc_begin0
+	.quad	.Ltmp11-.Lfunc_begin0
+	.quad	.Ltmp12-.Lfunc_begin0
+	.quad	.Ltmp14-.Lfunc_begin0
+	.quad	.Ltmp15-.Lfunc_begin0
+	.quad	.Ltmp17-.Lfunc_begin0
+	.quad	.Ltmp18-.Lfunc_begin0
+	.quad	.Ltmp19-.Lfunc_begin0
+	.quad	.Ltmp20-.Lfunc_begin0
+	.quad	0
+	.quad	0
+.Ldebug_ranges2:
+	.quad	.Ltmp26-.Lfunc_begin0
+	.quad	.Ltmp27-.Lfunc_begin0
+	.quad	.Ltmp28-.Lfunc_begin0
+	.quad	.Ltmp29-.Lfunc_begin0
+	.quad	.Ltmp30-.Lfunc_begin0
+	.quad	.Ltmp44-.Lfunc_begin0
+	.quad	0
+	.quad	0
+.Ldebug_ranges3:
+	.quad	.Ltmp26-.Lfunc_begin0
+	.quad	.Ltmp27-.Lfunc_begin0
+	.quad	.Ltmp28-.Lfunc_begin0
+	.quad	.Ltmp29-.Lfunc_begin0
+	.quad	.Ltmp30-.Lfunc_begin0
+	.quad	.Ltmp31-.Lfunc_begin0
+	.quad	.Ltmp32-.Lfunc_begin0
+	.quad	.Ltmp33-.Lfunc_begin0
+	.quad	.Ltmp34-.Lfunc_begin0
+	.quad	.Ltmp35-.Lfunc_begin0
+	.quad	.Ltmp36-.Lfunc_begin0
+	.quad	.Ltmp37-.Lfunc_begin0
+	.quad	.Ltmp38-.Lfunc_begin0
+	.quad	.Ltmp39-.Lfunc_begin0
+	.quad	.Ltmp40-.Lfunc_begin0
+	.quad	.Ltmp41-.Lfunc_begin0
+	.quad	.Ltmp42-.Lfunc_begin0
+	.quad	.Ltmp43-.Lfunc_begin0
+	.quad	0
+	.quad	0
+	.section	.debug_str,"MS",@progbits,1
+.Linfo_string0:
+	.asciz	"triton"                        ; string offset=0
+.Linfo_string1:
+	.asciz	"triton_reshape_and_cache_flash.py" ; string offset=7
+.Linfo_string2:
+	.asciz	"/app/vllm-src/vllm/v1/attention/ops" ; string offset=41
+.Linfo_string3:
+	.asciz	"_reshape_cache_per_token_head" ; string offset=77
+	.section	".note.GNU-stack","",@progbits
+	.amdgpu_metadata
+---
+amdhsa.kernels:
+  - .args:
+      - .address_space:  global
+        .offset:         0
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         8
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         16
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         24
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         32
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         40
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         48
+        .size:           8
+        .value_kind:     global_buffer
+      - .offset:         56
+        .size:           8
+        .value_kind:     by_value
+      - .offset:         64
+        .size:           8
+        .value_kind:     by_value
+      - .offset:         72
+        .size:           8
+        .value_kind:     by_value
+      - .offset:         80
+        .size:           8
+        .value_kind:     by_value
+      - .offset:         88
+        .size:           8
+        .value_kind:     by_value
+      - .offset:         96
+        .size:           8
+        .value_kind:     by_value
+      - .offset:         104
+        .size:           8
+        .value_kind:     by_value
+      - .offset:         112
+        .size:           8
+        .value_kind:     by_value
+      - .offset:         120
+        .size:           8
+        .value_kind:     by_value
+      - .offset:         128
+        .size:           8
+        .value_kind:     by_value
+      - .offset:         136
+        .size:           8
+        .value_kind:     by_value
+      - .offset:         144
+        .size:           8
+        .value_kind:     by_value
+      - .offset:         152
+        .size:           8
+        .value_kind:     by_value
+      - .offset:         160
+        .size:           8
+        .value_kind:     by_value
+      - .offset:         168
+        .size:           8
+        .value_kind:     by_value
+      - .offset:         176
+        .size:           8
+        .value_kind:     by_value
+      - .address_space:  global
+        .offset:         184
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         192
+        .size:           8
+        .value_kind:     global_buffer
+    .group_segment_fixed_size: 0
+    .kernarg_segment_align: 8
+    .kernarg_segment_size: 200
+    .max_flat_workgroup_size: 128
+    .name:           _reshape_cache_per_token_head
+    .private_segment_fixed_size: 0
+    .sgpr_count:     38
+    .sgpr_spill_count: 0
+    .symbol:         _reshape_cache_per_token_head.kd
+    .uniform_work_group_size: 1
+    .uses_dynamic_stack: false
+    .vgpr_count:     15
+    .vgpr_spill_count: 0
+    .wavefront_size: 32
+    .workgroup_processor_mode: 1
+amdhsa.target:   amdgcn-amd-amdhsa--gfx1030
+amdhsa.version:
+  - 1
+  - 2
+...
+
+	.end_amdgpu_metadata
+	.section	.debug_line,"",@progbits
+.Lline_table_start0:

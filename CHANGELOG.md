@@ -22,7 +22,11 @@ grew** — it now also skips the CDNA-only flash-attention/AITER/MORI stages whe
 `gfx9xx`, which is what the measured base always was (torch/vision/audio/triton/amdsmi, nothing else).
 Attempt 2 passed: base 24.2 GB (~65 min on 32 cores), package-for-package identical to the hand-built
 one; runtime image 26.9 GB on it, all checks and the GPU smoke test green. The 02-VERSIONS warning that
-nobody had rebuilt the base from scratch is retired.
+nobody had rebuilt the base from scratch is retired. Serving test from the published image (27B GPTQ,
+TP=2, MTP=2): outputs 8/8 byte-identical to the recorded baseline; decode equal to the newest
+hand-built image in a same-day A/B and far ahead of the pre-plugin Aug-18 one — the shortfall vs
+BUILD.md's table tracked to the host itself (170 W power caps, TP pair root links at x8 Gen3), not
+the image.
 
 **2026-08-30 (later) — the ~100 t/s was measured with a handshake that never waited.** On
 this ROCm, `hipStreamWaitValue32` is accepted during stream capture but not recorded into the

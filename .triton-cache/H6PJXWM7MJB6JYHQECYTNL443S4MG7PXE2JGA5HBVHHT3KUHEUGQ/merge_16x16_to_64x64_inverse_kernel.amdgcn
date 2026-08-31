@@ -1,0 +1,2038 @@
+	.amdgcn_target "amdgcn-amd-amdhsa--gfx1030"
+	.amdhsa_code_object_version 5
+	.text
+	.globl	merge_16x16_to_64x64_inverse_kernel ; -- Begin function merge_16x16_to_64x64_inverse_kernel
+	.p2align	8
+	.type	merge_16x16_to_64x64_inverse_kernel,@function
+merge_16x16_to_64x64_inverse_kernel:    ; @merge_16x16_to_64x64_inverse_kernel
+.Lfunc_begin0:
+	.file	1 "/app/vllm-src/vllm/third_party/flash_linear_attention/ops" "solve_tril.py"
+	.loc	1 238 0                         ; solve_tril.py:238:0
+	.cfi_sections .debug_frame
+	.cfi_startproc
+; %bb.0:
+	s_load_dwordx4 s[0:3], s[4:5], 0x10
+.Ltmp0:
+	.loc	1 251 33 prologue_end           ; solve_tril.py:251:33
+	s_mul_hi_i32 s8, s7, 0x2aaaaaab
+	.loc	1 265 23                        ; solve_tril.py:265:23
+	v_lshrrev_b32_e32 v7, 4, v0
+	.loc	1 251 33                        ; solve_tril.py:251:33
+	s_lshr_b32 s9, s8, 31
+	s_lshr_b32 s10, s8, 2
+	.loc	1 254 42                        ; solve_tril.py:254:42
+	s_lshl_b32 s8, s6, 1
+	.loc	1 251 33                        ; solve_tril.py:251:33
+	s_add_i32 s6, s10, s9
+	.loc	1 254 20                        ; solve_tril.py:254:20
+	s_ashr_i32 s9, s8, 31
+	.loc	1 251 33                        ; solve_tril.py:251:33
+	s_mul_i32 s6, s6, 24
+	.loc	1 254 20                        ; solve_tril.py:254:20
+	s_lshl_b64 s[8:9], s[8:9], 2
+	.loc	1 251 33                        ; solve_tril.py:251:33
+	s_sub_i32 s17, s7, s6
+	s_load_dwordx2 s[10:11], s[4:5], 0x0
+	.loc	1 265 23                        ; solve_tril.py:265:23
+	v_and_b32_e32 v6, 15, v0
+	.loc	1 284 26                        ; solve_tril.py:284:26
+	v_mul_u32_u24_e32 v1, 0x600, v7
+	v_mul_hi_u32_u24_e32 v2, 0x600, v7
+	v_mov_b32_e32 v13, 0
+	v_or_b32_e32 v1, v1, v6
+	.loc	1 254 20                        ; solve_tril.py:254:20
+	s_waitcnt lgkmcnt(0)
+	s_add_u32 s2, s2, s8
+	s_addc_u32 s3, s3, s9
+	s_load_dwordx2 s[6:7], s[2:3], 0x0
+	.loc	1 258 20                        ; solve_tril.py:258:20
+	s_waitcnt lgkmcnt(0)
+	s_ashr_i32 s3, s6, 31
+	s_mov_b32 s2, s6
+	s_lshl_b64 s[2:3], s[2:3], 2
+	s_add_u32 s2, s0, s2
+	s_addc_u32 s3, s1, s3
+	.loc	1 259 39                        ; solve_tril.py:259:39
+	s_add_i32 s8, s6, 1
+	.loc	1 258 20                        ; solve_tril.py:258:20
+	s_load_dword s6, s[2:3], 0x0
+	.loc	1 259 20                        ; solve_tril.py:259:20
+	s_ashr_i32 s9, s8, 31
+	s_lshl_b64 s[2:3], s[8:9], 2
+	s_add_u32 s0, s0, s2
+	s_addc_u32 s1, s1, s3
+	.loc	1 273 44                        ; solve_tril.py:273:44
+	s_lshl_b32 s18, s7, 6
+	.loc	1 259 20                        ; solve_tril.py:259:20
+	s_load_dword s0, s[0:1], 0x0
+	.loc	1 273 62                        ; solve_tril.py:273:62
+	s_ashr_i32 s1, s18, 31
+	.loc	1 284 26                        ; solve_tril.py:284:26
+	v_or_b32_e32 v3, s18, v7
+	v_mov_b32_e32 v4, s1
+	.loc	1 268 16                        ; solve_tril.py:268:16
+	s_waitcnt lgkmcnt(0)
+	s_mul_i32 s2, s6, 24
+	.loc	1 268 20 is_stmt 0              ; solve_tril.py:268:20
+	s_add_i32 s2, s2, s17
+	.loc	1 268 27                        ; solve_tril.py:268:27
+	s_lshl_b32 s1, s2, 6
+	.loc	1 284 26 is_stmt 1              ; solve_tril.py:284:26
+	v_add_co_u32 v1, vcc_lo, v1, s1
+	v_add_co_ci_u32_e64 v2, null, 0, v2, vcc_lo
+	.loc	1 261 18                        ; solve_tril.py:261:18
+	s_sub_i32 s12, s0, s6
+	.loc	1 273 62                        ; solve_tril.py:273:62
+	s_ashr_i32 s13, s12, 31
+	.loc	1 284 26                        ; solve_tril.py:284:26
+	v_mad_i64_i32 v[60:61], null, 0x600, s18, v[1:2]
+	v_cmp_gt_i64_e32 vcc_lo, s[12:13], v[3:4]
+	s_cmp_gt_i32 s18, -1
+	v_mov_b32_e32 v2, 0
+	s_cselect_b32 s3, -1, 0
+	s_and_b32 vcc_lo, s3, vcc_lo
+	s_and_saveexec_b32 s1, vcc_lo
+	s_cbranch_execz .LBB0_2
+; %bb.1:
+	v_mov_b32_e32 v2, 0
+	v_mov_b32_e32 v3, v60
+	v_ashrrev_i64 v[2:3], 30, v[2:3]
+	v_add_co_u32 v2, s0, s10, v2
+	v_add_co_ci_u32_e64 v3, null, s11, v3, s0
+	global_load_dword v2, v[2:3], off
+.LBB0_2:
+	.loc	1 0 26 is_stmt 0                ; solve_tril.py:0:26
+	s_or_b32 exec_lo, exec_lo, s1
+	.loc	1 276 49 is_stmt 1              ; solve_tril.py:276:49
+	s_or_b32 s0, s18, 16
+	.loc	1 276 68 is_stmt 0              ; solve_tril.py:276:68
+	s_ashr_i32 s1, s0, 31
+	.loc	1 285 26 is_stmt 1              ; solve_tril.py:285:26
+	v_or_b32_e32 v3, s0, v7
+	v_mov_b32_e32 v4, s1
+	s_mul_i32 s14, s0, 0x600
+	v_add_co_u32 v5, null, v1, s14
+	v_cmp_gt_i64_e64 s0, s[12:13], v[3:4]
+	v_add_co_u32 v62, null, v5, 16
+	s_and_b32 s0, s3, s0
+	s_and_saveexec_b32 s2, s0
+	s_cbranch_execz .LBB0_4
+; %bb.3:
+	v_mov_b32_e32 v61, 0
+	v_ashrrev_i64 v[3:4], 30, v[61:62]
+	v_add_co_u32 v3, s1, s10, v3
+	v_add_co_ci_u32_e64 v4, null, s11, v4, s1
+	global_load_dword v13, v[3:4], off
+.LBB0_4:
+	.loc	1 0 26 is_stmt 0                ; solve_tril.py:0:26
+	s_or_b32 exec_lo, exec_lo, s2
+	.loc	1 279 49 is_stmt 1              ; solve_tril.py:279:49
+	s_or_b32 s1, s18, 32
+	v_mov_b32_e32 v14, 0
+	.loc	1 279 68 is_stmt 0              ; solve_tril.py:279:68
+	s_ashr_i32 s2, s1, 31
+	.loc	1 286 26 is_stmt 1              ; solve_tril.py:286:26
+	v_or_b32_e32 v3, s1, v7
+	v_mov_b32_e32 v4, s2
+	s_mul_i32 s16, s1, 0x600
+	v_mov_b32_e32 v9, 0
+	v_add_co_u32 v5, null, v1, s16
+	v_cmp_gt_i64_e64 s1, s[12:13], v[3:4]
+	v_add_co_u32 v64, null, v5, 32
+	s_and_b32 s1, s3, s1
+	s_and_saveexec_b32 s8, s1
+	s_cbranch_execz .LBB0_6
+; %bb.5:
+	v_mov_b32_e32 v63, 0
+	v_ashrrev_i64 v[3:4], 30, v[63:64]
+	v_add_co_u32 v3, s2, s10, v3
+	v_add_co_ci_u32_e64 v4, null, s11, v4, s2
+	global_load_dword v9, v[3:4], off
+.LBB0_6:
+	.loc	1 0 26 is_stmt 0                ; solve_tril.py:0:26
+	s_or_b32 exec_lo, exec_lo, s8
+	.loc	1 282 49 is_stmt 1              ; solve_tril.py:282:49
+	s_or_b32 s2, s18, 48
+	.loc	1 282 68 is_stmt 0              ; solve_tril.py:282:68
+	s_ashr_i32 s8, s2, 31
+	.loc	1 287 26 is_stmt 1              ; solve_tril.py:287:26
+	v_or_b32_e32 v3, s2, v7
+	v_mov_b32_e32 v4, s8
+	s_mul_i32 s15, s2, 0x600
+	v_add_co_u32 v5, null, v1, s15
+	v_cmp_gt_i64_e64 s2, s[12:13], v[3:4]
+	v_add_co_u32 v66, null, v5, 48
+	s_and_b32 s2, s3, s2
+	s_and_saveexec_b32 s8, s2
+	s_cbranch_execz .LBB0_8
+; %bb.7:
+	v_mov_b32_e32 v65, 0
+	v_ashrrev_i64 v[3:4], 30, v[65:66]
+	v_add_co_u32 v3, s3, s10, v3
+	v_add_co_ci_u32_e64 v4, null, s11, v4, s3
+	global_load_dword v14, v[3:4], off
+.LBB0_8:
+	.loc	1 0 26 is_stmt 0                ; solve_tril.py:0:26
+	s_or_b32 exec_lo, exec_lo, s8
+	s_load_dwordx2 s[8:9], s[4:5], 0x8
+	.loc	1 297 15 is_stmt 1              ; solve_tril.py:297:15
+	s_waitcnt vmcnt(0)
+	v_sub_f32_e32 v2, 0, v2
+	.loc	1 265 23                        ; solve_tril.py:265:23
+	v_and_b32_e32 v16, 31, v0
+	.loc	1 266 25                        ; solve_tril.py:266:25
+	v_cmp_gt_u32_e64 s3, v7, v6
+	.loc	1 265 23                        ; solve_tril.py:265:23
+	v_lshrrev_b32_e32 v15, 5, v0
+	v_lshl_add_u32 v11, v6, 5, 0
+	v_cmp_gt_u32_e64 s5, 0x80, v0
+	v_cmp_gt_u32_e64 s4, 16, v16
+	.loc	1 297 38                        ; solve_tril.py:297:38
+	v_cndmask_b32_e64 v8, 0, v2, s3
+	v_lshl_add_u32 v61, v0, 2, 0
+	v_and_b32_e32 v17, 7, v0
+	v_add_nc_u32_e32 v12, -2, v7
+	.loc	1 302 34                        ; solve_tril.py:302:34
+	s_sub_i32 s12, s12, s18
+	s_mul_i32 s7, s7, 0x18000
+	.loc	1 302 22 is_stmt 0              ; solve_tril.py:302:22
+	s_cmp_lt_i32 s12, 3
+	s_mul_i32 s13, s6, 0x600
+	s_cbranch_scc1 .LBB0_17
+; %bb.9:                                ; %.lr.ph
+	s_add_i32 s6, s7, s13
+	s_lshl_b32 s18, s17, 6
+	v_lshl_add_u32 v10, v15, 2, v11
+	s_add_i32 s6, s6, s18
+	v_add_nc_u32_e32 v18, -2, v7
+	v_or_b32_e32 v2, s6, v7
+	v_or_b32_e32 v3, s6, v6
+	v_cmp_eq_u32_e64 s6, 0, v17
+	s_min_u32 s19, s12, 16
+	s_mov_b32 s20, 0x76543210
+	v_add_nc_u32_e32 v2, 0xc00, v2
+	v_add_nc_u32_e32 v4, 0xc00, v3
+	s_and_b32 s18, s5, s6
+	s_add_i32 s19, s19, -2
+	s_branch .LBB0_11
+.LBB0_10:                               ;   in Loop: Header=BB0_11 Depth=1
+	.loc	1 0 22                          ; solve_tril.py:0:22
+	s_or_b32 exec_lo, exec_lo, s6
+.Ltmp1:
+	.file	2 "/usr/local/lib/python3.12/dist-packages/triton/language" "standard.py"
+	.loc	2 293 36 is_stmt 1              ; standard.py:293:36 @[ solve_tril.py:304:52 ]
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_read_b32 v5, v11
+.Ltmp2:
+	.loc	1 305 35                        ; solve_tril.py:305:35
+	v_sub_co_u32 v18, s6, v18, 1
+	.loc	1 302 22                        ; solve_tril.py:302:22
+	v_add_nc_u32_e32 v2, 0x600, v2
+	v_add_nc_u32_e32 v4, 0x600, v4
+	s_add_i32 s19, s19, -1
+	s_cmp_lg_u32 s19, 0
+	.loc	1 304 18                        ; solve_tril.py:304:18
+	s_waitcnt lgkmcnt(0)
+	v_add_f32_e64 v3, -v3, v5
+	.loc	1 305 56                        ; solve_tril.py:305:56
+	v_cndmask_b32_e64 v8, v8, v3, s6
+	.loc	1 302 22                        ; solve_tril.py:302:22
+	s_cbranch_scc0 .LBB0_17
+.LBB0_11:                               ; =>This Inner Loop Header: Depth=1
+	.loc	1 303 26                        ; solve_tril.py:303:26
+	v_ashrrev_i32_e32 v3, 31, v2
+	v_ashrrev_i32_e32 v5, 31, v4
+	v_lshlrev_b64 v[19:20], 2, v[2:3]
+	v_lshlrev_b64 v[21:22], 2, v[4:5]
+	v_add_co_u32 v19, s6, s10, v19
+	v_add_co_ci_u32_e64 v20, null, s11, v20, s6
+	global_load_dword v5, v[19:20], off
+	v_add_co_u32 v19, s6, s10, v21
+	v_add_co_ci_u32_e64 v20, null, s11, v22, s6
+	global_load_dword v3, v[19:20], off
+.Ltmp3:
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:304:52 ]
+	s_waitcnt vmcnt(0) lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+.Ltmp4:
+	.loc	1 304 43                        ; solve_tril.py:304:43
+	v_mul_f32_e64 v5, v8, -v5
+.Ltmp5:
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:304:52 ]
+	v_permlanex16_b32 v19, v5, s20, 0xfedcba98 op_sel:[1,0]
+	s_and_saveexec_b32 s6, s4
+; %bb.12:                               ;   in Loop: Header=BB0_11 Depth=1
+	.loc	2 0 36 is_stmt 0                ; standard.py:0:36
+	v_add_f32_e32 v5, v5, v19
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:304:52 ]
+	ds_write_b32 v10, v5
+; %bb.13:                               ;   in Loop: Header=BB0_11 Depth=1
+	.loc	2 0 36                          ; standard.py:0:36
+	s_or_b32 exec_lo, exec_lo, s6
+	v_mov_b32_e32 v5, 0
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:304:52 ]
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	s_and_saveexec_b32 s6, s5
+; %bb.14:                               ;   in Loop: Header=BB0_11 Depth=1
+	ds_read_b32 v5, v61
+; %bb.15:                               ;   in Loop: Header=BB0_11 Depth=1
+	.loc	2 0 36                          ; standard.py:0:36
+	s_or_b32 exec_lo, exec_lo, s6
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:304:52 ]
+	s_waitcnt lgkmcnt(0)
+	ds_swizzle_b32 v19, v5 offset:swizzle(SWAP,4)
+.Ltmp6:
+	.loc	2 263 15 is_stmt 1              ; standard.py:263:15 @[ standard.py:293:36 @[ solve_tril.py:304:52 ] ]
+	s_waitcnt lgkmcnt(0)
+	v_add_f32_e32 v5, v5, v19
+.Ltmp7:
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:304:52 ]
+	ds_swizzle_b32 v19, v5 offset:swizzle(SWAP,2)
+.Ltmp8:
+	.loc	2 263 15                        ; standard.py:263:15 @[ standard.py:293:36 @[ solve_tril.py:304:52 ] ]
+	s_waitcnt lgkmcnt(0)
+	v_add_f32_e32 v5, v5, v19
+.Ltmp9:
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:304:52 ]
+	ds_swizzle_b32 v19, v5 offset:swizzle(SWAP,1)
+	s_and_saveexec_b32 s6, s18
+	s_cbranch_execz .LBB0_10
+; %bb.16:                               ;   in Loop: Header=BB0_11 Depth=1
+	.loc	2 0 36 is_stmt 0                ; standard.py:0:36
+	s_waitcnt lgkmcnt(0)
+	v_add_f32_e32 v5, v5, v19
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:304:52 ]
+	ds_write_b32 v61, v5
+	s_branch .LBB0_10
+.Ltmp10:
+.LBB0_17:                               ; %Flow46
+	.loc	1 298 15 is_stmt 1              ; solve_tril.py:298:15
+	v_sub_f32_e32 v2, 0, v13
+	v_and_b32_e32 v10, 0xf0, v0
+	.loc	1 306 27                        ; solve_tril.py:306:27
+	s_cmp_lt_i32 s12, 19
+	.loc	1 298 38                        ; solve_tril.py:298:38
+	v_cndmask_b32_e64 v13, 0, v2, s3
+	.loc	1 306 27                        ; solve_tril.py:306:27
+	s_cbranch_scc1 .LBB0_26
+; %bb.18:                               ; %.lr.ph22
+	s_add_i32 s5, s7, s13
+	s_lshl_b32 s6, s17, 6
+	v_cmp_gt_u32_e64 s4, 16, v16
+	s_add_i32 s6, s5, s6
+	v_cmp_gt_u32_e64 s5, 0x80, v0
+	v_or_b32_e32 v2, s6, v7
+	v_or_b32_e32 v3, s6, v6
+	v_cmp_eq_u32_e64 s6, 0, v17
+	v_lshl_add_u32 v18, v15, 2, v11
+	v_add_nc_u32_e32 v19, -2, v7
+	v_add_nc_u32_e32 v2, 0x6c00, v2
+	v_add_nc_u32_e32 v4, 0x6c00, v3
+	s_min_u32 s19, s12, 32
+	s_and_b32 s18, s5, s6
+	s_sub_i32 s19, s19, 18
+	s_mov_b32 s20, 0x76543210
+	s_branch .LBB0_20
+.LBB0_19:                               ;   in Loop: Header=BB0_20 Depth=1
+	.loc	1 0 27 is_stmt 0                ; solve_tril.py:0:27
+	s_or_b32 exec_lo, exec_lo, s6
+.Ltmp11:
+	.loc	2 293 36 is_stmt 1              ; standard.py:293:36 @[ solve_tril.py:308:52 ]
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_read_b32 v5, v11
+.Ltmp12:
+	.loc	1 309 35                        ; solve_tril.py:309:35
+	v_sub_co_u32 v19, s6, v19, 1
+	.loc	1 306 27                        ; solve_tril.py:306:27
+	v_add_nc_u32_e32 v2, 0x600, v2
+	v_add_nc_u32_e32 v4, 0x600, v4
+	s_add_i32 s19, s19, -1
+	s_cmp_lg_u32 s19, 0
+	.loc	1 308 18                        ; solve_tril.py:308:18
+	s_waitcnt lgkmcnt(0)
+	v_add_f32_e64 v3, -v3, v5
+	.loc	1 309 61                        ; solve_tril.py:309:61
+	v_cndmask_b32_e64 v13, v13, v3, s6
+	.loc	1 306 27                        ; solve_tril.py:306:27
+	s_cbranch_scc0 .LBB0_26
+.LBB0_20:                               ; =>This Inner Loop Header: Depth=1
+	.loc	1 307 26                        ; solve_tril.py:307:26
+	v_ashrrev_i32_e32 v3, 31, v2
+	v_ashrrev_i32_e32 v5, 31, v4
+	v_lshlrev_b64 v[20:21], 2, v[2:3]
+	v_lshlrev_b64 v[22:23], 2, v[4:5]
+	v_add_co_u32 v20, s6, s10, v20
+	v_add_co_ci_u32_e64 v21, null, s11, v21, s6
+	global_load_dword v5, v[20:21], off offset:64
+	v_add_co_u32 v20, s6, s10, v22
+	v_add_co_ci_u32_e64 v21, null, s11, v23, s6
+	global_load_dword v3, v[20:21], off offset:64
+.Ltmp13:
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:308:52 ]
+	s_waitcnt vmcnt(0) lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+.Ltmp14:
+	.loc	1 308 43                        ; solve_tril.py:308:43
+	v_mul_f32_e64 v5, v13, -v5
+.Ltmp15:
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:308:52 ]
+	v_permlanex16_b32 v20, v5, s20, 0xfedcba98 op_sel:[1,0]
+	s_and_saveexec_b32 s6, s4
+; %bb.21:                               ;   in Loop: Header=BB0_20 Depth=1
+	.loc	2 0 36 is_stmt 0                ; standard.py:0:36
+	v_add_f32_e32 v5, v5, v20
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:308:52 ]
+	ds_write_b32 v18, v5
+; %bb.22:                               ;   in Loop: Header=BB0_20 Depth=1
+	.loc	2 0 36                          ; standard.py:0:36
+	s_or_b32 exec_lo, exec_lo, s6
+	v_mov_b32_e32 v5, 0
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:308:52 ]
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	s_and_saveexec_b32 s6, s5
+; %bb.23:                               ;   in Loop: Header=BB0_20 Depth=1
+	ds_read_b32 v5, v61
+; %bb.24:                               ;   in Loop: Header=BB0_20 Depth=1
+	.loc	2 0 36                          ; standard.py:0:36
+	s_or_b32 exec_lo, exec_lo, s6
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:308:52 ]
+	s_waitcnt lgkmcnt(0)
+	ds_swizzle_b32 v20, v5 offset:swizzle(SWAP,4)
+.Ltmp16:
+	.loc	2 263 15 is_stmt 1              ; standard.py:263:15 @[ standard.py:293:36 @[ solve_tril.py:308:52 ] ]
+	s_waitcnt lgkmcnt(0)
+	v_add_f32_e32 v5, v5, v20
+.Ltmp17:
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:308:52 ]
+	ds_swizzle_b32 v20, v5 offset:swizzle(SWAP,2)
+.Ltmp18:
+	.loc	2 263 15                        ; standard.py:263:15 @[ standard.py:293:36 @[ solve_tril.py:308:52 ] ]
+	s_waitcnt lgkmcnt(0)
+	v_add_f32_e32 v5, v5, v20
+.Ltmp19:
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:308:52 ]
+	ds_swizzle_b32 v20, v5 offset:swizzle(SWAP,1)
+	s_and_saveexec_b32 s6, s18
+	s_cbranch_execz .LBB0_19
+; %bb.25:                               ;   in Loop: Header=BB0_20 Depth=1
+	.loc	2 0 36 is_stmt 0                ; standard.py:0:36
+	s_waitcnt lgkmcnt(0)
+	v_add_f32_e32 v5, v5, v20
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:308:52 ]
+	ds_write_b32 v61, v5
+	s_branch .LBB0_19
+.Ltmp20:
+.LBB0_26:                               ; %._crit_edge23
+	.loc	1 299 15 is_stmt 1              ; solve_tril.py:299:15
+	v_sub_f32_e32 v2, 0, v9
+	.loc	1 310 27                        ; solve_tril.py:310:27
+	s_cmp_lt_i32 s12, 35
+	.loc	1 299 38                        ; solve_tril.py:299:38
+	v_cndmask_b32_e64 v9, 0, v2, s3
+	.loc	1 310 27                        ; solve_tril.py:310:27
+	s_cbranch_scc1 .LBB0_35
+; %bb.27:                               ; %.lr.ph29
+	s_add_i32 s5, s7, s13
+	s_lshl_b32 s6, s17, 6
+	v_cmp_gt_u32_e64 s4, 16, v16
+	s_add_i32 s6, s5, s6
+	v_cmp_gt_u32_e64 s5, 0x80, v0
+	v_or_b32_e32 v2, s6, v7
+	v_or_b32_e32 v3, s6, v6
+	v_cmp_eq_u32_e64 s6, 0, v17
+	v_lshl_add_u32 v18, v15, 2, v11
+	v_add_nc_u32_e32 v19, -2, v7
+	v_add_nc_u32_e32 v2, 0xcc00, v2
+	v_add_nc_u32_e32 v4, 0xcc00, v3
+	s_min_u32 s19, s12, 48
+	s_and_b32 s18, s5, s6
+	s_sub_i32 s19, s19, 34
+	s_mov_b32 s20, 0x76543210
+	s_branch .LBB0_29
+.LBB0_28:                               ;   in Loop: Header=BB0_29 Depth=1
+	.loc	1 0 27 is_stmt 0                ; solve_tril.py:0:27
+	s_or_b32 exec_lo, exec_lo, s6
+.Ltmp21:
+	.loc	2 293 36 is_stmt 1              ; standard.py:293:36 @[ solve_tril.py:312:52 ]
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_read_b32 v5, v11
+.Ltmp22:
+	.loc	1 313 35                        ; solve_tril.py:313:35
+	v_sub_co_u32 v19, s6, v19, 1
+	.loc	1 310 27                        ; solve_tril.py:310:27
+	v_add_nc_u32_e32 v2, 0x600, v2
+	v_add_nc_u32_e32 v4, 0x600, v4
+	s_add_i32 s19, s19, -1
+	s_cmp_lg_u32 s19, 0
+	.loc	1 312 18                        ; solve_tril.py:312:18
+	s_waitcnt lgkmcnt(0)
+	v_add_f32_e64 v3, -v3, v5
+	.loc	1 313 61                        ; solve_tril.py:313:61
+	v_cndmask_b32_e64 v9, v9, v3, s6
+	.loc	1 310 27                        ; solve_tril.py:310:27
+	s_cbranch_scc0 .LBB0_35
+.LBB0_29:                               ; =>This Inner Loop Header: Depth=1
+	.loc	1 311 26                        ; solve_tril.py:311:26
+	v_ashrrev_i32_e32 v3, 31, v2
+	v_ashrrev_i32_e32 v5, 31, v4
+	v_lshlrev_b64 v[20:21], 2, v[2:3]
+	v_lshlrev_b64 v[22:23], 2, v[4:5]
+	v_add_co_u32 v20, s6, s10, v20
+	v_add_co_ci_u32_e64 v21, null, s11, v21, s6
+	global_load_dword v5, v[20:21], off offset:128
+	v_add_co_u32 v20, s6, s10, v22
+	v_add_co_ci_u32_e64 v21, null, s11, v23, s6
+	global_load_dword v3, v[20:21], off offset:128
+.Ltmp23:
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:312:52 ]
+	s_waitcnt vmcnt(0) lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+.Ltmp24:
+	.loc	1 312 43                        ; solve_tril.py:312:43
+	v_mul_f32_e64 v5, v9, -v5
+.Ltmp25:
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:312:52 ]
+	v_permlanex16_b32 v20, v5, s20, 0xfedcba98 op_sel:[1,0]
+	s_and_saveexec_b32 s6, s4
+; %bb.30:                               ;   in Loop: Header=BB0_29 Depth=1
+	.loc	2 0 36 is_stmt 0                ; standard.py:0:36
+	v_add_f32_e32 v5, v5, v20
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:312:52 ]
+	ds_write_b32 v18, v5
+; %bb.31:                               ;   in Loop: Header=BB0_29 Depth=1
+	.loc	2 0 36                          ; standard.py:0:36
+	s_or_b32 exec_lo, exec_lo, s6
+	v_mov_b32_e32 v5, 0
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:312:52 ]
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	s_and_saveexec_b32 s6, s5
+; %bb.32:                               ;   in Loop: Header=BB0_29 Depth=1
+	ds_read_b32 v5, v61
+; %bb.33:                               ;   in Loop: Header=BB0_29 Depth=1
+	.loc	2 0 36                          ; standard.py:0:36
+	s_or_b32 exec_lo, exec_lo, s6
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:312:52 ]
+	s_waitcnt lgkmcnt(0)
+	ds_swizzle_b32 v20, v5 offset:swizzle(SWAP,4)
+.Ltmp26:
+	.loc	2 263 15 is_stmt 1              ; standard.py:263:15 @[ standard.py:293:36 @[ solve_tril.py:312:52 ] ]
+	s_waitcnt lgkmcnt(0)
+	v_add_f32_e32 v5, v5, v20
+.Ltmp27:
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:312:52 ]
+	ds_swizzle_b32 v20, v5 offset:swizzle(SWAP,2)
+.Ltmp28:
+	.loc	2 263 15                        ; standard.py:263:15 @[ standard.py:293:36 @[ solve_tril.py:312:52 ] ]
+	s_waitcnt lgkmcnt(0)
+	v_add_f32_e32 v5, v5, v20
+.Ltmp29:
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:312:52 ]
+	ds_swizzle_b32 v20, v5 offset:swizzle(SWAP,1)
+	s_and_saveexec_b32 s6, s18
+	s_cbranch_execz .LBB0_28
+; %bb.34:                               ;   in Loop: Header=BB0_29 Depth=1
+	.loc	2 0 36 is_stmt 0                ; standard.py:0:36
+	s_waitcnt lgkmcnt(0)
+	v_add_f32_e32 v5, v5, v20
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:312:52 ]
+	ds_write_b32 v61, v5
+	s_branch .LBB0_28
+.Ltmp30:
+.LBB0_35:                               ; %._crit_edge30
+	.loc	1 300 15 is_stmt 1              ; solve_tril.py:300:15
+	v_sub_f32_e32 v2, 0, v14
+	.loc	1 314 27                        ; solve_tril.py:314:27
+	s_cmp_lt_i32 s12, 51
+	.loc	1 300 38                        ; solve_tril.py:300:38
+	v_cndmask_b32_e64 v14, 0, v2, s3
+	.loc	1 314 27                        ; solve_tril.py:314:27
+	s_cbranch_scc1 .LBB0_44
+; %bb.36:                               ; %.lr.ph36
+	s_add_i32 s4, s7, s13
+	s_lshl_b32 s5, s17, 6
+	v_cmp_gt_u32_e64 s3, 16, v16
+	s_add_i32 s5, s4, s5
+	v_cmp_gt_u32_e64 s4, 0x80, v0
+	v_or_b32_e32 v2, s5, v7
+	v_or_b32_e32 v3, s5, v6
+	v_cmp_eq_u32_e64 s5, 0, v17
+	v_lshl_add_u32 v0, v15, 2, v11
+	s_min_u32 s7, s12, 64
+	v_add_nc_u32_e32 v2, 0x12c00, v2
+	v_add_nc_u32_e32 v4, 0x12c00, v3
+	s_and_b32 s6, s4, s5
+	s_sub_i32 s7, s7, 50
+	s_mov_b32 s12, 0x76543210
+	s_branch .LBB0_38
+.LBB0_37:                               ;   in Loop: Header=BB0_38 Depth=1
+	.loc	1 0 27 is_stmt 0                ; solve_tril.py:0:27
+	s_or_b32 exec_lo, exec_lo, s5
+.Ltmp31:
+	.loc	2 293 36 is_stmt 1              ; standard.py:293:36 @[ solve_tril.py:316:52 ]
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_read_b32 v5, v11
+.Ltmp32:
+	.loc	1 317 35                        ; solve_tril.py:317:35
+	v_sub_co_u32 v12, s5, v12, 1
+	.loc	1 314 27                        ; solve_tril.py:314:27
+	v_add_nc_u32_e32 v2, 0x600, v2
+	v_add_nc_u32_e32 v4, 0x600, v4
+	s_add_i32 s7, s7, -1
+	s_cmp_lg_u32 s7, 0
+	.loc	1 316 18                        ; solve_tril.py:316:18
+	s_waitcnt lgkmcnt(0)
+	v_add_f32_e64 v3, -v3, v5
+	.loc	1 317 61                        ; solve_tril.py:317:61
+	v_cndmask_b32_e64 v14, v14, v3, s5
+	.loc	1 314 27                        ; solve_tril.py:314:27
+	s_cbranch_scc0 .LBB0_44
+.LBB0_38:                               ; =>This Inner Loop Header: Depth=1
+	.loc	1 315 26                        ; solve_tril.py:315:26
+	v_ashrrev_i32_e32 v3, 31, v2
+	v_ashrrev_i32_e32 v5, 31, v4
+	v_lshlrev_b64 v[15:16], 2, v[2:3]
+	v_lshlrev_b64 v[17:18], 2, v[4:5]
+	v_add_co_u32 v15, s5, s10, v15
+	v_add_co_ci_u32_e64 v16, null, s11, v16, s5
+	global_load_dword v5, v[15:16], off offset:192
+	v_add_co_u32 v15, s5, s10, v17
+	v_add_co_ci_u32_e64 v16, null, s11, v18, s5
+	global_load_dword v3, v[15:16], off offset:192
+.Ltmp33:
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:316:52 ]
+	s_waitcnt vmcnt(0) lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+.Ltmp34:
+	.loc	1 316 43                        ; solve_tril.py:316:43
+	v_mul_f32_e64 v5, v14, -v5
+.Ltmp35:
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:316:52 ]
+	v_permlanex16_b32 v15, v5, s12, 0xfedcba98 op_sel:[1,0]
+	s_and_saveexec_b32 s5, s3
+; %bb.39:                               ;   in Loop: Header=BB0_38 Depth=1
+	.loc	2 0 36 is_stmt 0                ; standard.py:0:36
+	v_add_f32_e32 v5, v5, v15
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:316:52 ]
+	ds_write_b32 v0, v5
+; %bb.40:                               ;   in Loop: Header=BB0_38 Depth=1
+	.loc	2 0 36                          ; standard.py:0:36
+	s_or_b32 exec_lo, exec_lo, s5
+	v_mov_b32_e32 v5, 0
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:316:52 ]
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	s_and_saveexec_b32 s5, s4
+; %bb.41:                               ;   in Loop: Header=BB0_38 Depth=1
+	ds_read_b32 v5, v61
+; %bb.42:                               ;   in Loop: Header=BB0_38 Depth=1
+	.loc	2 0 36                          ; standard.py:0:36
+	s_or_b32 exec_lo, exec_lo, s5
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:316:52 ]
+	s_waitcnt lgkmcnt(0)
+	ds_swizzle_b32 v15, v5 offset:swizzle(SWAP,4)
+.Ltmp36:
+	.loc	2 263 15 is_stmt 1              ; standard.py:263:15 @[ standard.py:293:36 @[ solve_tril.py:316:52 ] ]
+	s_waitcnt lgkmcnt(0)
+	v_add_f32_e32 v5, v5, v15
+.Ltmp37:
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:316:52 ]
+	ds_swizzle_b32 v15, v5 offset:swizzle(SWAP,2)
+.Ltmp38:
+	.loc	2 263 15                        ; standard.py:263:15 @[ standard.py:293:36 @[ solve_tril.py:316:52 ] ]
+	s_waitcnt lgkmcnt(0)
+	v_add_f32_e32 v5, v5, v15
+.Ltmp39:
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:316:52 ]
+	ds_swizzle_b32 v15, v5 offset:swizzle(SWAP,1)
+	s_and_saveexec_b32 s5, s6
+	s_cbranch_execz .LBB0_37
+; %bb.43:                               ;   in Loop: Header=BB0_38 Depth=1
+	.loc	2 0 36 is_stmt 0                ; standard.py:0:36
+	s_waitcnt lgkmcnt(0)
+	v_add_f32_e32 v5, v5, v15
+	.loc	2 293 36                        ; standard.py:293:36 @[ solve_tril.py:316:52 ]
+	ds_write_b32 v61, v5
+	s_branch .LBB0_37
+.Ltmp40:
+.LBB0_44:                               ; %._crit_edge37
+	.loc	1 342 25 is_stmt 1              ; solve_tril.py:342:25
+	v_add_co_u32 v68, null, v1, s14
+	v_mov_b32_e32 v127, 0
+	v_mov_b32_e32 v2, 0
+	s_and_saveexec_b32 s4, s0
+	s_cbranch_execz .LBB0_46
+; %bb.45:
+	v_mov_b32_e32 v67, 0
+	v_ashrrev_i64 v[2:3], 30, v[67:68]
+	v_add_co_u32 v2, s3, s10, v2
+	v_add_co_ci_u32_e64 v3, null, s11, v3, s3
+	global_load_dword v2, v[2:3], off
+.LBB0_46:
+	.loc	1 0 25 is_stmt 0                ; solve_tril.py:0:25
+	s_or_b32 exec_lo, exec_lo, s4
+	.loc	1 343 25 is_stmt 1              ; solve_tril.py:343:25
+	v_add_co_u32 v70, null, v1, s16
+	s_and_saveexec_b32 s4, s1
+	s_cbranch_execz .LBB0_48
+; %bb.47:
+	v_mov_b32_e32 v69, 0
+	v_ashrrev_i64 v[3:4], 30, v[69:70]
+	v_add_co_u32 v3, s3, s10, v3
+	v_add_co_ci_u32_e64 v4, null, s11, v4, s3
+	global_load_dword v127, v[3:4], off
+.LBB0_48:
+	.loc	1 0 25 is_stmt 0                ; solve_tril.py:0:25
+	s_or_b32 exec_lo, exec_lo, s4
+	.loc	1 344 25 is_stmt 1              ; solve_tril.py:344:25
+	v_add_co_u32 v72, null, v70, 16
+	v_mov_b32_e32 v73, 0
+	v_mov_b32_e32 v0, 0
+	s_and_saveexec_b32 s4, s1
+	s_cbranch_execz .LBB0_50
+; %bb.49:
+	v_mov_b32_e32 v71, 0
+	v_ashrrev_i64 v[3:4], 30, v[71:72]
+	v_add_co_u32 v3, s3, s10, v3
+	v_add_co_ci_u32_e64 v4, null, s11, v4, s3
+	global_load_dword v0, v[3:4], off
+.LBB0_50:
+	.loc	1 0 25 is_stmt 0                ; solve_tril.py:0:25
+	s_or_b32 exec_lo, exec_lo, s4
+	.loc	1 345 25 is_stmt 1              ; solve_tril.py:345:25
+	v_add_co_u32 v74, null, v1, s15
+	s_and_saveexec_b32 s4, s2
+	s_cbranch_execz .LBB0_52
+; %bb.51:
+	v_mov_b32_e32 v73, 0
+	v_ashrrev_i64 v[3:4], 30, v[73:74]
+	v_add_co_u32 v3, s3, s10, v3
+	v_add_co_ci_u32_e64 v4, null, s11, v4, s3
+	global_load_dword v73, v[3:4], off
+.LBB0_52:
+	.loc	1 0 25 is_stmt 0                ; solve_tril.py:0:25
+	s_or_b32 exec_lo, exec_lo, s4
+	.loc	1 346 25 is_stmt 1              ; solve_tril.py:346:25
+	v_add_co_u32 v76, null, v74, 16
+	v_mov_b32_e32 v16, 0
+	v_mov_b32_e32 v141, 0
+	s_and_saveexec_b32 s4, s2
+	s_cbranch_execz .LBB0_54
+; %bb.53:
+	v_mov_b32_e32 v75, 0
+	v_ashrrev_i64 v[3:4], 30, v[75:76]
+	v_add_co_u32 v3, s3, s10, v3
+	v_add_co_ci_u32_e64 v4, null, s11, v4, s3
+	global_load_dword v141, v[3:4], off
+.LBB0_54:
+	.loc	1 0 25 is_stmt 0                ; solve_tril.py:0:25
+	s_or_b32 exec_lo, exec_lo, s4
+	.loc	1 347 25 is_stmt 1              ; solve_tril.py:347:25
+	v_add_co_u32 v78, null, v74, 32
+	s_and_saveexec_b32 s4, s2
+	s_cbranch_execz .LBB0_56
+; %bb.55:
+	v_mov_b32_e32 v77, 0
+	v_ashrrev_i64 v[3:4], 30, v[77:78]
+	v_add_co_u32 v3, s3, s10, v3
+	v_add_co_ci_u32_e64 v4, null, s11, v4, s3
+	global_load_dword v16, v[3:4], off
+.LBB0_56:
+	.loc	1 0 25 is_stmt 0                ; solve_tril.py:0:25
+	s_or_b32 exec_lo, exec_lo, s4
+	.loc	1 267 26 is_stmt 1              ; solve_tril.py:267:26
+	v_cmp_eq_u32_e64 s3, v7, v6
+	.loc	1 342 25                        ; solve_tril.py:342:25
+	v_lshl_add_u32 v65, v6, 2, 0
+	.loc	1 319 15                        ; solve_tril.py:319:15
+	v_lshl_add_u32 v75, v10, 2, 0
+	s_waitcnt vmcnt(0) lgkmcnt(0)
+	s_barrier
+	.loc	1 318 15                        ; solve_tril.py:318:15
+	v_cndmask_b32_e64 v7, 0, 1.0, s3
+	.loc	1 342 25                        ; solve_tril.py:342:25
+	v_add_nc_u32_e32 v142, 0x400, v65
+	.loc	1 319 15                        ; solve_tril.py:319:15
+	buffer_gl0_inv
+	.loc	1 425 12                        ; solve_tril.py:425:12
+	s_and_b32 s9, s9, 0xffff
+	s_mov_b32 s11, 0x31027000
+	.loc	1 319 15                        ; solve_tril.py:319:15
+	v_add_f32_e32 v63, v13, v7
+	.loc	1 318 15                        ; solve_tril.py:318:15
+	v_add_f32_e32 v69, v8, v7
+	.loc	1 320 15                        ; solve_tril.py:320:15
+	v_add_f32_e32 v67, v9, v7
+	.loc	1 321 15                        ; solve_tril.py:321:15
+	v_add_f32_e32 v71, v14, v7
+	s_mov_b32 s10, 0x7ffffffe
+	.loc	1 319 15                        ; solve_tril.py:319:15
+	ds_write_b32 v61, v63
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_read_b128 v[3:6], v75
+	ds_read_b128 v[10:13], v75 offset:16
+	ds_read_b128 v[17:20], v75 offset:32
+	ds_read_b128 v[21:24], v75 offset:48
+	.loc	1 342 25                        ; solve_tril.py:342:25
+	ds_write_b32 v61, v2 offset:1024
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_read2_b32 v[1:2], v142 offset1:16
+	ds_read2_b32 v[25:26], v142 offset0:32 offset1:48
+	ds_read2_b32 v[27:28], v142 offset0:64 offset1:80
+	.loc	1 357 24                        ; solve_tril.py:357:24
+	s_waitcnt lgkmcnt(2)
+	v_fma_f32 v15, v3, v1, 0
+	v_fmac_f32_e32 v15, v4, v2
+	.loc	1 342 25                        ; solve_tril.py:342:25
+	ds_read2_b32 v[1:2], v142 offset0:96 offset1:112
+	ds_read2_b32 v[3:4], v142 offset0:128 offset1:144
+	.loc	1 357 24                        ; solve_tril.py:357:24
+	s_waitcnt lgkmcnt(3)
+	v_fmac_f32_e32 v15, v5, v25
+	v_fmac_f32_e32 v15, v6, v26
+	.loc	1 342 25                        ; solve_tril.py:342:25
+	ds_read2_b32 v[5:6], v142 offset0:160 offset1:176
+	.loc	1 357 24                        ; solve_tril.py:357:24
+	s_waitcnt lgkmcnt(3)
+	v_fmac_f32_e32 v15, v10, v27
+	v_fmac_f32_e32 v15, v11, v28
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v15, v12, v1
+	v_fmac_f32_e32 v15, v13, v2
+	.loc	1 342 25                        ; solve_tril.py:342:25
+	ds_read2_b32 v[1:2], v142 offset0:192 offset1:208
+	.loc	1 357 24                        ; solve_tril.py:357:24
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v15, v17, v3
+	v_fmac_f32_e32 v15, v18, v4
+	.loc	1 342 25                        ; solve_tril.py:342:25
+	ds_read2_b32 v[3:4], v142 offset0:224 offset1:240
+	.loc	1 357 24                        ; solve_tril.py:357:24
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	v_fmac_f32_e32 v15, v19, v5
+	v_fmac_f32_e32 v15, v20, v6
+	.loc	1 344 25                        ; solve_tril.py:344:25
+	v_add_nc_u32_e32 v6, 0xc00, v65
+	.loc	1 357 24                        ; solve_tril.py:357:24
+	v_fmac_f32_e32 v15, v21, v1
+	v_fmac_f32_e32 v15, v22, v2
+	v_fmac_f32_e32 v15, v23, v3
+	v_fmac_f32_e32 v15, v24, v4
+	ds_write_b32 v61, v15 offset:1024
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_read_b128 v[24:27], v75 offset:1024
+	ds_read_b128 v[128:131], v75 offset:1040
+	ds_read_b128 v[132:135], v75 offset:1056
+	ds_read_b128 v[136:139], v75 offset:1072
+	.loc	1 318 15                        ; solve_tril.py:318:15
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_write_b32 v61, v69 offset:1024
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_read2_b32 v[105:106], v142 offset1:16
+	ds_read2_b32 v[103:104], v142 offset0:32 offset1:48
+	ds_read2_b32 v[101:102], v142 offset0:64 offset1:80
+	ds_read2_b32 v[99:100], v142 offset0:96 offset1:112
+	ds_read2_b32 v[97:98], v142 offset0:128 offset1:144
+	ds_read2_b32 v[95:96], v142 offset0:160 offset1:176
+	ds_read2_b32 v[91:92], v142 offset0:192 offset1:208
+	ds_read2_b32 v[89:90], v142 offset0:224 offset1:240
+	.loc	1 320 15                        ; solve_tril.py:320:15
+	ds_write_b32 v61, v67 offset:2048
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_read_b128 v[40:43], v75 offset:2048
+	ds_read_b128 v[32:35], v75 offset:2064
+	.loc	1 344 25                        ; solve_tril.py:344:25
+	ds_write_b32 v61, v0 offset:3072
+	.loc	1 320 15                        ; solve_tril.py:320:15
+	ds_read_b128 v[28:31], v75 offset:2080
+	ds_read_b128 v[20:23], v75 offset:2096
+	.loc	1 344 25                        ; solve_tril.py:344:25
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_read2_b32 v[0:1], v6 offset1:16
+	ds_read2_b32 v[2:3], v6 offset0:32 offset1:48
+	ds_read2_b32 v[4:5], v6 offset0:64 offset1:80
+	.loc	1 358 8                         ; solve_tril.py:358:8
+	v_fma_f32 v77, v24, v105, 0
+	v_fmac_f32_e32 v77, v25, v106
+	v_fmac_f32_e32 v77, v26, v103
+	v_fmac_f32_e32 v77, v27, v104
+	.loc	1 362 24                        ; solve_tril.py:362:24
+	s_waitcnt lgkmcnt(2)
+	v_fma_f32 v8, v40, v0, 0
+	.loc	1 358 8                         ; solve_tril.py:358:8
+	v_fmac_f32_e32 v77, v128, v101
+	.loc	1 362 24                        ; solve_tril.py:362:24
+	v_fmac_f32_e32 v8, v41, v1
+	.loc	1 344 25                        ; solve_tril.py:344:25
+	ds_read2_b32 v[0:1], v6 offset0:96 offset1:112
+	.loc	1 358 8                         ; solve_tril.py:358:8
+	v_fmac_f32_e32 v77, v129, v102
+	.loc	1 362 24                        ; solve_tril.py:362:24
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v8, v42, v2
+	.loc	1 358 8                         ; solve_tril.py:358:8
+	v_fmac_f32_e32 v77, v130, v99
+	.loc	1 362 24                        ; solve_tril.py:362:24
+	v_fmac_f32_e32 v8, v43, v3
+	.loc	1 344 25                        ; solve_tril.py:344:25
+	ds_read2_b32 v[2:3], v6 offset0:128 offset1:144
+	.loc	1 358 8                         ; solve_tril.py:358:8
+	v_fmac_f32_e32 v77, v131, v100
+	.loc	1 362 24                        ; solve_tril.py:362:24
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v8, v32, v4
+	.loc	1 358 8                         ; solve_tril.py:358:8
+	v_fmac_f32_e32 v77, v132, v97
+	.loc	1 362 24                        ; solve_tril.py:362:24
+	v_fmac_f32_e32 v8, v33, v5
+	.loc	1 344 25                        ; solve_tril.py:344:25
+	ds_read2_b32 v[4:5], v6 offset0:160 offset1:176
+	.loc	1 358 8                         ; solve_tril.py:358:8
+	v_fmac_f32_e32 v77, v133, v98
+	.loc	1 362 24                        ; solve_tril.py:362:24
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v8, v34, v0
+	.loc	1 358 8                         ; solve_tril.py:358:8
+	v_fmac_f32_e32 v77, v134, v95
+	.loc	1 362 24                        ; solve_tril.py:362:24
+	v_fmac_f32_e32 v8, v35, v1
+	.loc	1 344 25                        ; solve_tril.py:344:25
+	ds_read2_b32 v[0:1], v6 offset0:192 offset1:208
+	.loc	1 358 8                         ; solve_tril.py:358:8
+	v_fmac_f32_e32 v77, v135, v96
+	.loc	1 362 24                        ; solve_tril.py:362:24
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v8, v28, v2
+	.loc	1 358 8                         ; solve_tril.py:358:8
+	v_fmac_f32_e32 v77, v136, v91
+	.loc	1 362 24                        ; solve_tril.py:362:24
+	v_fmac_f32_e32 v8, v29, v3
+	.loc	1 344 25                        ; solve_tril.py:344:25
+	ds_read2_b32 v[2:3], v6 offset0:224 offset1:240
+	.loc	1 358 8                         ; solve_tril.py:358:8
+	v_fmac_f32_e32 v77, v137, v92
+	.loc	1 362 24                        ; solve_tril.py:362:24
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v8, v30, v4
+	.loc	1 358 8                         ; solve_tril.py:358:8
+	v_fmac_f32_e32 v77, v138, v89
+	.loc	1 362 24                        ; solve_tril.py:362:24
+	v_fmac_f32_e32 v8, v31, v5
+	.loc	1 358 8                         ; solve_tril.py:358:8
+	v_fmac_f32_e32 v77, v139, v90
+	.loc	1 362 24                        ; solve_tril.py:362:24
+	s_waitcnt lgkmcnt(1)
+	v_fmac_f32_e32 v8, v20, v0
+	v_fmac_f32_e32 v8, v21, v1
+	s_waitcnt lgkmcnt(0)
+	v_fmac_f32_e32 v8, v22, v2
+	v_fmac_f32_e32 v8, v23, v3
+	ds_write_b32 v61, v8 offset:1024
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	.loc	1 319 15                        ; solve_tril.py:319:15
+	ds_read2_b32 v[125:126], v65 offset1:16
+	.loc	1 362 24                        ; solve_tril.py:362:24
+	ds_read_b128 v[143:146], v75 offset:1024
+	ds_read_b128 v[56:59], v75 offset:1040
+	.loc	1 319 15                        ; solve_tril.py:319:15
+	ds_read2_b32 v[123:124], v65 offset0:32 offset1:48
+	ds_read2_b32 v[121:122], v65 offset0:64 offset1:80
+	ds_read2_b32 v[119:120], v65 offset0:96 offset1:112
+	ds_read2_b32 v[117:118], v65 offset0:128 offset1:144
+	ds_read2_b32 v[115:116], v65 offset0:160 offset1:176
+	ds_read2_b32 v[113:114], v65 offset0:192 offset1:208
+	ds_read2_b32 v[111:112], v65 offset0:224 offset1:240
+	.loc	1 362 24                        ; solve_tril.py:362:24
+	ds_read_b128 v[52:55], v75 offset:1056
+	ds_read_b128 v[48:51], v75 offset:1072
+	.loc	1 321 15                        ; solve_tril.py:321:15
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_write_b32 v61, v71
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_read_b128 v[12:15], v75
+	ds_read_b128 v[8:11], v75 offset:16
+	ds_read_b128 v[4:7], v75 offset:32
+	ds_read_b128 v[0:3], v75 offset:48
+	.loc	1 347 25                        ; solve_tril.py:347:25
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_write_b32 v61, v16
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_read2_b32 v[16:17], v65 offset1:16
+	ds_read2_b32 v[18:19], v65 offset0:32 offset1:48
+	ds_read2_b32 v[36:37], v65 offset0:64 offset1:80
+	.loc	1 363 8                         ; solve_tril.py:363:8
+	v_fma_f32 v143, v143, v125, 0
+	v_fmac_f32_e32 v143, v144, v126
+	v_fmac_f32_e32 v143, v145, v123
+	v_fmac_f32_e32 v143, v146, v124
+	.loc	1 367 24                        ; solve_tril.py:367:24
+	s_waitcnt lgkmcnt(2)
+	v_fma_f32 v38, v12, v16, 0
+	.loc	1 363 8                         ; solve_tril.py:363:8
+	v_fmac_f32_e32 v143, v56, v121
+	.loc	1 367 24                        ; solve_tril.py:367:24
+	v_fmac_f32_e32 v38, v13, v17
+	.loc	1 347 25                        ; solve_tril.py:347:25
+	ds_read2_b32 v[16:17], v65 offset0:96 offset1:112
+	.loc	1 363 8                         ; solve_tril.py:363:8
+	v_fmac_f32_e32 v143, v57, v122
+	.loc	1 367 24                        ; solve_tril.py:367:24
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v38, v14, v18
+	.loc	1 363 8                         ; solve_tril.py:363:8
+	v_fmac_f32_e32 v143, v58, v119
+	.loc	1 367 24                        ; solve_tril.py:367:24
+	v_fmac_f32_e32 v38, v15, v19
+	.loc	1 347 25                        ; solve_tril.py:347:25
+	ds_read2_b32 v[18:19], v65 offset0:128 offset1:144
+	.loc	1 363 8                         ; solve_tril.py:363:8
+	v_fmac_f32_e32 v143, v59, v120
+	.loc	1 367 24                        ; solve_tril.py:367:24
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v38, v8, v36
+	.loc	1 363 8                         ; solve_tril.py:363:8
+	v_fmac_f32_e32 v143, v52, v117
+	.loc	1 367 24                        ; solve_tril.py:367:24
+	v_fmac_f32_e32 v38, v9, v37
+	.loc	1 347 25                        ; solve_tril.py:347:25
+	ds_read2_b32 v[36:37], v65 offset0:160 offset1:176
+	.loc	1 363 8                         ; solve_tril.py:363:8
+	v_fmac_f32_e32 v143, v53, v118
+	.loc	1 367 24                        ; solve_tril.py:367:24
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v38, v10, v16
+	.loc	1 363 8                         ; solve_tril.py:363:8
+	v_fmac_f32_e32 v143, v54, v115
+	.loc	1 367 24                        ; solve_tril.py:367:24
+	v_fmac_f32_e32 v38, v11, v17
+	.loc	1 347 25                        ; solve_tril.py:347:25
+	ds_read2_b32 v[16:17], v65 offset0:192 offset1:208
+	.loc	1 363 8                         ; solve_tril.py:363:8
+	v_fmac_f32_e32 v143, v55, v116
+	.loc	1 367 24                        ; solve_tril.py:367:24
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v38, v4, v18
+	.loc	1 363 8                         ; solve_tril.py:363:8
+	v_fmac_f32_e32 v143, v48, v113
+	.loc	1 367 24                        ; solve_tril.py:367:24
+	v_fmac_f32_e32 v38, v5, v19
+	.loc	1 347 25                        ; solve_tril.py:347:25
+	ds_read2_b32 v[18:19], v65 offset0:224 offset1:240
+	.loc	1 363 8                         ; solve_tril.py:363:8
+	v_fmac_f32_e32 v143, v49, v114
+	.loc	1 367 24                        ; solve_tril.py:367:24
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v38, v6, v36
+	.loc	1 363 8                         ; solve_tril.py:363:8
+	v_fmac_f32_e32 v143, v50, v111
+	.loc	1 367 24                        ; solve_tril.py:367:24
+	v_fmac_f32_e32 v38, v7, v37
+	.loc	1 363 8                         ; solve_tril.py:363:8
+	v_fmac_f32_e32 v143, v51, v112
+	.loc	1 367 24                        ; solve_tril.py:367:24
+	s_waitcnt lgkmcnt(1)
+	v_fmac_f32_e32 v38, v0, v16
+	.loc	1 320 15                        ; solve_tril.py:320:15
+	v_add_nc_u32_e32 v16, 0x800, v65
+	.loc	1 367 24                        ; solve_tril.py:367:24
+	v_fmac_f32_e32 v38, v1, v17
+	s_waitcnt lgkmcnt(0)
+	v_fmac_f32_e32 v38, v2, v18
+	v_fmac_f32_e32 v38, v3, v19
+	ds_write_b32 v61, v38 offset:1024
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	.loc	1 320 15                        ; solve_tril.py:320:15
+	ds_read2_b32 v[109:110], v16 offset1:16
+	ds_read2_b32 v[107:108], v16 offset0:32 offset1:48
+	ds_read2_b32 v[93:94], v16 offset0:64 offset1:80
+	ds_read2_b32 v[87:88], v16 offset0:96 offset1:112
+	ds_read2_b32 v[85:86], v16 offset0:128 offset1:144
+	ds_read2_b32 v[83:84], v16 offset0:160 offset1:176
+	ds_read2_b32 v[81:82], v16 offset0:192 offset1:208
+	ds_read2_b32 v[79:80], v16 offset0:224 offset1:240
+	.loc	1 367 24                        ; solve_tril.py:367:24
+	ds_read_b128 v[44:47], v75 offset:1024
+	ds_read_b128 v[36:39], v75 offset:1040
+	ds_read_b128 v[24:27], v75 offset:1056
+	ds_read_b128 v[16:19], v75 offset:1072
+	.loc	1 343 25                        ; solve_tril.py:343:25
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_write_b32 v61, v127 offset:1024
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_read_b128 v[147:150], v75 offset:1024
+	ds_read_b128 v[127:130], v75 offset:1040
+	ds_read_b128 v[131:134], v75 offset:1056
+	.loc	1 374 23                        ; solve_tril.py:374:23
+	s_waitcnt lgkmcnt(2)
+	v_fma_f32 v165, v147, v105, 0
+	v_fmac_f32_e32 v165, v148, v106
+	v_fmac_f32_e32 v165, v149, v103
+	v_fmac_f32_e32 v165, v150, v104
+	s_waitcnt lgkmcnt(1)
+	v_fmac_f32_e32 v165, v127, v101
+	v_fmac_f32_e32 v165, v128, v102
+	v_fmac_f32_e32 v165, v129, v99
+	v_fmac_f32_e32 v165, v130, v100
+	.loc	1 343 25                        ; solve_tril.py:343:25
+	ds_read_b128 v[127:130], v75 offset:1072
+	.loc	1 344 25                        ; solve_tril.py:344:25
+	ds_read_b128 v[147:150], v75 offset:3072
+	ds_read_b128 v[151:154], v75 offset:3088
+	ds_read_b128 v[155:158], v75 offset:3104
+	ds_read_b128 v[159:162], v75 offset:3120
+	.loc	1 356 15                        ; solve_tril.py:356:15
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	.loc	1 374 23                        ; solve_tril.py:374:23
+	v_fmac_f32_e32 v165, v131, v97
+	.loc	1 356 15                        ; solve_tril.py:356:15
+	v_sub_f32_e32 v131, 0, v77
+	buffer_gl0_inv
+	.loc	1 374 23                        ; solve_tril.py:374:23
+	v_fmac_f32_e32 v165, v132, v98
+	.loc	1 356 15                        ; solve_tril.py:356:15
+	ds_write_b32 v61, v131 offset:1024
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	.loc	1 374 23                        ; solve_tril.py:374:23
+	v_fmac_f32_e32 v165, v133, v95
+	.loc	1 356 15                        ; solve_tril.py:356:15
+	ds_read2_b32 v[135:136], v142 offset1:16
+	ds_read2_b32 v[137:138], v142 offset0:32 offset1:48
+	ds_read2_b32 v[163:164], v142 offset0:64 offset1:80
+	ds_read2_b32 v[139:140], v142 offset0:128 offset1:144
+	.loc	1 374 23                        ; solve_tril.py:374:23
+	v_fmac_f32_e32 v165, v134, v96
+	.loc	1 356 15                        ; solve_tril.py:356:15
+	ds_read2_b32 v[133:134], v142 offset0:96 offset1:112
+	ds_read2_b32 v[131:132], v142 offset0:192 offset1:208
+	.loc	1 374 23                        ; solve_tril.py:374:23
+	v_fmac_f32_e32 v165, v127, v91
+	v_fmac_f32_e32 v165, v128, v92
+	.loc	1 356 15                        ; solve_tril.py:356:15
+	ds_read2_b32 v[127:128], v142 offset0:224 offset1:240
+	.loc	1 374 23                        ; solve_tril.py:374:23
+	v_fmac_f32_e32 v165, v129, v89
+	v_fmac_f32_e32 v165, v130, v90
+	.loc	1 356 15                        ; solve_tril.py:356:15
+	ds_read2_b32 v[129:130], v142 offset0:160 offset1:176
+	.loc	1 375 25                        ; solve_tril.py:375:25
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	v_fmac_f32_e32 v165, v147, v135
+	v_fmac_f32_e32 v165, v148, v136
+	v_fmac_f32_e32 v165, v149, v137
+	v_fmac_f32_e32 v165, v150, v138
+	v_fmac_f32_e32 v165, v151, v163
+	v_fmac_f32_e32 v165, v152, v164
+	v_fmac_f32_e32 v165, v153, v133
+	v_fmac_f32_e32 v165, v154, v134
+	v_fmac_f32_e32 v165, v155, v139
+	v_fmac_f32_e32 v165, v156, v140
+	v_fmac_f32_e32 v165, v157, v129
+	v_fmac_f32_e32 v165, v158, v130
+	v_fmac_f32_e32 v165, v159, v131
+	v_fmac_f32_e32 v165, v160, v132
+	v_fmac_f32_e32 v165, v161, v127
+	v_fmac_f32_e32 v165, v162, v128
+	ds_write_b32 v61, v165 offset:1024
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_read2_b32 v[160:161], v142 offset1:16
+	ds_read2_b32 v[165:166], v142 offset0:32 offset1:48
+	ds_read2_b32 v[167:168], v142 offset0:64 offset1:80
+	ds_read2_b32 v[169:170], v142 offset0:96 offset1:112
+	ds_read2_b32 v[171:172], v142 offset0:128 offset1:144
+	ds_read2_b32 v[173:174], v142 offset0:160 offset1:176
+	ds_read2_b32 v[175:176], v142 offset0:192 offset1:208
+	ds_read2_b32 v[177:178], v142 offset0:224 offset1:240
+	.loc	1 346 25                        ; solve_tril.py:346:25
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_write_b32 v61, v141 offset:1024
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_read_b128 v[144:147], v75 offset:1024
+	ds_read_b128 v[56:59], v75 offset:1040
+	ds_read_b128 v[52:55], v75 offset:1056
+	ds_read_b128 v[48:51], v75 offset:1072
+	.loc	1 374 8                         ; solve_tril.py:374:8
+	v_fma_f32 v40, v40, v160, 0
+	v_fmac_f32_e32 v40, v41, v161
+	.loc	1 445 12                        ; solve_tril.py:445:12
+	v_lshlrev_b32_e32 v41, 1, v68
+	.loc	1 374 8                         ; solve_tril.py:374:8
+	v_fmac_f32_e32 v40, v42, v165
+	.loc	1 380 23                        ; solve_tril.py:380:23
+	s_waitcnt lgkmcnt(3)
+	v_fma_f32 v125, v144, v125, 0
+	.loc	1 374 8                         ; solve_tril.py:374:8
+	v_fmac_f32_e32 v40, v43, v166
+	.loc	1 380 23                        ; solve_tril.py:380:23
+	v_fmac_f32_e32 v125, v145, v126
+	.loc	1 361 15                        ; solve_tril.py:361:15
+	v_sub_f32_e32 v126, 0, v143
+	.loc	1 374 8                         ; solve_tril.py:374:8
+	v_fmac_f32_e32 v40, v32, v167
+	.loc	1 368 8                         ; solve_tril.py:368:8
+	v_fma_f32 v32, v44, v109, 0
+	.loc	1 380 23                        ; solve_tril.py:380:23
+	v_fmac_f32_e32 v125, v146, v123
+	.loc	1 374 8                         ; solve_tril.py:374:8
+	v_fmac_f32_e32 v40, v33, v168
+	.loc	1 368 8                         ; solve_tril.py:368:8
+	v_fmac_f32_e32 v32, v45, v110
+	.loc	1 435 12                        ; solve_tril.py:435:12
+	v_lshlrev_b32_e32 v33, 1, v64
+	.loc	1 380 23                        ; solve_tril.py:380:23
+	v_fmac_f32_e32 v125, v147, v124
+	.loc	1 374 8                         ; solve_tril.py:374:8
+	v_fmac_f32_e32 v40, v34, v169
+	.loc	1 368 8                         ; solve_tril.py:368:8
+	v_fmac_f32_e32 v32, v46, v107
+	.loc	1 440 12                        ; solve_tril.py:440:12
+	v_lshlrev_b32_e32 v34, 1, v66
+	.loc	1 380 23                        ; solve_tril.py:380:23
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v125, v56, v121
+	.loc	1 374 8                         ; solve_tril.py:374:8
+	v_fmac_f32_e32 v40, v35, v170
+	.loc	1 368 8                         ; solve_tril.py:368:8
+	v_fmac_f32_e32 v32, v47, v108
+	.loc	1 380 23                        ; solve_tril.py:380:23
+	v_fmac_f32_e32 v125, v57, v122
+	.loc	1 374 8                         ; solve_tril.py:374:8
+	v_fmac_f32_e32 v40, v28, v171
+	.loc	1 368 8                         ; solve_tril.py:368:8
+	v_fmac_f32_e32 v32, v36, v93
+	.loc	1 470 12                        ; solve_tril.py:470:12
+	v_lshlrev_b32_e32 v36, 1, v78
+	.loc	1 380 23                        ; solve_tril.py:380:23
+	v_fmac_f32_e32 v125, v58, v119
+	.loc	1 374 8                         ; solve_tril.py:374:8
+	v_fmac_f32_e32 v40, v29, v172
+	.loc	1 368 8                         ; solve_tril.py:368:8
+	v_fmac_f32_e32 v32, v37, v94
+	.loc	1 380 23                        ; solve_tril.py:380:23
+	v_fmac_f32_e32 v125, v59, v120
+	.loc	1 374 8                         ; solve_tril.py:374:8
+	v_fmac_f32_e32 v40, v30, v173
+	.loc	1 368 8                         ; solve_tril.py:368:8
+	v_fmac_f32_e32 v32, v38, v87
+	.loc	1 425 12                        ; solve_tril.py:425:12
+	v_lshlrev_b32_e32 v30, 1, v60
+	.loc	1 380 23                        ; solve_tril.py:380:23
+	s_waitcnt lgkmcnt(1)
+	v_fmac_f32_e32 v125, v52, v117
+	.loc	1 374 8                         ; solve_tril.py:374:8
+	v_fmac_f32_e32 v40, v31, v174
+	.loc	1 368 8                         ; solve_tril.py:368:8
+	v_fmac_f32_e32 v32, v39, v88
+	.loc	1 430 12                        ; solve_tril.py:430:12
+	v_lshlrev_b32_e32 v31, 1, v62
+	.loc	1 380 23                        ; solve_tril.py:380:23
+	v_fmac_f32_e32 v125, v53, v118
+	.loc	1 347 25                        ; solve_tril.py:347:25
+	ds_read_b128 v[117:120], v75
+	ds_read_b128 v[121:124], v75 offset:16
+	ds_read_b128 v[148:151], v75 offset:32
+	ds_read_b128 v[152:155], v75 offset:48
+	.loc	1 361 15                        ; solve_tril.py:361:15
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	.loc	1 380 23                        ; solve_tril.py:380:23
+	v_fmac_f32_e32 v125, v54, v115
+	.loc	1 361 15                        ; solve_tril.py:361:15
+	ds_write_b32 v61, v126
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	.loc	1 380 23                        ; solve_tril.py:380:23
+	v_fmac_f32_e32 v125, v55, v116
+	.loc	1 361 15                        ; solve_tril.py:361:15
+	ds_read2_b32 v[115:116], v65 offset1:16
+	.loc	1 374 8                         ; solve_tril.py:374:8
+	v_fmac_f32_e32 v40, v20, v175
+	.loc	1 368 8                         ; solve_tril.py:368:8
+	v_fmac_f32_e32 v32, v24, v85
+	.loc	1 435 12                        ; solve_tril.py:435:12
+	v_cndmask_b32_e64 v24, 0x80000000, v33, s1
+	.loc	1 380 23                        ; solve_tril.py:380:23
+	v_fmac_f32_e32 v125, v48, v113
+	.loc	1 374 8                         ; solve_tril.py:374:8
+	v_fmac_f32_e32 v40, v21, v176
+	.loc	1 368 8                         ; solve_tril.py:368:8
+	v_fmac_f32_e32 v32, v25, v86
+	.loc	1 380 23                        ; solve_tril.py:380:23
+	v_fmac_f32_e32 v125, v49, v114
+	.loc	1 361 15                        ; solve_tril.py:361:15
+	ds_read2_b32 v[113:114], v65 offset0:32 offset1:48
+	.loc	1 374 8                         ; solve_tril.py:374:8
+	v_fmac_f32_e32 v40, v22, v177
+	.loc	1 368 8                         ; solve_tril.py:368:8
+	v_fmac_f32_e32 v32, v26, v83
+	.loc	1 380 23                        ; solve_tril.py:380:23
+	v_fmac_f32_e32 v125, v50, v111
+	.loc	1 374 8                         ; solve_tril.py:374:8
+	v_fmac_f32_e32 v40, v23, v178
+	.loc	1 368 8                         ; solve_tril.py:368:8
+	v_fmac_f32_e32 v32, v27, v84
+	.loc	1 380 23                        ; solve_tril.py:380:23
+	v_fmac_f32_e32 v125, v51, v112
+	.loc	1 361 15                        ; solve_tril.py:361:15
+	ds_read2_b32 v[111:112], v65 offset0:64 offset1:80
+	.loc	1 372 15                        ; solve_tril.py:372:15
+	v_sub_f32_e32 v20, 0, v40
+	.loc	1 368 8                         ; solve_tril.py:368:8
+	v_fmac_f32_e32 v32, v16, v81
+	.loc	1 450 23                        ; solve_tril.py:450:23
+	v_cvt_f16_f32_e64 v16, -v40
+	.loc	1 381 25                        ; solve_tril.py:381:25
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v125, v117, v115
+	.loc	1 368 8                         ; solve_tril.py:368:8
+	v_fmac_f32_e32 v32, v17, v82
+	.loc	1 381 25                        ; solve_tril.py:381:25
+	v_fmac_f32_e32 v125, v118, v116
+	.loc	1 361 15                        ; solve_tril.py:361:15
+	ds_read2_b32 v[115:116], v65 offset0:96 offset1:112
+	.loc	1 368 8                         ; solve_tril.py:368:8
+	v_fmac_f32_e32 v32, v18, v79
+	.loc	1 381 25                        ; solve_tril.py:381:25
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v125, v119, v113
+	.loc	1 368 8                         ; solve_tril.py:368:8
+	v_fmac_f32_e32 v32, v19, v80
+	.loc	1 381 25                        ; solve_tril.py:381:25
+	v_fmac_f32_e32 v125, v120, v114
+	.loc	1 361 15                        ; solve_tril.py:361:15
+	ds_read2_b32 v[113:114], v65 offset0:128 offset1:144
+	.loc	1 381 25                        ; solve_tril.py:381:25
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v125, v121, v111
+	v_fmac_f32_e32 v125, v122, v112
+	.loc	1 361 15                        ; solve_tril.py:361:15
+	ds_read2_b32 v[111:112], v65 offset0:160 offset1:176
+	.loc	1 381 25                        ; solve_tril.py:381:25
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v125, v123, v115
+	v_fmac_f32_e32 v125, v124, v116
+	.loc	1 361 15                        ; solve_tril.py:361:15
+	ds_read2_b32 v[115:116], v65 offset0:192 offset1:208
+	.loc	1 381 25                        ; solve_tril.py:381:25
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v125, v148, v113
+	v_fmac_f32_e32 v125, v149, v114
+	.loc	1 361 15                        ; solve_tril.py:361:15
+	ds_read2_b32 v[113:114], v65 offset0:224 offset1:240
+	.loc	1 381 25                        ; solve_tril.py:381:25
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	v_fmac_f32_e32 v125, v150, v111
+	v_fmac_f32_e32 v125, v151, v112
+	v_fmac_f32_e32 v125, v152, v115
+	v_fmac_f32_e32 v125, v153, v116
+	v_fmac_f32_e32 v125, v154, v113
+	v_fmac_f32_e32 v125, v155, v114
+	ds_write_b32 v61, v125
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_read2_b32 v[115:116], v65 offset1:16
+	ds_read2_b32 v[125:126], v65 offset0:32 offset1:48
+	ds_read2_b32 v[141:142], v65 offset0:64 offset1:80
+	ds_read2_b32 v[179:180], v65 offset0:96 offset1:112
+	ds_read2_b32 v[181:182], v65 offset0:128 offset1:144
+	ds_read2_b32 v[183:184], v65 offset0:160 offset1:176
+	ds_read2_b32 v[185:186], v65 offset0:192 offset1:208
+	ds_read2_b32 v[187:188], v65 offset0:224 offset1:240
+	.loc	1 345 25                        ; solve_tril.py:345:25
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_write_b32 v61, v73
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_read_b128 v[111:114], v75
+	ds_read_b128 v[156:159], v75 offset:16
+	.loc	1 380 8                         ; solve_tril.py:380:8
+	v_fma_f32 v35, v12, v115, 0
+	v_fmac_f32_e32 v35, v13, v116
+	v_fmac_f32_e32 v35, v14, v125
+	.loc	1 386 23                        ; solve_tril.py:386:23
+	s_waitcnt lgkmcnt(1)
+	v_fma_f32 v73, v111, v105, 0
+	.loc	1 380 8                         ; solve_tril.py:380:8
+	v_fmac_f32_e32 v35, v15, v126
+	.loc	1 386 23                        ; solve_tril.py:386:23
+	v_fmac_f32_e32 v73, v112, v106
+	.loc	1 380 8                         ; solve_tril.py:380:8
+	v_fmac_f32_e32 v35, v8, v141
+	.loc	1 386 23                        ; solve_tril.py:386:23
+	v_fmac_f32_e32 v73, v113, v103
+	.loc	1 380 8                         ; solve_tril.py:380:8
+	v_fmac_f32_e32 v35, v9, v142
+	.loc	1 386 23                        ; solve_tril.py:386:23
+	v_fmac_f32_e32 v73, v114, v104
+	.loc	1 380 8                         ; solve_tril.py:380:8
+	v_fmac_f32_e32 v35, v10, v179
+	.loc	1 386 23                        ; solve_tril.py:386:23
+	s_waitcnt lgkmcnt(0)
+	v_fmac_f32_e32 v73, v156, v101
+	.loc	1 380 8                         ; solve_tril.py:380:8
+	v_fmac_f32_e32 v35, v11, v180
+	.loc	1 386 23                        ; solve_tril.py:386:23
+	v_fmac_f32_e32 v73, v157, v102
+	.loc	1 380 8                         ; solve_tril.py:380:8
+	v_fmac_f32_e32 v35, v4, v181
+	.loc	1 386 23                        ; solve_tril.py:386:23
+	v_fmac_f32_e32 v73, v158, v99
+	.loc	1 380 8                         ; solve_tril.py:380:8
+	v_fmac_f32_e32 v35, v5, v182
+	.loc	1 386 23                        ; solve_tril.py:386:23
+	v_fmac_f32_e32 v73, v159, v100
+	.loc	1 345 25                        ; solve_tril.py:345:25
+	ds_read_b128 v[99:102], v75 offset:32
+	ds_read_b128 v[103:106], v75 offset:48
+	.loc	1 372 15                        ; solve_tril.py:372:15
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_write_b32 v61, v20
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_read2_b32 v[20:21], v65 offset1:16
+	ds_read2_b32 v[22:23], v65 offset0:32 offset1:48
+	ds_read2_b32 v[28:29], v65 offset0:64 offset1:80
+	.loc	1 380 8                         ; solve_tril.py:380:8
+	v_fmac_f32_e32 v35, v6, v183
+	v_fmac_f32_e32 v35, v7, v184
+	.loc	1 386 23                        ; solve_tril.py:386:23
+	v_fmac_f32_e32 v73, v99, v97
+	.loc	1 380 8                         ; solve_tril.py:380:8
+	v_fmac_f32_e32 v35, v0, v185
+	.loc	1 386 23                        ; solve_tril.py:386:23
+	v_fmac_f32_e32 v73, v100, v98
+	.loc	1 380 8                         ; solve_tril.py:380:8
+	v_fmac_f32_e32 v35, v1, v186
+	.loc	1 386 23                        ; solve_tril.py:386:23
+	v_fmac_f32_e32 v73, v101, v95
+	.loc	1 380 8                         ; solve_tril.py:380:8
+	v_fmac_f32_e32 v35, v2, v187
+	.loc	1 386 23                        ; solve_tril.py:386:23
+	v_fmac_f32_e32 v73, v102, v96
+	.loc	1 380 8                         ; solve_tril.py:380:8
+	v_fmac_f32_e32 v35, v3, v188
+	.loc	1 386 23                        ; solve_tril.py:386:23
+	v_fmac_f32_e32 v73, v103, v91
+	v_fmac_f32_e32 v73, v104, v92
+	v_fmac_f32_e32 v73, v105, v89
+	v_fmac_f32_e32 v73, v106, v90
+	.loc	1 387 25                        ; solve_tril.py:387:25
+	v_fmac_f32_e32 v73, v144, v135
+	v_fmac_f32_e32 v73, v145, v136
+	v_fmac_f32_e32 v73, v146, v137
+	v_fmac_f32_e32 v73, v147, v138
+	v_fmac_f32_e32 v73, v56, v163
+	v_fmac_f32_e32 v73, v57, v164
+	v_fmac_f32_e32 v73, v58, v133
+	v_fmac_f32_e32 v73, v59, v134
+	v_fmac_f32_e32 v73, v52, v139
+	v_fmac_f32_e32 v73, v53, v140
+	v_fmac_f32_e32 v73, v54, v129
+	v_fmac_f32_e32 v73, v55, v130
+	v_fmac_f32_e32 v73, v48, v131
+	v_fmac_f32_e32 v73, v49, v132
+	v_fmac_f32_e32 v73, v50, v127
+	v_fmac_f32_e32 v73, v51, v128
+	.loc	1 388 25                        ; solve_tril.py:388:25
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v73, v117, v20
+	v_fmac_f32_e32 v73, v118, v21
+	.loc	1 372 15                        ; solve_tril.py:372:15
+	ds_read2_b32 v[20:21], v65 offset0:96 offset1:112
+	.loc	1 388 25                        ; solve_tril.py:388:25
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v73, v119, v22
+	v_fmac_f32_e32 v73, v120, v23
+	.loc	1 372 15                        ; solve_tril.py:372:15
+	ds_read2_b32 v[22:23], v65 offset0:128 offset1:144
+	.loc	1 388 25                        ; solve_tril.py:388:25
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v73, v121, v28
+	v_fmac_f32_e32 v73, v122, v29
+	.loc	1 372 15                        ; solve_tril.py:372:15
+	ds_read2_b32 v[28:29], v65 offset0:160 offset1:176
+	.loc	1 388 25                        ; solve_tril.py:388:25
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v73, v123, v20
+	v_fmac_f32_e32 v73, v124, v21
+	.loc	1 372 15                        ; solve_tril.py:372:15
+	ds_read2_b32 v[20:21], v65 offset0:192 offset1:208
+	.loc	1 388 25                        ; solve_tril.py:388:25
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v73, v148, v22
+	v_fmac_f32_e32 v73, v149, v23
+	.loc	1 372 15                        ; solve_tril.py:372:15
+	ds_read2_b32 v[22:23], v65 offset0:224 offset1:240
+	.loc	1 388 25                        ; solve_tril.py:388:25
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	v_fmac_f32_e32 v73, v150, v28
+	v_fmac_f32_e32 v73, v151, v29
+	v_fmac_f32_e32 v73, v152, v20
+	v_fmac_f32_e32 v73, v153, v21
+	v_fmac_f32_e32 v73, v154, v22
+	v_fmac_f32_e32 v73, v155, v23
+	ds_write_b32 v61, v73
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_read2_b32 v[20:21], v65 offset1:16
+	ds_read2_b32 v[22:23], v65 offset0:32 offset1:48
+	ds_read2_b32 v[28:29], v65 offset0:64 offset1:80
+	.loc	1 386 8                         ; solve_tril.py:386:8
+	s_waitcnt lgkmcnt(2)
+	v_fma_f32 v20, v12, v20, 0
+	v_fmac_f32_e32 v20, v13, v21
+	.loc	1 388 25                        ; solve_tril.py:388:25
+	ds_read2_b32 v[12:13], v65 offset0:96 offset1:112
+	.loc	1 450 12                        ; solve_tril.py:450:12
+	v_lshlrev_b32_e32 v21, 1, v70
+	.loc	1 386 8                         ; solve_tril.py:386:8
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v20, v14, v22
+	.loc	1 455 12                        ; solve_tril.py:455:12
+	v_lshlrev_b32_e32 v22, 1, v72
+	.loc	1 450 12                        ; solve_tril.py:450:12
+	v_cndmask_b32_e64 v21, 0x80000000, v21, s1
+	.loc	1 386 8                         ; solve_tril.py:386:8
+	v_fmac_f32_e32 v20, v15, v23
+	.loc	1 388 25                        ; solve_tril.py:388:25
+	ds_read2_b32 v[14:15], v65 offset0:128 offset1:144
+	.loc	1 460 12                        ; solve_tril.py:460:12
+	v_lshlrev_b32_e32 v23, 1, v74
+	.loc	1 386 8                         ; solve_tril.py:386:8
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v20, v8, v28
+	.loc	1 465 12                        ; solve_tril.py:465:12
+	v_lshlrev_b32_e32 v28, 1, v76
+	.loc	1 386 8                         ; solve_tril.py:386:8
+	v_fmac_f32_e32 v20, v9, v29
+	.loc	1 388 25                        ; solve_tril.py:388:25
+	ds_read2_b32 v[8:9], v65 offset0:160 offset1:176
+	.loc	1 425 12                        ; solve_tril.py:425:12
+	v_cndmask_b32_e32 v29, 0x80000000, v30, vcc_lo
+	.loc	1 386 8                         ; solve_tril.py:386:8
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v20, v10, v12
+	.loc	1 430 12                        ; solve_tril.py:430:12
+	v_cndmask_b32_e64 v12, 0x80000000, v31, s0
+	.loc	1 386 8                         ; solve_tril.py:386:8
+	v_fmac_f32_e32 v20, v11, v13
+	.loc	1 388 25                        ; solve_tril.py:388:25
+	ds_read2_b32 v[10:11], v65 offset0:192 offset1:208
+	.loc	1 440 12                        ; solve_tril.py:440:12
+	v_cndmask_b32_e64 v13, 0x80000000, v34, s2
+	.loc	1 386 8                         ; solve_tril.py:386:8
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v20, v4, v14
+	.loc	1 445 12                        ; solve_tril.py:445:12
+	v_cndmask_b32_e64 v14, 0x80000000, v41, s0
+	.loc	1 386 8                         ; solve_tril.py:386:8
+	v_fmac_f32_e32 v20, v5, v15
+	.loc	1 388 25                        ; solve_tril.py:388:25
+	ds_read2_b32 v[4:5], v65 offset0:224 offset1:240
+	.loc	1 455 12                        ; solve_tril.py:455:12
+	v_cndmask_b32_e64 v15, 0x80000000, v22, s1
+	.loc	1 386 8                         ; solve_tril.py:386:8
+	s_waitcnt lgkmcnt(2)
+	v_fmac_f32_e32 v20, v6, v8
+	.loc	1 460 12                        ; solve_tril.py:460:12
+	v_cndmask_b32_e64 v6, 0x80000000, v23, s2
+	.loc	1 465 12                        ; solve_tril.py:465:12
+	v_cndmask_b32_e64 v8, 0x80000000, v28, s2
+	.loc	1 386 8                         ; solve_tril.py:386:8
+	v_fmac_f32_e32 v20, v7, v9
+	.loc	1 425 23                        ; solve_tril.py:425:23
+	v_cvt_f16_f32_e32 v9, v69
+	.loc	1 470 12                        ; solve_tril.py:470:12
+	v_cndmask_b32_e64 v7, 0x80000000, v36, s2
+	.loc	1 386 8                         ; solve_tril.py:386:8
+	s_waitcnt lgkmcnt(1)
+	v_fmac_f32_e32 v20, v0, v10
+	.loc	1 430 23                        ; solve_tril.py:430:23
+	v_cvt_f16_f32_e32 v0, v63
+	.loc	1 435 23                        ; solve_tril.py:435:23
+	v_cvt_f16_f32_e32 v10, v67
+	.loc	1 425 12                        ; solve_tril.py:425:12
+	buffer_store_short v9, v29, s[8:11], 0 offen
+	.loc	1 430 12                        ; solve_tril.py:430:12
+	buffer_store_short v0, v12, s[8:11], 0 offen
+	.loc	1 435 12                        ; solve_tril.py:435:12
+	buffer_store_short v10, v24, s[8:11], 0 offen
+	.loc	1 386 8                         ; solve_tril.py:386:8
+	v_fmac_f32_e32 v20, v1, v11
+	.loc	1 440 23                        ; solve_tril.py:440:23
+	v_cvt_f16_f32_e32 v1, v71
+	.loc	1 445 23                        ; solve_tril.py:445:23
+	v_cvt_f16_f32_e64 v11, -v77
+	.loc	1 386 8                         ; solve_tril.py:386:8
+	s_waitcnt lgkmcnt(0)
+	v_fmac_f32_e32 v20, v2, v4
+	.loc	1 455 23                        ; solve_tril.py:455:23
+	v_cvt_f16_f32_e64 v2, -v143
+	.loc	1 470 23                        ; solve_tril.py:470:23
+	v_cvt_f16_f32_e64 v4, -v32
+	.loc	1 386 8                         ; solve_tril.py:386:8
+	v_fmac_f32_e32 v20, v3, v5
+	.loc	1 465 23                        ; solve_tril.py:465:23
+	v_cvt_f16_f32_e64 v3, -v35
+	.loc	1 460 23                        ; solve_tril.py:460:23
+	v_cvt_f16_f32_e64 v0, -v20
+	.loc	1 440 12                        ; solve_tril.py:440:12
+	buffer_store_short v1, v13, s[8:11], 0 offen
+	.loc	1 445 12                        ; solve_tril.py:445:12
+	buffer_store_short v11, v14, s[8:11], 0 offen
+	.loc	1 450 12                        ; solve_tril.py:450:12
+	buffer_store_short v16, v21, s[8:11], 0 offen
+	.loc	1 455 12                        ; solve_tril.py:455:12
+	buffer_store_short v2, v15, s[8:11], 0 offen
+	.loc	1 460 12                        ; solve_tril.py:460:12
+	buffer_store_short v0, v6, s[8:11], 0 offen
+	.loc	1 465 12                        ; solve_tril.py:465:12
+	buffer_store_short v3, v8, s[8:11], 0 offen
+	.loc	1 470 12                        ; solve_tril.py:470:12
+	buffer_store_short v4, v7, s[8:11], 0 offen
+	.loc	1 392 4                         ; solve_tril.py:392:4
+	s_endpgm
+.Ltmp41:
+	.section	.rodata,"a",@progbits
+	.p2align	6, 0x0
+	.amdhsa_kernel merge_16x16_to_64x64_inverse_kernel
+		.amdhsa_group_segment_fixed_size 0
+		.amdhsa_private_segment_fixed_size 0
+		.amdhsa_kernarg_size 56
+		.amdhsa_user_sgpr_count 6
+		.amdhsa_user_sgpr_private_segment_buffer 1
+		.amdhsa_user_sgpr_dispatch_ptr 0
+		.amdhsa_user_sgpr_queue_ptr 0
+		.amdhsa_user_sgpr_kernarg_segment_ptr 1
+		.amdhsa_user_sgpr_dispatch_id 0
+		.amdhsa_user_sgpr_flat_scratch_init 0
+		.amdhsa_user_sgpr_private_segment_size 0
+		.amdhsa_wavefront_size32 1
+		.amdhsa_uses_dynamic_stack 0
+		.amdhsa_system_sgpr_private_segment_wavefront_offset 0
+		.amdhsa_system_sgpr_workgroup_id_x 1
+		.amdhsa_system_sgpr_workgroup_id_y 1
+		.amdhsa_system_sgpr_workgroup_id_z 0
+		.amdhsa_system_sgpr_workgroup_info 0
+		.amdhsa_system_vgpr_workitem_id 0
+		.amdhsa_next_free_vgpr 189
+		.amdhsa_next_free_sgpr 21
+		.amdhsa_reserve_vcc 1
+		.amdhsa_reserve_flat_scratch 0
+		.amdhsa_float_round_mode_32 0
+		.amdhsa_float_round_mode_16_64 0
+		.amdhsa_float_denorm_mode_32 3
+		.amdhsa_float_denorm_mode_16_64 3
+		.amdhsa_dx10_clamp 1
+		.amdhsa_ieee_mode 1
+		.amdhsa_fp16_overflow 0
+		.amdhsa_workgroup_processor_mode 1
+		.amdhsa_memory_ordered 1
+		.amdhsa_forward_progress 1
+		.amdhsa_shared_vgpr_count 0
+		.amdhsa_exception_fp_ieee_invalid_op 0
+		.amdhsa_exception_fp_denorm_src 0
+		.amdhsa_exception_fp_ieee_div_zero 0
+		.amdhsa_exception_fp_ieee_overflow 0
+		.amdhsa_exception_fp_ieee_underflow 0
+		.amdhsa_exception_fp_ieee_inexact 0
+		.amdhsa_exception_int_div_zero 0
+	.end_amdhsa_kernel
+	.text
+.Lfunc_end0:
+	.size	merge_16x16_to_64x64_inverse_kernel, .Lfunc_end0-merge_16x16_to_64x64_inverse_kernel
+	.cfi_endproc
+                                        ; -- End function
+	.set merge_16x16_to_64x64_inverse_kernel.num_vgpr, 189
+	.set merge_16x16_to_64x64_inverse_kernel.num_agpr, 0
+	.set merge_16x16_to_64x64_inverse_kernel.numbered_sgpr, 21
+	.set merge_16x16_to_64x64_inverse_kernel.num_named_barrier, 0
+	.set merge_16x16_to_64x64_inverse_kernel.private_seg_size, 0
+	.set merge_16x16_to_64x64_inverse_kernel.uses_vcc, 1
+	.set merge_16x16_to_64x64_inverse_kernel.uses_flat_scratch, 0
+	.set merge_16x16_to_64x64_inverse_kernel.has_dyn_sized_stack, 0
+	.set merge_16x16_to_64x64_inverse_kernel.has_recursion, 0
+	.set merge_16x16_to_64x64_inverse_kernel.has_indirect_call, 0
+	.section	.AMDGPU.csdata,"",@progbits
+; Kernel info:
+; codeLenInByte = 6280
+; TotalNumSgprs: 23
+; NumVgprs: 189
+; ScratchSize: 0
+; MemoryBound: 0
+; FloatMode: 240
+; IeeeMode: 1
+; LDSByteSize: 0 bytes/workgroup (compile time only)
+; SGPRBlocks: 0
+; VGPRBlocks: 23
+; NumSGPRsForWavesPerEU: 23
+; NumVGPRsForWavesPerEU: 189
+; Occupancy: 5
+; WaveLimiterHint : 1
+; COMPUTE_PGM_RSRC2:SCRATCH_EN: 0
+; COMPUTE_PGM_RSRC2:USER_SGPR: 6
+; COMPUTE_PGM_RSRC2:TRAP_HANDLER: 0
+; COMPUTE_PGM_RSRC2:TGID_X_EN: 1
+; COMPUTE_PGM_RSRC2:TGID_Y_EN: 1
+; COMPUTE_PGM_RSRC2:TGID_Z_EN: 0
+; COMPUTE_PGM_RSRC2:TIDIG_COMP_CNT: 0
+	.text
+	.p2alignl 6, 3214868480
+	.fill 48, 4, 3214868480
+	.section	.AMDGPU.gpr_maximums,"",@progbits
+	.set amdgpu.max_num_vgpr, 0
+	.set amdgpu.max_num_agpr, 0
+	.set amdgpu.max_num_sgpr, 0
+	.text
+	.section	.debug_abbrev,"",@progbits
+	.byte	1                               ; Abbreviation Code
+	.byte	17                              ; DW_TAG_compile_unit
+	.byte	1                               ; DW_CHILDREN_yes
+	.byte	37                              ; DW_AT_producer
+	.byte	14                              ; DW_FORM_strp
+	.byte	19                              ; DW_AT_language
+	.byte	5                               ; DW_FORM_data2
+	.byte	3                               ; DW_AT_name
+	.byte	14                              ; DW_FORM_strp
+	.byte	16                              ; DW_AT_stmt_list
+	.byte	23                              ; DW_FORM_sec_offset
+	.byte	27                              ; DW_AT_comp_dir
+	.byte	14                              ; DW_FORM_strp
+	.byte	17                              ; DW_AT_low_pc
+	.byte	1                               ; DW_FORM_addr
+	.byte	18                              ; DW_AT_high_pc
+	.byte	6                               ; DW_FORM_data4
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	2                               ; Abbreviation Code
+	.byte	46                              ; DW_TAG_subprogram
+	.byte	0                               ; DW_CHILDREN_no
+	.byte	3                               ; DW_AT_name
+	.byte	14                              ; DW_FORM_strp
+	.byte	32                              ; DW_AT_inline
+	.byte	11                              ; DW_FORM_data1
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	3                               ; Abbreviation Code
+	.byte	46                              ; DW_TAG_subprogram
+	.byte	1                               ; DW_CHILDREN_yes
+	.byte	17                              ; DW_AT_low_pc
+	.byte	1                               ; DW_FORM_addr
+	.byte	18                              ; DW_AT_high_pc
+	.byte	6                               ; DW_FORM_data4
+	.byte	49                              ; DW_AT_abstract_origin
+	.byte	19                              ; DW_FORM_ref4
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	4                               ; Abbreviation Code
+	.byte	29                              ; DW_TAG_inlined_subroutine
+	.byte	1                               ; DW_CHILDREN_yes
+	.byte	49                              ; DW_AT_abstract_origin
+	.byte	19                              ; DW_FORM_ref4
+	.byte	85                              ; DW_AT_ranges
+	.byte	23                              ; DW_FORM_sec_offset
+	.byte	88                              ; DW_AT_call_file
+	.byte	11                              ; DW_FORM_data1
+	.byte	89                              ; DW_AT_call_line
+	.byte	5                               ; DW_FORM_data2
+	.byte	87                              ; DW_AT_call_column
+	.byte	11                              ; DW_FORM_data1
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	5                               ; Abbreviation Code
+	.byte	29                              ; DW_TAG_inlined_subroutine
+	.byte	0                               ; DW_CHILDREN_no
+	.byte	49                              ; DW_AT_abstract_origin
+	.byte	19                              ; DW_FORM_ref4
+	.byte	85                              ; DW_AT_ranges
+	.byte	23                              ; DW_FORM_sec_offset
+	.byte	88                              ; DW_AT_call_file
+	.byte	11                              ; DW_FORM_data1
+	.byte	89                              ; DW_AT_call_line
+	.byte	5                               ; DW_FORM_data2
+	.byte	87                              ; DW_AT_call_column
+	.byte	11                              ; DW_FORM_data1
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	0                               ; EOM(3)
+	.section	.debug_info,"",@progbits
+.Lcu_begin0:
+	.long	.Ldebug_info_end0-.Ldebug_info_start0 ; Length of Unit
+.Ldebug_info_start0:
+	.short	4                               ; DWARF version number
+	.long	.debug_abbrev                   ; Offset Into Abbrev. Section
+	.byte	8                               ; Address Size (in bytes)
+	.byte	1                               ; Abbrev [1] 0xb:0xa4 DW_TAG_compile_unit
+	.long	.Linfo_string0                  ; DW_AT_producer
+	.short	2                               ; DW_AT_language
+	.long	.Linfo_string1                  ; DW_AT_name
+	.long	.Lline_table_start0             ; DW_AT_stmt_list
+	.long	.Linfo_string2                  ; DW_AT_comp_dir
+	.quad	.Lfunc_begin0                   ; DW_AT_low_pc
+	.long	.Lfunc_end0-.Lfunc_begin0       ; DW_AT_high_pc
+	.byte	2                               ; Abbrev [2] 0x2a:0x6 DW_TAG_subprogram
+	.long	.Linfo_string3                  ; DW_AT_name
+	.byte	1                               ; DW_AT_inline
+	.byte	3                               ; Abbrev [3] 0x30:0x7e DW_TAG_subprogram
+	.quad	.Lfunc_begin0                   ; DW_AT_low_pc
+	.long	.Lfunc_end0-.Lfunc_begin0       ; DW_AT_high_pc
+	.long	42                              ; DW_AT_abstract_origin
+	.byte	4                               ; Abbrev [4] 0x41:0x1b DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges0                 ; DW_AT_ranges
+	.byte	1                               ; DW_AT_call_file
+	.short	304                             ; DW_AT_call_line
+	.byte	52                              ; DW_AT_call_column
+	.byte	5                               ; Abbrev [5] 0x4e:0xd DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges1                 ; DW_AT_ranges
+	.byte	2                               ; DW_AT_call_file
+	.short	293                             ; DW_AT_call_line
+	.byte	36                              ; DW_AT_call_column
+	.byte	0                               ; End Of Children Mark
+	.byte	4                               ; Abbrev [4] 0x5c:0x1b DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges2                 ; DW_AT_ranges
+	.byte	1                               ; DW_AT_call_file
+	.short	308                             ; DW_AT_call_line
+	.byte	52                              ; DW_AT_call_column
+	.byte	5                               ; Abbrev [5] 0x69:0xd DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges3                 ; DW_AT_ranges
+	.byte	2                               ; DW_AT_call_file
+	.short	293                             ; DW_AT_call_line
+	.byte	36                              ; DW_AT_call_column
+	.byte	0                               ; End Of Children Mark
+	.byte	4                               ; Abbrev [4] 0x77:0x1b DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges4                 ; DW_AT_ranges
+	.byte	1                               ; DW_AT_call_file
+	.short	312                             ; DW_AT_call_line
+	.byte	52                              ; DW_AT_call_column
+	.byte	5                               ; Abbrev [5] 0x84:0xd DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges5                 ; DW_AT_ranges
+	.byte	2                               ; DW_AT_call_file
+	.short	293                             ; DW_AT_call_line
+	.byte	36                              ; DW_AT_call_column
+	.byte	0                               ; End Of Children Mark
+	.byte	4                               ; Abbrev [4] 0x92:0x1b DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges6                 ; DW_AT_ranges
+	.byte	1                               ; DW_AT_call_file
+	.short	316                             ; DW_AT_call_line
+	.byte	52                              ; DW_AT_call_column
+	.byte	5                               ; Abbrev [5] 0x9f:0xd DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges7                 ; DW_AT_ranges
+	.byte	2                               ; DW_AT_call_file
+	.short	293                             ; DW_AT_call_line
+	.byte	36                              ; DW_AT_call_column
+	.byte	0                               ; End Of Children Mark
+	.byte	0                               ; End Of Children Mark
+	.byte	0                               ; End Of Children Mark
+.Ldebug_info_end0:
+	.section	.debug_ranges,"",@progbits
+.Ldebug_ranges0:
+	.quad	.Ltmp1-.Lfunc_begin0
+	.quad	.Ltmp2-.Lfunc_begin0
+	.quad	.Ltmp3-.Lfunc_begin0
+	.quad	.Ltmp4-.Lfunc_begin0
+	.quad	.Ltmp5-.Lfunc_begin0
+	.quad	.Ltmp10-.Lfunc_begin0
+	.quad	0
+	.quad	0
+.Ldebug_ranges1:
+	.quad	.Ltmp6-.Lfunc_begin0
+	.quad	.Ltmp7-.Lfunc_begin0
+	.quad	.Ltmp8-.Lfunc_begin0
+	.quad	.Ltmp9-.Lfunc_begin0
+	.quad	0
+	.quad	0
+.Ldebug_ranges2:
+	.quad	.Ltmp11-.Lfunc_begin0
+	.quad	.Ltmp12-.Lfunc_begin0
+	.quad	.Ltmp13-.Lfunc_begin0
+	.quad	.Ltmp14-.Lfunc_begin0
+	.quad	.Ltmp15-.Lfunc_begin0
+	.quad	.Ltmp20-.Lfunc_begin0
+	.quad	0
+	.quad	0
+.Ldebug_ranges3:
+	.quad	.Ltmp16-.Lfunc_begin0
+	.quad	.Ltmp17-.Lfunc_begin0
+	.quad	.Ltmp18-.Lfunc_begin0
+	.quad	.Ltmp19-.Lfunc_begin0
+	.quad	0
+	.quad	0
+.Ldebug_ranges4:
+	.quad	.Ltmp21-.Lfunc_begin0
+	.quad	.Ltmp22-.Lfunc_begin0
+	.quad	.Ltmp23-.Lfunc_begin0
+	.quad	.Ltmp24-.Lfunc_begin0
+	.quad	.Ltmp25-.Lfunc_begin0
+	.quad	.Ltmp30-.Lfunc_begin0
+	.quad	0
+	.quad	0
+.Ldebug_ranges5:
+	.quad	.Ltmp26-.Lfunc_begin0
+	.quad	.Ltmp27-.Lfunc_begin0
+	.quad	.Ltmp28-.Lfunc_begin0
+	.quad	.Ltmp29-.Lfunc_begin0
+	.quad	0
+	.quad	0
+.Ldebug_ranges6:
+	.quad	.Ltmp31-.Lfunc_begin0
+	.quad	.Ltmp32-.Lfunc_begin0
+	.quad	.Ltmp33-.Lfunc_begin0
+	.quad	.Ltmp34-.Lfunc_begin0
+	.quad	.Ltmp35-.Lfunc_begin0
+	.quad	.Ltmp40-.Lfunc_begin0
+	.quad	0
+	.quad	0
+.Ldebug_ranges7:
+	.quad	.Ltmp36-.Lfunc_begin0
+	.quad	.Ltmp37-.Lfunc_begin0
+	.quad	.Ltmp38-.Lfunc_begin0
+	.quad	.Ltmp39-.Lfunc_begin0
+	.quad	0
+	.quad	0
+	.section	.debug_str,"MS",@progbits,1
+.Linfo_string0:
+	.asciz	"triton"                        ; string offset=0
+.Linfo_string1:
+	.asciz	"solve_tril.py"                 ; string offset=7
+.Linfo_string2:
+	.asciz	"/app/vllm-src/vllm/third_party/flash_linear_attention/ops" ; string offset=21
+.Linfo_string3:
+	.asciz	"merge_16x16_to_64x64_inverse_kernel" ; string offset=79
+	.section	".note.GNU-stack","",@progbits
+	.amdgpu_metadata
+---
+amdhsa.kernels:
+  - .args:
+      - .address_space:  global
+        .offset:         0
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         8
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         16
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         24
+        .size:           8
+        .value_kind:     global_buffer
+      - .offset:         32
+        .size:           4
+        .value_kind:     by_value
+      - .address_space:  global
+        .offset:         40
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         48
+        .size:           8
+        .value_kind:     global_buffer
+    .group_segment_fixed_size: 0
+    .kernarg_segment_align: 8
+    .kernarg_segment_size: 56
+    .max_flat_workgroup_size: 256
+    .name:           merge_16x16_to_64x64_inverse_kernel
+    .private_segment_fixed_size: 0
+    .sgpr_count:     23
+    .sgpr_spill_count: 0
+    .symbol:         merge_16x16_to_64x64_inverse_kernel.kd
+    .uniform_work_group_size: 1
+    .uses_dynamic_stack: false
+    .vgpr_count:     189
+    .vgpr_spill_count: 0
+    .wavefront_size: 32
+    .workgroup_processor_mode: 1
+amdhsa.target:   amdgcn-amd-amdhsa--gfx1030
+amdhsa.version:
+  - 1
+  - 2
+...
+
+	.end_amdgpu_metadata
+	.section	.debug_line,"",@progbits
+.Lline_table_start0:

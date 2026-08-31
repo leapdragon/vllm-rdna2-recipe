@@ -1,0 +1,372 @@
+	.amdgcn_target "amdgcn-amd-amdhsa--gfx1030"
+	.amdhsa_code_object_version 5
+	.text
+	.globl	eagle_step_slot_mapping_metadata_kernel ; -- Begin function eagle_step_slot_mapping_metadata_kernel
+	.p2align	8
+	.type	eagle_step_slot_mapping_metadata_kernel,@function
+eagle_step_slot_mapping_metadata_kernel: ; @eagle_step_slot_mapping_metadata_kernel
+.Lfunc_begin0:
+	.file	1 "/app/vllm-src/vllm/v1/spec_decode" "utils.py"
+	.loc	1 29 0                          ; utils.py:29:0
+	.cfi_sections .debug_frame
+	.cfi_startproc
+; %bb.0:
+	s_load_dwordx2 s[2:3], s[4:5], 0x28
+.Ltmp0:
+	.loc	1 0 0 is_stmt 0                 ; utils.py:0
+	v_cmp_eq_u32_e64 s0, 0, v0
+	.loc	1 56 18 prologue_end is_stmt 1  ; utils.py:56:18
+	s_cmp_lt_i32 s6, 1
+	s_mov_b32 s1, -1
+	s_cbranch_scc0 .LBB0_4
+; %bb.1:
+	.loc	1 83 50                         ; utils.py:83:50
+	s_and_saveexec_b32 s1, s0
+	s_xor_b32 s1, exec_lo, s1
+	s_cbranch_execz .LBB0_3
+; %bb.2:                                ; %.critedge
+	.loc	1 0 50 is_stmt 0                ; utils.py:0:50
+	s_clause 0x1
+	s_load_dwordx4 s[8:11], s[4:5], 0x0
+	s_load_dword s20, s[4:5], 0x10
+	.loc	1 61 23 is_stmt 1               ; utils.py:61:23
+	s_ashr_i32 s7, s6, 31
+	.loc	1 78 22                         ; utils.py:78:22
+	v_mov_b32_e32 v4, 0
+	.loc	1 61 23                         ; utils.py:61:23
+	s_lshl_b64 s[12:13], s[6:7], 3
+	s_waitcnt lgkmcnt(0)
+	s_add_u32 s8, s8, s12
+	s_addc_u32 s9, s9, s13
+	.loc	1 73 51                         ; utils.py:73:51
+	s_mul_i32 s20, s20, s6
+	.loc	1 61 23                         ; utils.py:61:23
+	s_load_dwordx2 s[8:9], s[8:9], 0x0
+	s_load_dwordx4 s[16:19], s[4:5], 0x18
+	.loc	1 62 30                         ; utils.py:62:30
+	s_waitcnt lgkmcnt(0)
+	s_add_u32 s8, s8, 1
+	s_addc_u32 s9, s9, 0
+	.loc	1 78 22                         ; utils.py:78:22
+	s_lshl_b64 s[4:5], s[6:7], 2
+	.loc	1 65 34                         ; utils.py:65:34
+	v_cmp_lt_i64_e64 s21, 0x1ffff, s[8:9]
+	.loc	1 78 22                         ; utils.py:78:22
+	s_add_u32 s4, s16, s4
+	s_addc_u32 s5, s17, s5
+	s_load_dword s7, s[4:5], 0x0
+	.loc	1 79 53                         ; utils.py:79:53
+	s_waitcnt lgkmcnt(0)
+	s_add_i32 s7, s7, 1
+	.loc	1 80 42                         ; utils.py:80:42
+	s_min_i32 s7, s7, 0x20000
+	.loc	1 79 43                         ; utils.py:79:43
+	s_and_b32 s14, s21, exec_lo
+	.loc	1 66 48                         ; utils.py:66:48
+	s_cselect_b32 s9, 0, s9
+	s_cselect_b32 s8, 0, s8
+	.loc	1 79 43                         ; utils.py:79:43
+	s_cselect_b32 s7, 1, s7
+	.loc	1 83 50                         ; utils.py:83:50
+	s_add_u32 s14, s18, s12
+	s_addc_u32 s15, s19, s13
+	.loc	1 70 39                         ; utils.py:70:39
+	s_mul_i32 s19, s9, 0xbc14e5e1
+	s_mul_hi_u32 s22, s8, 0xbc14e5e1
+	s_mul_hi_u32 s18, s9, 0xbc14e5e1
+	s_mul_i32 s17, s8, 0x5397829c
+	s_add_u32 s19, s19, s22
+	s_mul_hi_u32 s16, s8, 0x5397829c
+	s_addc_u32 s18, s18, 0
+	s_add_u32 s17, s17, s19
+	s_addc_u32 s16, s16, 0
+	s_mul_i32 s17, s9, 0x5397829c
+	s_add_u32 s16, s18, s16
+	s_mul_hi_u32 s23, s9, 0x5397829c
+	s_addc_u32 s18, 0, 0
+	s_add_u32 s16, s17, s16
+	s_addc_u32 s17, s23, s18
+	s_ashr_i32 s18, s9, 31
+	.loc	1 83 50                         ; utils.py:83:50
+	v_mov_b32_e32 v0, s8
+	.loc	1 70 39                         ; utils.py:70:39
+	s_mul_i32 s19, s18, 0x5397829c
+	s_mul_hi_u32 s22, s18, 0xbc14e5e1
+	s_mul_i32 s18, s18, 0xbc14e5e1
+	s_add_i32 s19, s22, s19
+	.loc	1 83 50                         ; utils.py:83:50
+	v_mov_b32_e32 v1, s9
+	.loc	1 70 39                         ; utils.py:70:39
+	s_add_i32 s19, s19, s18
+	s_add_u32 s16, s16, s18
+	s_addc_u32 s17, s17, s19
+	.loc	1 85 37                         ; utils.py:85:37
+	v_mov_b32_e32 v5, s7
+	.loc	1 70 39                         ; utils.py:70:39
+	s_ashr_i64 s[18:19], s[16:17], 9
+	s_lshr_b32 s16, s17, 31
+	s_add_u32 s16, s18, s16
+	s_addc_u32 s17, s19, 0
+	.loc	1 74 58                         ; utils.py:74:58
+	s_mul_hi_u32 s18, s16, 0x620
+	.loc	1 71 44                         ; utils.py:71:44
+	v_cmp_gt_i64_e64 s19, 0x53, s[16:17]
+	.loc	1 74 58                         ; utils.py:74:58
+	s_mulk_i32 s17, 0x620
+	s_mul_i32 s22, s16, 0x620
+	s_add_i32 s18, s18, s17
+	s_sub_u32 s22, s8, s22
+	s_subb_u32 s18, s9, s18
+	.loc	1 71 44                         ; utils.py:71:44
+	s_and_b32 s17, s19, exec_lo
+	s_cselect_b32 s16, s16, 0x53
+	.loc	1 73 72                         ; utils.py:73:72
+	s_add_i32 s16, s20, s16
+	.loc	1 73 23 is_stmt 0               ; utils.py:73:23
+	s_ashr_i32 s17, s16, 31
+	s_lshl_b64 s[16:17], s[16:17], 2
+	s_add_u32 s10, s10, s16
+	s_addc_u32 s11, s11, s17
+	s_load_dword s10, s[10:11], 0x0
+	.loc	1 74 25 is_stmt 1               ; utils.py:74:25
+	s_waitcnt lgkmcnt(0)
+	s_mulk_i32 s10, 0x620
+	.loc	1 74 39 is_stmt 0               ; utils.py:74:39
+	s_ashr_i32 s8, s10, 31
+	s_add_u32 s9, s22, s10
+	s_addc_u32 s8, s18, s8
+	.loc	1 75 44 is_stmt 1               ; utils.py:75:44
+	s_and_b32 s10, s21, exec_lo
+	s_cselect_b32 s9, -1, s9
+	s_cselect_b32 s8, -1, s8
+	v_mov_b32_e32 v2, s9
+	v_mov_b32_e32 v3, s8
+	.loc	1 84 45                         ; utils.py:84:45
+	s_add_u32 s8, s2, s12
+	s_addc_u32 s9, s3, s13
+	.loc	1 83 50                         ; utils.py:83:50
+	global_store_dwordx2 v4, v[0:1], s[14:15]
+	.loc	1 84 45                         ; utils.py:84:45
+	global_store_dwordx2 v4, v[2:3], s[8:9]
+	.loc	1 85 37                         ; utils.py:85:37
+	global_store_dword v4, v5, s[4:5]
+.LBB0_3:                                ; %Flow
+	.loc	1 0 37 is_stmt 0                ; utils.py:0:37
+	s_or_b32 exec_lo, exec_lo, s1
+	s_mov_b32 s1, 0
+.LBB0_4:                                ; %Flow2
+	s_andn2_b32 vcc_lo, exec_lo, s1
+	s_cbranch_vccnz .LBB0_7
+; %bb.5:
+	.loc	1 57 49 is_stmt 1               ; utils.py:57:49
+	s_and_saveexec_b32 s1, s0
+	s_cbranch_execz .LBB0_7
+; %bb.6:
+	v_mov_b32_e32 v0, -1
+	s_mov_b32 s7, 0
+	v_mov_b32_e32 v2, 0
+	s_lshl_b64 s[0:1], s[6:7], 3
+	s_waitcnt lgkmcnt(0)
+	s_add_u32 s0, s2, s0
+	v_mov_b32_e32 v1, v0
+	s_addc_u32 s1, s3, s1
+	global_store_dwordx2 v2, v[0:1], s[0:1]
+.LBB0_7:                                ; %.critedge3
+	.loc	1 58 8                          ; utils.py:58:8
+	s_endpgm
+.Ltmp1:
+	.section	.rodata,"a",@progbits
+	.p2align	6, 0x0
+	.amdhsa_kernel eagle_step_slot_mapping_metadata_kernel
+		.amdhsa_group_segment_fixed_size 0
+		.amdhsa_private_segment_fixed_size 0
+		.amdhsa_kernarg_size 64
+		.amdhsa_user_sgpr_count 6
+		.amdhsa_user_sgpr_private_segment_buffer 1
+		.amdhsa_user_sgpr_dispatch_ptr 0
+		.amdhsa_user_sgpr_queue_ptr 0
+		.amdhsa_user_sgpr_kernarg_segment_ptr 1
+		.amdhsa_user_sgpr_dispatch_id 0
+		.amdhsa_user_sgpr_flat_scratch_init 0
+		.amdhsa_user_sgpr_private_segment_size 0
+		.amdhsa_wavefront_size32 1
+		.amdhsa_uses_dynamic_stack 0
+		.amdhsa_system_sgpr_private_segment_wavefront_offset 0
+		.amdhsa_system_sgpr_workgroup_id_x 1
+		.amdhsa_system_sgpr_workgroup_id_y 0
+		.amdhsa_system_sgpr_workgroup_id_z 0
+		.amdhsa_system_sgpr_workgroup_info 0
+		.amdhsa_system_vgpr_workitem_id 0
+		.amdhsa_next_free_vgpr 6
+		.amdhsa_next_free_sgpr 24
+		.amdhsa_reserve_vcc 1
+		.amdhsa_reserve_flat_scratch 0
+		.amdhsa_float_round_mode_32 0
+		.amdhsa_float_round_mode_16_64 0
+		.amdhsa_float_denorm_mode_32 3
+		.amdhsa_float_denorm_mode_16_64 3
+		.amdhsa_dx10_clamp 1
+		.amdhsa_ieee_mode 1
+		.amdhsa_fp16_overflow 0
+		.amdhsa_workgroup_processor_mode 1
+		.amdhsa_memory_ordered 1
+		.amdhsa_forward_progress 1
+		.amdhsa_shared_vgpr_count 0
+		.amdhsa_exception_fp_ieee_invalid_op 0
+		.amdhsa_exception_fp_denorm_src 0
+		.amdhsa_exception_fp_ieee_div_zero 0
+		.amdhsa_exception_fp_ieee_overflow 0
+		.amdhsa_exception_fp_ieee_underflow 0
+		.amdhsa_exception_fp_ieee_inexact 0
+		.amdhsa_exception_int_div_zero 0
+	.end_amdhsa_kernel
+	.text
+.Lfunc_end0:
+	.size	eagle_step_slot_mapping_metadata_kernel, .Lfunc_end0-eagle_step_slot_mapping_metadata_kernel
+	.cfi_endproc
+                                        ; -- End function
+	.set eagle_step_slot_mapping_metadata_kernel.num_vgpr, 6
+	.set eagle_step_slot_mapping_metadata_kernel.num_agpr, 0
+	.set eagle_step_slot_mapping_metadata_kernel.numbered_sgpr, 24
+	.set eagle_step_slot_mapping_metadata_kernel.num_named_barrier, 0
+	.set eagle_step_slot_mapping_metadata_kernel.private_seg_size, 0
+	.set eagle_step_slot_mapping_metadata_kernel.uses_vcc, 1
+	.set eagle_step_slot_mapping_metadata_kernel.uses_flat_scratch, 0
+	.set eagle_step_slot_mapping_metadata_kernel.has_dyn_sized_stack, 0
+	.set eagle_step_slot_mapping_metadata_kernel.has_recursion, 0
+	.set eagle_step_slot_mapping_metadata_kernel.has_indirect_call, 0
+	.section	.AMDGPU.csdata,"",@progbits
+; Kernel info:
+; codeLenInByte = 572
+; TotalNumSgprs: 26
+; NumVgprs: 6
+; ScratchSize: 0
+; MemoryBound: 0
+; FloatMode: 240
+; IeeeMode: 1
+; LDSByteSize: 0 bytes/workgroup (compile time only)
+; SGPRBlocks: 0
+; VGPRBlocks: 0
+; NumSGPRsForWavesPerEU: 26
+; NumVGPRsForWavesPerEU: 6
+; Occupancy: 16
+; WaveLimiterHint : 0
+; COMPUTE_PGM_RSRC2:SCRATCH_EN: 0
+; COMPUTE_PGM_RSRC2:USER_SGPR: 6
+; COMPUTE_PGM_RSRC2:TRAP_HANDLER: 0
+; COMPUTE_PGM_RSRC2:TGID_X_EN: 1
+; COMPUTE_PGM_RSRC2:TGID_Y_EN: 0
+; COMPUTE_PGM_RSRC2:TGID_Z_EN: 0
+; COMPUTE_PGM_RSRC2:TIDIG_COMP_CNT: 0
+	.text
+	.p2alignl 6, 3214868480
+	.fill 48, 4, 3214868480
+	.section	.AMDGPU.gpr_maximums,"",@progbits
+	.set amdgpu.max_num_vgpr, 0
+	.set amdgpu.max_num_agpr, 0
+	.set amdgpu.max_num_sgpr, 0
+	.text
+	.section	.debug_abbrev,"",@progbits
+	.byte	1                               ; Abbreviation Code
+	.byte	17                              ; DW_TAG_compile_unit
+	.byte	0                               ; DW_CHILDREN_no
+	.byte	37                              ; DW_AT_producer
+	.byte	14                              ; DW_FORM_strp
+	.byte	19                              ; DW_AT_language
+	.byte	5                               ; DW_FORM_data2
+	.byte	3                               ; DW_AT_name
+	.byte	14                              ; DW_FORM_strp
+	.byte	16                              ; DW_AT_stmt_list
+	.byte	23                              ; DW_FORM_sec_offset
+	.byte	27                              ; DW_AT_comp_dir
+	.byte	14                              ; DW_FORM_strp
+	.byte	17                              ; DW_AT_low_pc
+	.byte	1                               ; DW_FORM_addr
+	.byte	18                              ; DW_AT_high_pc
+	.byte	6                               ; DW_FORM_data4
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	0                               ; EOM(3)
+	.section	.debug_info,"",@progbits
+.Lcu_begin0:
+	.long	.Ldebug_info_end0-.Ldebug_info_start0 ; Length of Unit
+.Ldebug_info_start0:
+	.short	4                               ; DWARF version number
+	.long	.debug_abbrev                   ; Offset Into Abbrev. Section
+	.byte	8                               ; Address Size (in bytes)
+	.byte	1                               ; Abbrev [1] 0xb:0x1f DW_TAG_compile_unit
+	.long	.Linfo_string0                  ; DW_AT_producer
+	.short	2                               ; DW_AT_language
+	.long	.Linfo_string1                  ; DW_AT_name
+	.long	.Lline_table_start0             ; DW_AT_stmt_list
+	.long	.Linfo_string2                  ; DW_AT_comp_dir
+	.quad	.Lfunc_begin0                   ; DW_AT_low_pc
+	.long	.Lfunc_end0-.Lfunc_begin0       ; DW_AT_high_pc
+.Ldebug_info_end0:
+	.section	.debug_str,"MS",@progbits,1
+.Linfo_string0:
+	.asciz	"triton"                        ; string offset=0
+.Linfo_string1:
+	.asciz	"utils.py"                      ; string offset=7
+.Linfo_string2:
+	.asciz	"/app/vllm-src/vllm/v1/spec_decode" ; string offset=16
+	.section	".note.GNU-stack","",@progbits
+	.amdgpu_metadata
+---
+amdhsa.kernels:
+  - .args:
+      - .address_space:  global
+        .offset:         0
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         8
+        .size:           8
+        .value_kind:     global_buffer
+      - .offset:         16
+        .size:           4
+        .value_kind:     by_value
+      - .address_space:  global
+        .offset:         24
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         32
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         40
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         48
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         56
+        .size:           8
+        .value_kind:     global_buffer
+    .group_segment_fixed_size: 0
+    .kernarg_segment_align: 8
+    .kernarg_segment_size: 64
+    .max_flat_workgroup_size: 128
+    .name:           eagle_step_slot_mapping_metadata_kernel
+    .private_segment_fixed_size: 0
+    .sgpr_count:     26
+    .sgpr_spill_count: 0
+    .symbol:         eagle_step_slot_mapping_metadata_kernel.kd
+    .uniform_work_group_size: 1
+    .uses_dynamic_stack: false
+    .vgpr_count:     6
+    .vgpr_spill_count: 0
+    .wavefront_size: 32
+    .workgroup_processor_mode: 1
+amdhsa.target:   amdgcn-amd-amdhsa--gfx1030
+amdhsa.version:
+  - 1
+  - 2
+...
+
+	.end_amdgpu_metadata
+	.section	.debug_line,"",@progbits
+.Lline_table_start0:

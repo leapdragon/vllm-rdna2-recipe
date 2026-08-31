@@ -1,0 +1,262 @@
+	.amdgcn_target "amdgcn-amd-amdhsa--gfx1030"
+	.amdhsa_code_object_version 5
+	.text
+	.globl	expand_kernel                   ; -- Begin function expand_kernel
+	.p2align	8
+	.type	expand_kernel,@function
+expand_kernel:                          ; @expand_kernel
+.Lfunc_begin0:
+	.file	1 "/app/vllm-src/vllm/v1/sample" "rejection_sampler.py"
+	.loc	1 850 0                         ; rejection_sampler.py:850:0
+	.cfi_sections .debug_frame
+	.cfi_startproc
+; %bb.0:
+	s_load_dwordx8 s[8:15], s[4:5], 0x0
+.Ltmp0:
+	.loc	1 859 18 prologue_end           ; rejection_sampler.py:859:18
+	s_cmp_eq_u32 s6, 0
+	s_mov_b32 s0, 0
+	.loc	1 859 7 is_stmt 0               ; rejection_sampler.py:859:7
+	s_cbranch_scc1 .LBB0_2
+; %bb.1:
+	.loc	1 0 7                           ; rejection_sampler.py:0:7
+	s_add_i32 s0, s6, -1
+	s_ashr_i32 s1, s0, 31
+	s_lshl_b64 s[0:1], s[0:1], 2
+	s_waitcnt lgkmcnt(0)
+	s_add_u32 s0, s12, s0
+	s_addc_u32 s1, s13, s1
+	.loc	1 862 28 is_stmt 1              ; rejection_sampler.py:862:28
+	s_load_dword s0, s[0:1], 0x0
+.LBB0_2:
+	.loc	1 863 22                        ; rejection_sampler.py:863:22
+	s_ashr_i32 s7, s6, 31
+	.loc	1 867 34                        ; rejection_sampler.py:867:34
+	s_waitcnt lgkmcnt(0)
+	v_cvt_f32_i32_e32 v1, s14
+	.loc	1 863 22                        ; rejection_sampler.py:863:22
+	s_lshl_b64 s[2:3], s[6:7], 2
+	.loc	1 867 60                        ; rejection_sampler.py:867:60
+	v_cvt_f32_i32_e32 v2, s15
+	.loc	1 863 22                        ; rejection_sampler.py:863:22
+	s_add_u32 s4, s12, s2
+	s_addc_u32 s5, s13, s3
+	.loc	1 869 46                        ; rejection_sampler.py:869:46
+	v_add_lshl_u32 v3, s0, v0, 2
+	.loc	1 863 22                        ; rejection_sampler.py:863:22
+	s_load_dword s1, s[4:5], 0x0
+	.loc	1 864 27                        ; rejection_sampler.py:864:27
+	s_waitcnt lgkmcnt(0)
+	s_sub_i32 s1, s1, s0
+	.loc	1 866 22                        ; rejection_sampler.py:866:22
+	s_add_u32 s2, s10, s2
+	s_addc_u32 s3, s11, s3
+	.loc	1 869 46                        ; rejection_sampler.py:869:46
+	s_and_b32 s9, s9, 0xffff
+	.loc	1 866 22                        ; rejection_sampler.py:866:22
+	s_load_dword s2, s[2:3], 0x0
+	s_mov_b32 s11, 0x31027000
+	s_mov_b32 s10, 0x7ffffffe
+	.loc	1 867 34                        ; rejection_sampler.py:867:34
+	s_waitcnt lgkmcnt(0)
+	v_cmp_eq_f32_e32 vcc_lo, s2, v1
+	.loc	1 867 60 is_stmt 0              ; rejection_sampler.py:867:60
+	v_cndmask_b32_e32 v1, s2, v2, vcc_lo
+	.loc	1 869 69 is_stmt 1              ; rejection_sampler.py:869:69
+	v_cmp_gt_i32_e32 vcc_lo, s1, v0
+	.loc	1 869 46 is_stmt 0              ; rejection_sampler.py:869:46
+	v_cndmask_b32_e32 v0, 0x80000000, v3, vcc_lo
+	buffer_store_dword v1, v0, s[8:11], 0 offen
+	.loc	1 869 4                         ; rejection_sampler.py:869:4
+	s_endpgm
+.Ltmp1:
+	.section	.rodata,"a",@progbits
+	.p2align	6, 0x0
+	.amdhsa_kernel expand_kernel
+		.amdhsa_group_segment_fixed_size 0
+		.amdhsa_private_segment_fixed_size 0
+		.amdhsa_kernarg_size 48
+		.amdhsa_user_sgpr_count 6
+		.amdhsa_user_sgpr_private_segment_buffer 1
+		.amdhsa_user_sgpr_dispatch_ptr 0
+		.amdhsa_user_sgpr_queue_ptr 0
+		.amdhsa_user_sgpr_kernarg_segment_ptr 1
+		.amdhsa_user_sgpr_dispatch_id 0
+		.amdhsa_user_sgpr_flat_scratch_init 0
+		.amdhsa_user_sgpr_private_segment_size 0
+		.amdhsa_wavefront_size32 1
+		.amdhsa_uses_dynamic_stack 0
+		.amdhsa_system_sgpr_private_segment_wavefront_offset 0
+		.amdhsa_system_sgpr_workgroup_id_x 1
+		.amdhsa_system_sgpr_workgroup_id_y 0
+		.amdhsa_system_sgpr_workgroup_id_z 0
+		.amdhsa_system_sgpr_workgroup_info 0
+		.amdhsa_system_vgpr_workitem_id 0
+		.amdhsa_next_free_vgpr 4
+		.amdhsa_next_free_sgpr 16
+		.amdhsa_reserve_vcc 1
+		.amdhsa_reserve_flat_scratch 0
+		.amdhsa_float_round_mode_32 0
+		.amdhsa_float_round_mode_16_64 0
+		.amdhsa_float_denorm_mode_32 3
+		.amdhsa_float_denorm_mode_16_64 3
+		.amdhsa_dx10_clamp 1
+		.amdhsa_ieee_mode 1
+		.amdhsa_fp16_overflow 0
+		.amdhsa_workgroup_processor_mode 1
+		.amdhsa_memory_ordered 1
+		.amdhsa_forward_progress 1
+		.amdhsa_shared_vgpr_count 0
+		.amdhsa_exception_fp_ieee_invalid_op 0
+		.amdhsa_exception_fp_denorm_src 0
+		.amdhsa_exception_fp_ieee_div_zero 0
+		.amdhsa_exception_fp_ieee_overflow 0
+		.amdhsa_exception_fp_ieee_underflow 0
+		.amdhsa_exception_fp_ieee_inexact 0
+		.amdhsa_exception_int_div_zero 0
+	.end_amdhsa_kernel
+	.text
+.Lfunc_end0:
+	.size	expand_kernel, .Lfunc_end0-expand_kernel
+	.cfi_endproc
+                                        ; -- End function
+	.set expand_kernel.num_vgpr, 4
+	.set expand_kernel.num_agpr, 0
+	.set expand_kernel.numbered_sgpr, 16
+	.set expand_kernel.num_named_barrier, 0
+	.set expand_kernel.private_seg_size, 0
+	.set expand_kernel.uses_vcc, 1
+	.set expand_kernel.uses_flat_scratch, 0
+	.set expand_kernel.has_dyn_sized_stack, 0
+	.set expand_kernel.has_recursion, 0
+	.set expand_kernel.has_indirect_call, 0
+	.section	.AMDGPU.csdata,"",@progbits
+; Kernel info:
+; codeLenInByte = 180
+; TotalNumSgprs: 18
+; NumVgprs: 4
+; ScratchSize: 0
+; MemoryBound: 0
+; FloatMode: 240
+; IeeeMode: 1
+; LDSByteSize: 0 bytes/workgroup (compile time only)
+; SGPRBlocks: 0
+; VGPRBlocks: 0
+; NumSGPRsForWavesPerEU: 18
+; NumVGPRsForWavesPerEU: 4
+; Occupancy: 16
+; WaveLimiterHint : 0
+; COMPUTE_PGM_RSRC2:SCRATCH_EN: 0
+; COMPUTE_PGM_RSRC2:USER_SGPR: 6
+; COMPUTE_PGM_RSRC2:TRAP_HANDLER: 0
+; COMPUTE_PGM_RSRC2:TGID_X_EN: 1
+; COMPUTE_PGM_RSRC2:TGID_Y_EN: 0
+; COMPUTE_PGM_RSRC2:TGID_Z_EN: 0
+; COMPUTE_PGM_RSRC2:TIDIG_COMP_CNT: 0
+	.text
+	.p2alignl 6, 3214868480
+	.fill 48, 4, 3214868480
+	.section	.AMDGPU.gpr_maximums,"",@progbits
+	.set amdgpu.max_num_vgpr, 0
+	.set amdgpu.max_num_agpr, 0
+	.set amdgpu.max_num_sgpr, 0
+	.text
+	.section	.debug_abbrev,"",@progbits
+	.byte	1                               ; Abbreviation Code
+	.byte	17                              ; DW_TAG_compile_unit
+	.byte	0                               ; DW_CHILDREN_no
+	.byte	37                              ; DW_AT_producer
+	.byte	14                              ; DW_FORM_strp
+	.byte	19                              ; DW_AT_language
+	.byte	5                               ; DW_FORM_data2
+	.byte	3                               ; DW_AT_name
+	.byte	14                              ; DW_FORM_strp
+	.byte	16                              ; DW_AT_stmt_list
+	.byte	23                              ; DW_FORM_sec_offset
+	.byte	27                              ; DW_AT_comp_dir
+	.byte	14                              ; DW_FORM_strp
+	.byte	17                              ; DW_AT_low_pc
+	.byte	1                               ; DW_FORM_addr
+	.byte	18                              ; DW_AT_high_pc
+	.byte	6                               ; DW_FORM_data4
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	0                               ; EOM(3)
+	.section	.debug_info,"",@progbits
+.Lcu_begin0:
+	.long	.Ldebug_info_end0-.Ldebug_info_start0 ; Length of Unit
+.Ldebug_info_start0:
+	.short	4                               ; DWARF version number
+	.long	.debug_abbrev                   ; Offset Into Abbrev. Section
+	.byte	8                               ; Address Size (in bytes)
+	.byte	1                               ; Abbrev [1] 0xb:0x1f DW_TAG_compile_unit
+	.long	.Linfo_string0                  ; DW_AT_producer
+	.short	2                               ; DW_AT_language
+	.long	.Linfo_string1                  ; DW_AT_name
+	.long	.Lline_table_start0             ; DW_AT_stmt_list
+	.long	.Linfo_string2                  ; DW_AT_comp_dir
+	.quad	.Lfunc_begin0                   ; DW_AT_low_pc
+	.long	.Lfunc_end0-.Lfunc_begin0       ; DW_AT_high_pc
+.Ldebug_info_end0:
+	.section	.debug_str,"MS",@progbits,1
+.Linfo_string0:
+	.asciz	"triton"                        ; string offset=0
+.Linfo_string1:
+	.asciz	"rejection_sampler.py"          ; string offset=7
+.Linfo_string2:
+	.asciz	"/app/vllm-src/vllm/v1/sample"  ; string offset=28
+	.section	".note.GNU-stack","",@progbits
+	.amdgpu_metadata
+---
+amdhsa.kernels:
+  - .args:
+      - .address_space:  global
+        .offset:         0
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         8
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         16
+        .size:           8
+        .value_kind:     global_buffer
+      - .offset:         24
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         28
+        .size:           4
+        .value_kind:     by_value
+      - .address_space:  global
+        .offset:         32
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         40
+        .size:           8
+        .value_kind:     global_buffer
+    .group_segment_fixed_size: 0
+    .kernarg_segment_align: 8
+    .kernarg_segment_size: 48
+    .max_flat_workgroup_size: 128
+    .name:           expand_kernel
+    .private_segment_fixed_size: 0
+    .sgpr_count:     18
+    .sgpr_spill_count: 0
+    .symbol:         expand_kernel.kd
+    .uniform_work_group_size: 1
+    .uses_dynamic_stack: false
+    .vgpr_count:     4
+    .vgpr_spill_count: 0
+    .wavefront_size: 32
+    .workgroup_processor_mode: 1
+amdhsa.target:   amdgcn-amd-amdhsa--gfx1030
+amdhsa.version:
+  - 1
+  - 2
+...
+
+	.end_amdgpu_metadata
+	.section	.debug_line,"",@progbits
+.Lline_table_start0:

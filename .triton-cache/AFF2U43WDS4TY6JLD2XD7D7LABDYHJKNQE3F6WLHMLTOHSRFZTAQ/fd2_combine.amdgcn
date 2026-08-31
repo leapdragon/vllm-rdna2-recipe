@@ -1,0 +1,428 @@
+	.amdgcn_target "amdgcn-amd-amdhsa--gfx1030"
+	.amdhsa_code_object_version 5
+	.text
+	.globl	fd2_combine                     ; -- Begin function fd2_combine
+	.p2align	8
+	.type	fd2_combine,@function
+fd2_combine:                            ; @fd2_combine
+.Lfunc_begin0:
+	.file	1 "/usr/local/lib/python3.12/dist-packages/fd_rdna2" "fd_kernel2.py"
+	.loc	1 114 0                         ; fd_kernel2.py:114:0
+	.cfi_sections .debug_frame
+	.cfi_startproc
+; %bb.0:
+	s_clause 0x1
+	s_load_dwordx2 s[0:1], s[4:5], 0x28
+	s_load_dword s2, s[4:5], 0x30
+.Ltmp0:
+	.loc	1 127 22 prologue_end           ; fd_kernel2.py:127:22
+	s_waitcnt lgkmcnt(0)
+	s_load_dword s0, s[0:1], 0x0
+	s_load_dwordx2 s[8:9], s[4:5], 0x18
+	.loc	1 127 33 is_stmt 0              ; fd_kernel2.py:127:33
+	s_waitcnt lgkmcnt(0)
+	s_add_i32 s7, s2, s0
+	.loc	1 127 53                        ; fd_kernel2.py:127:53
+	s_addk_i32 s7, 0x1ff
+	.loc	1 130 22 is_stmt 1              ; fd_kernel2.py:130:22
+	s_cmpk_lt_i32 s7, 0x200
+	s_cbranch_scc1 .LBB0_5
+; %bb.1:                                ; %.lr.ph
+	.loc	1 0 22 is_stmt 0                ; fd_kernel2.py:0:22
+	s_clause 0x1
+	s_load_dwordx4 s[0:3], s[4:5], 0x0
+	s_load_dwordx2 s[12:13], s[4:5], 0x10
+	.loc	1 120 16 is_stmt 1              ; fd_kernel2.py:120:16
+	s_mul_hi_i32 s5, s6, 0x2aaaaaab
+	.loc	1 127 59                        ; fd_kernel2.py:127:59
+	s_ashr_i32 s10, s7, 31
+	.loc	1 120 16                        ; fd_kernel2.py:120:16
+	s_lshr_b32 s4, s5, 31
+	v_mov_b32_e32 v4, 0xff800000
+	s_add_i32 s5, s5, s4
+	.loc	1 127 59                        ; fd_kernel2.py:127:59
+	s_lshr_b32 s4, s10, 23
+	.loc	1 130 22                        ; fd_kernel2.py:130:22
+	s_lshl_b32 s10, s5, 1
+	.loc	1 127 59                        ; fd_kernel2.py:127:59
+	s_add_i32 s7, s7, s4
+	.loc	1 130 22                        ; fd_kernel2.py:130:22
+	s_add_i32 s4, s6, s10
+	.loc	1 127 59                        ; fd_kernel2.py:127:59
+	s_ashr_i32 s7, s7, 9
+	s_mov_b32 s10, s4
+	s_mov_b32 s14, s7
+.LBB0_2:                                ; =>This Inner Loop Header: Depth=1
+	.loc	1 131 38                        ; fd_kernel2.py:131:38
+	s_ashr_i32 s11, s10, 31
+	.loc	1 131 30 is_stmt 0              ; fd_kernel2.py:131:30
+	v_max_f32_e32 v1, v4, v4
+	.loc	1 131 38                        ; fd_kernel2.py:131:38
+	s_lshl_b64 s[16:17], s[10:11], 2
+	s_waitcnt lgkmcnt(0)
+	s_add_u32 s16, s0, s16
+	s_addc_u32 s17, s1, s17
+	.loc	1 130 22 is_stmt 1              ; fd_kernel2.py:130:22
+	s_add_i32 s14, s14, -1
+	.loc	1 131 38                        ; fd_kernel2.py:131:38
+	s_load_dword s11, s[16:17], 0x0
+	.loc	1 130 22                        ; fd_kernel2.py:130:22
+	s_add_i32 s10, s10, 16
+	s_cmp_eq_u32 s14, 0
+	.loc	1 131 30                        ; fd_kernel2.py:131:30
+	s_waitcnt lgkmcnt(0)
+	v_max_f32_e64 v2, s11, s11
+	v_max_f32_e32 v4, v1, v2
+	.loc	1 130 22                        ; fd_kernel2.py:130:22
+	s_cbranch_scc0 .LBB0_2
+; %bb.3:                                ; %.lr.ph6
+	.loc	1 134 22                        ; fd_kernel2.py:134:22
+	s_lshl_b32 s5, s5, 11
+	s_lshl_b32 s10, s6, 10
+	v_mov_b32_e32 v2, 0
+	s_add_i32 s5, s5, s10
+	v_mov_b32_e32 v1, 0
+	v_lshl_or_b32 v5, v0, 3, s5
+	v_mov_b32_e32 v3, 0
+	s_mov_b32 s15, 0x31027000
+	s_mov_b32 s14, 0x7ffffffe
+	s_and_b32 s13, s13, 0xffff
+	s_inst_prefetch 0x1
+	.loc	1 0 22 is_stmt 0                ; :0:22
+.Ltmp1:
+	.p2align	6
+.LBB0_4:                                ; =>This Inner Loop Header: Depth=1
+	.loc	1 138 21 is_stmt 1              ; fd_kernel2.py:138:21
+	buffer_load_dwordx2 v[6:7], v5, s[12:15], 0 offen
+	.loc	1 136 27                        ; fd_kernel2.py:136:27
+	s_ashr_i32 s5, s4, 31
+	.loc	1 134 22                        ; fd_kernel2.py:134:22
+	v_add_nc_u32_e32 v5, 0x4000, v5
+	.loc	1 136 27                        ; fd_kernel2.py:136:27
+	s_lshl_b64 s[10:11], s[4:5], 2
+	s_add_u32 s16, s0, s10
+	s_addc_u32 s17, s1, s11
+	s_load_dword s5, s[16:17], 0x0
+	.loc	1 136 42 is_stmt 0              ; fd_kernel2.py:136:42
+	s_waitcnt lgkmcnt(0)
+	v_sub_f32_e32 v8, s5, v4
+	.loc	1 136 19                        ; fd_kernel2.py:136:19
+	v_mul_f32_e32 v9, 0x3fb8aa3b, v8
+	v_cmp_gt_f32_e32 vcc_lo, 0xc2fc0000, v9
+	v_cndmask_b32_e64 v9, 0, 0x42800000, vcc_lo
+	s_and_b32 s5, vcc_lo, exec_lo
+	s_cselect_b32 s5, 0xffffffc0, 0
+	.loc	1 137 23 is_stmt 1              ; fd_kernel2.py:137:23
+	s_add_u32 s10, s2, s10
+	s_addc_u32 s11, s3, s11
+	.loc	1 136 19                        ; fd_kernel2.py:136:19
+	v_fmac_f32_e32 v9, 0x3fb8aa3b, v8
+	.loc	1 137 23                        ; fd_kernel2.py:137:23
+	s_load_dword s10, s[10:11], 0x0
+	.loc	1 134 22                        ; fd_kernel2.py:134:22
+	s_add_i32 s7, s7, -1
+	s_add_i32 s4, s4, 16
+	s_cmp_lg_u32 s7, 0
+	.loc	1 136 19                        ; fd_kernel2.py:136:19
+	v_exp_f32_e32 v8, v9
+	v_ldexp_f32 v8, v8, s5
+	.loc	1 137 15                        ; fd_kernel2.py:137:15
+	s_waitcnt lgkmcnt(0)
+	v_fmac_f32_e32 v1, s10, v8
+	.loc	1 138 13                        ; fd_kernel2.py:138:13
+	s_waitcnt vmcnt(0)
+	v_fmac_f32_e32 v2, v6, v8
+	v_fmac_f32_e32 v3, v7, v8
+	.loc	1 134 22                        ; fd_kernel2.py:134:22
+	s_cbranch_scc1 .LBB0_4
+	s_branch .LBB0_6
+.LBB0_5:
+	.loc	1 0 22 is_stmt 0                ; fd_kernel2.py:0:22
+	v_mov_b32_e32 v3, 0
+	v_mov_b32_e32 v1, 0
+	v_mov_b32_e32 v2, 0
+.LBB0_6:                                ; %._crit_edge
+	s_inst_prefetch 0x2
+	.loc	1 139 46 is_stmt 1              ; fd_kernel2.py:139:46
+	v_div_scale_f32 v4, null, v1, v1, v2
+	v_div_scale_f32 v5, null, v1, v1, v3
+	v_div_scale_f32 v10, vcc_lo, v2, v1, v2
+	v_rcp_f32_e32 v6, v4
+	v_rcp_f32_e32 v7, v5
+	.loc	1 139 34 is_stmt 0              ; fd_kernel2.py:139:34
+	v_lshlrev_b32_e32 v14, 2, v0
+	.loc	1 139 41                        ; fd_kernel2.py:139:41
+	s_and_b32 s9, s9, 0xffff
+	s_mov_b32 s11, 0x31027000
+	s_mov_b32 s10, 0x7ffffffe
+	.loc	1 139 46                        ; fd_kernel2.py:139:46
+	v_fma_f32 v8, -v4, v6, 1.0
+	v_fma_f32 v9, -v5, v7, 1.0
+	v_fmac_f32_e32 v6, v8, v6
+	v_div_scale_f32 v8, s0, v3, v1, v3
+	v_fmac_f32_e32 v7, v9, v7
+	v_mul_f32_e32 v9, v10, v6
+	v_mul_f32_e32 v11, v8, v7
+	v_fma_f32 v12, -v4, v9, v10
+	v_fma_f32 v13, -v5, v11, v8
+	v_fmac_f32_e32 v9, v12, v6
+	.loc	1 139 41                        ; fd_kernel2.py:139:41
+	v_lshrrev_b32_e32 v12, 5, v0
+	.loc	1 139 46                        ; fd_kernel2.py:139:46
+	v_fmac_f32_e32 v11, v13, v7
+	.loc	1 139 41                        ; fd_kernel2.py:139:41
+	v_lshlrev_b32_e32 v13, 1, v0
+	.loc	1 139 46                        ; fd_kernel2.py:139:46
+	v_fma_f32 v4, -v4, v9, v10
+	.loc	1 139 41                        ; fd_kernel2.py:139:41
+	v_or_b32_e32 v10, v12, v14
+	.loc	1 139 46                        ; fd_kernel2.py:139:46
+	v_fma_f32 v5, -v5, v11, v8
+	.loc	1 139 41                        ; fd_kernel2.py:139:41
+	v_and_b32_e32 v8, 0xfc, v13
+	.loc	1 139 46                        ; fd_kernel2.py:139:46
+	v_div_fmas_f32 v4, v4, v6, v9
+	s_mov_b32 vcc_lo, s0
+	.loc	1 139 41                        ; fd_kernel2.py:139:41
+	v_bfe_i32 v6, v0, 0, 1
+	.loc	1 139 46                        ; fd_kernel2.py:139:46
+	v_div_fmas_f32 v5, v5, v7, v11
+	.loc	1 139 41                        ; fd_kernel2.py:139:41
+	v_and_b32_e32 v7, 0xfe, v10
+	.loc	1 139 46                        ; fd_kernel2.py:139:46
+	v_div_fixup_f32 v2, v4, v1, v2
+	.loc	1 123 42 is_stmt 1              ; fd_kernel2.py:123:42
+	v_lshrrev_b32_e32 v0, 6, v0
+	.loc	1 139 28                        ; fd_kernel2.py:139:28
+	s_lshl_b32 s0, s6, 8
+	.loc	1 139 46 is_stmt 0              ; fd_kernel2.py:139:46
+	v_div_fixup_f32 v1, v5, v1, v3
+	.loc	1 139 41                        ; fd_kernel2.py:139:41
+	v_and_b32_e32 v3, 0x140, v6
+	v_add_nc_u32_e32 v4, 0, v7
+	.loc	1 139 54                        ; fd_kernel2.py:139:54
+	v_cvt_f16_f32_e32 v2, v2
+	.loc	1 139 41                        ; fd_kernel2.py:139:41
+	v_xad_u32 v5, v7, 64, 0
+	.loc	1 139 54                        ; fd_kernel2.py:139:54
+	v_cvt_f16_f32_e32 v1, v1
+	.loc	1 139 41                        ; fd_kernel2.py:139:41
+	v_xad_u32 v3, v3, v8, 0
+	ds_write_b16 v4, v2
+	ds_write_b16 v5, v1 offset:256
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_read_b32 v1, v3
+	.loc	1 139 34                        ; fd_kernel2.py:139:34
+	v_and_b32_e32 v2, 0xfc, v14
+	v_or3_b32 v3, v2, v0, s0
+	v_or3_b32 v0, s0, v0, v2
+	.loc	1 139 41                        ; fd_kernel2.py:139:41
+	v_lshlrev_b32_e32 v2, 1, v3
+	v_lshlrev_b32_e32 v0, 1, v0
+	s_waitcnt lgkmcnt(0)
+	v_lshrrev_b32_e32 v3, 16, v1
+	buffer_store_short v1, v2, s[8:11], 0 offen
+	buffer_store_short v3, v0, s[8:11], 0 offen offset:4
+	.loc	1 139 4                         ; fd_kernel2.py:139:4
+	s_endpgm
+.Ltmp2:
+	.section	.rodata,"a",@progbits
+	.p2align	6, 0x0
+	.amdhsa_kernel fd2_combine
+		.amdhsa_group_segment_fixed_size 0
+		.amdhsa_private_segment_fixed_size 0
+		.amdhsa_kernarg_size 72
+		.amdhsa_user_sgpr_count 6
+		.amdhsa_user_sgpr_private_segment_buffer 1
+		.amdhsa_user_sgpr_dispatch_ptr 0
+		.amdhsa_user_sgpr_queue_ptr 0
+		.amdhsa_user_sgpr_kernarg_segment_ptr 1
+		.amdhsa_user_sgpr_dispatch_id 0
+		.amdhsa_user_sgpr_flat_scratch_init 0
+		.amdhsa_user_sgpr_private_segment_size 0
+		.amdhsa_wavefront_size32 1
+		.amdhsa_uses_dynamic_stack 0
+		.amdhsa_system_sgpr_private_segment_wavefront_offset 0
+		.amdhsa_system_sgpr_workgroup_id_x 1
+		.amdhsa_system_sgpr_workgroup_id_y 0
+		.amdhsa_system_sgpr_workgroup_id_z 0
+		.amdhsa_system_sgpr_workgroup_info 0
+		.amdhsa_system_vgpr_workitem_id 0
+		.amdhsa_next_free_vgpr 15
+		.amdhsa_next_free_sgpr 18
+		.amdhsa_reserve_vcc 1
+		.amdhsa_reserve_flat_scratch 0
+		.amdhsa_float_round_mode_32 0
+		.amdhsa_float_round_mode_16_64 0
+		.amdhsa_float_denorm_mode_32 3
+		.amdhsa_float_denorm_mode_16_64 3
+		.amdhsa_dx10_clamp 1
+		.amdhsa_ieee_mode 1
+		.amdhsa_fp16_overflow 0
+		.amdhsa_workgroup_processor_mode 1
+		.amdhsa_memory_ordered 1
+		.amdhsa_forward_progress 1
+		.amdhsa_shared_vgpr_count 0
+		.amdhsa_exception_fp_ieee_invalid_op 0
+		.amdhsa_exception_fp_denorm_src 0
+		.amdhsa_exception_fp_ieee_div_zero 0
+		.amdhsa_exception_fp_ieee_overflow 0
+		.amdhsa_exception_fp_ieee_underflow 0
+		.amdhsa_exception_fp_ieee_inexact 0
+		.amdhsa_exception_int_div_zero 0
+	.end_amdhsa_kernel
+	.text
+.Lfunc_end0:
+	.size	fd2_combine, .Lfunc_end0-fd2_combine
+	.cfi_endproc
+                                        ; -- End function
+	.set fd2_combine.num_vgpr, 15
+	.set fd2_combine.num_agpr, 0
+	.set fd2_combine.numbered_sgpr, 18
+	.set fd2_combine.num_named_barrier, 0
+	.set fd2_combine.private_seg_size, 0
+	.set fd2_combine.uses_vcc, 1
+	.set fd2_combine.uses_flat_scratch, 0
+	.set fd2_combine.has_dyn_sized_stack, 0
+	.set fd2_combine.has_recursion, 0
+	.set fd2_combine.has_indirect_call, 0
+	.section	.AMDGPU.csdata,"",@progbits
+; Kernel info:
+; codeLenInByte = 856
+; TotalNumSgprs: 20
+; NumVgprs: 15
+; ScratchSize: 0
+; MemoryBound: 0
+; FloatMode: 240
+; IeeeMode: 1
+; LDSByteSize: 0 bytes/workgroup (compile time only)
+; SGPRBlocks: 0
+; VGPRBlocks: 1
+; NumSGPRsForWavesPerEU: 20
+; NumVGPRsForWavesPerEU: 15
+; Occupancy: 16
+; WaveLimiterHint : 0
+; COMPUTE_PGM_RSRC2:SCRATCH_EN: 0
+; COMPUTE_PGM_RSRC2:USER_SGPR: 6
+; COMPUTE_PGM_RSRC2:TRAP_HANDLER: 0
+; COMPUTE_PGM_RSRC2:TGID_X_EN: 1
+; COMPUTE_PGM_RSRC2:TGID_Y_EN: 0
+; COMPUTE_PGM_RSRC2:TGID_Z_EN: 0
+; COMPUTE_PGM_RSRC2:TIDIG_COMP_CNT: 0
+	.text
+	.p2alignl 6, 3214868480
+	.fill 48, 4, 3214868480
+	.section	.AMDGPU.gpr_maximums,"",@progbits
+	.set amdgpu.max_num_vgpr, 0
+	.set amdgpu.max_num_agpr, 0
+	.set amdgpu.max_num_sgpr, 0
+	.text
+	.section	.debug_abbrev,"",@progbits
+	.byte	1                               ; Abbreviation Code
+	.byte	17                              ; DW_TAG_compile_unit
+	.byte	0                               ; DW_CHILDREN_no
+	.byte	37                              ; DW_AT_producer
+	.byte	14                              ; DW_FORM_strp
+	.byte	19                              ; DW_AT_language
+	.byte	5                               ; DW_FORM_data2
+	.byte	3                               ; DW_AT_name
+	.byte	14                              ; DW_FORM_strp
+	.byte	16                              ; DW_AT_stmt_list
+	.byte	23                              ; DW_FORM_sec_offset
+	.byte	27                              ; DW_AT_comp_dir
+	.byte	14                              ; DW_FORM_strp
+	.byte	17                              ; DW_AT_low_pc
+	.byte	1                               ; DW_FORM_addr
+	.byte	18                              ; DW_AT_high_pc
+	.byte	6                               ; DW_FORM_data4
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	0                               ; EOM(3)
+	.section	.debug_info,"",@progbits
+.Lcu_begin0:
+	.long	.Ldebug_info_end0-.Ldebug_info_start0 ; Length of Unit
+.Ldebug_info_start0:
+	.short	4                               ; DWARF version number
+	.long	.debug_abbrev                   ; Offset Into Abbrev. Section
+	.byte	8                               ; Address Size (in bytes)
+	.byte	1                               ; Abbrev [1] 0xb:0x1f DW_TAG_compile_unit
+	.long	.Linfo_string0                  ; DW_AT_producer
+	.short	2                               ; DW_AT_language
+	.long	.Linfo_string1                  ; DW_AT_name
+	.long	.Lline_table_start0             ; DW_AT_stmt_list
+	.long	.Linfo_string2                  ; DW_AT_comp_dir
+	.quad	.Lfunc_begin0                   ; DW_AT_low_pc
+	.long	.Lfunc_end0-.Lfunc_begin0       ; DW_AT_high_pc
+.Ldebug_info_end0:
+	.section	.debug_str,"MS",@progbits,1
+.Linfo_string0:
+	.asciz	"triton"                        ; string offset=0
+.Linfo_string1:
+	.asciz	"fd_kernel2.py"                 ; string offset=7
+.Linfo_string2:
+	.asciz	"/usr/local/lib/python3.12/dist-packages/fd_rdna2" ; string offset=21
+	.section	".note.GNU-stack","",@progbits
+	.amdgpu_metadata
+---
+amdhsa.kernels:
+  - .args:
+      - .address_space:  global
+        .offset:         0
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         8
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         16
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         24
+        .size:           8
+        .value_kind:     global_buffer
+      - .offset:         32
+        .size:           4
+        .value_kind:     by_value
+      - .address_space:  global
+        .offset:         40
+        .size:           8
+        .value_kind:     global_buffer
+      - .offset:         48
+        .size:           4
+        .value_kind:     by_value
+      - .address_space:  global
+        .offset:         56
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         64
+        .size:           8
+        .value_kind:     global_buffer
+    .group_segment_fixed_size: 0
+    .kernarg_segment_align: 8
+    .kernarg_segment_size: 72
+    .max_flat_workgroup_size: 128
+    .name:           fd2_combine
+    .private_segment_fixed_size: 0
+    .sgpr_count:     20
+    .sgpr_spill_count: 0
+    .symbol:         fd2_combine.kd
+    .uniform_work_group_size: 1
+    .uses_dynamic_stack: false
+    .vgpr_count:     15
+    .vgpr_spill_count: 0
+    .wavefront_size: 32
+    .workgroup_processor_mode: 1
+amdhsa.target:   amdgcn-amd-amdhsa--gfx1030
+amdhsa.version:
+  - 1
+  - 2
+...
+
+	.end_amdgpu_metadata
+	.section	.debug_line,"",@progbits
+.Lline_table_start0:

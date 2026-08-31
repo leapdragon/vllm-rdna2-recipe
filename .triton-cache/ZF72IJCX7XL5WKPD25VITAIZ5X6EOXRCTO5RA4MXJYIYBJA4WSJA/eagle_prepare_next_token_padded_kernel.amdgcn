@@ -1,0 +1,570 @@
+	.amdgcn_target "amdgcn-amd-amdhsa--gfx1030"
+	.amdhsa_code_object_version 5
+	.text
+	.globl	eagle_prepare_next_token_padded_kernel ; -- Begin function eagle_prepare_next_token_padded_kernel
+	.p2align	8
+	.type	eagle_prepare_next_token_padded_kernel,@function
+eagle_prepare_next_token_padded_kernel: ; @eagle_prepare_next_token_padded_kernel
+.Lfunc_begin0:
+	.cfi_sections .debug_frame
+	.cfi_startproc
+; %bb.0:
+	.file	1 "/app/vllm-src/vllm/v1/spec_decode" "utils.py"
+	.loc	1 199 18 prologue_end           ; utils.py:199:18
+	s_cmp_lt_i32 s6, 1
+	s_cbranch_scc0 .LBB0_13
+; %bb.1:
+	.loc	1 0 18 is_stmt 0                ; utils.py:0:18
+	s_clause 0x1
+	s_load_dwordx4 s[0:3], s[4:5], 0x8
+	s_load_dwordx2 s[8:9], s[4:5], 0x18
+	.loc	1 203 27 is_stmt 1              ; utils.py:203:27
+	v_mov_b32_e32 v1, 0
+	s_ashr_i32 s7, s6, 31
+	s_mov_b32 s10, 0
+	s_waitcnt lgkmcnt(0)
+	s_add_u32 s0, s0, s6
+	s_addc_u32 s1, s1, s7
+	global_load_ubyte v2, v1, s[0:1]
+	s_waitcnt vmcnt(0)
+	v_cmp_eq_u32_e32 vcc_lo, 0, v2
+	.loc	1 205 7                         ; utils.py:205:7
+	s_cbranch_vccnz .LBB0_4
+; %bb.2:
+	.loc	1 0 7 is_stmt 0                 ; utils.py:0:7
+	s_mov_b32 s0, 0
+	.loc	1 208 47 is_stmt 1              ; utils.py:208:47
+	s_mov_b32 s1, exec_lo
+	v_cmpx_eq_u32_e32 0, v0
+	s_cbranch_execz .LBB0_5
+; %bb.3:
+	.loc	1 206 31                        ; utils.py:206:31
+	s_lshl_b64 s[12:13], s[6:7], 2
+	.loc	1 208 47                        ; utils.py:208:47
+	v_mov_b32_e32 v2, 0
+	.loc	1 206 31                        ; utils.py:206:31
+	s_add_u32 s14, s2, s12
+	s_addc_u32 s15, s3, s13
+	.loc	1 208 47                        ; utils.py:208:47
+	s_add_u32 s12, s8, s12
+	.loc	1 206 31                        ; utils.py:206:31
+	s_load_dword s11, s[14:15], 0x0
+	s_mov_b32 s10, exec_lo
+	.loc	1 208 47                        ; utils.py:208:47
+	s_addc_u32 s13, s9, s13
+	s_waitcnt lgkmcnt(0)
+	v_mov_b32_e32 v3, s11
+	global_store_dword v2, v3, s[12:13]
+	s_or_b32 exec_lo, exec_lo, s1
+	s_and_b32 vcc_lo, exec_lo, s0
+	s_cbranch_vccnz .LBB0_6
+	s_branch .LBB0_11
+.LBB0_4:
+	.loc	1 0 47 is_stmt 0                ; utils.py:0:47
+	s_cbranch_execnz .LBB0_6
+	s_branch .LBB0_11
+.LBB0_5:                                ; %Flow1
+	s_or_b32 exec_lo, exec_lo, s1
+	s_and_b32 vcc_lo, exec_lo, s0
+	s_cbranch_vccz .LBB0_11
+.LBB0_6:
+	s_clause 0x2
+	s_load_dword s11, s[4:5], 0x30
+	s_load_dwordx2 s[0:1], s[4:5], 0x28
+	s_load_dwordx2 s[12:13], s[4:5], 0x0
+	.loc	1 212 34 is_stmt 1              ; utils.py:212:34
+	v_and_b32_e32 v2, 3, v0
+	s_mov_b32 s15, 0x31027000
+	s_mov_b32 s14, 0x7ffffffe
+	v_and_b32_e32 v5, 31, v0
+	v_lshrrev_b32_e32 v0, 5, v0
+	.loc	1 215 52                        ; utils.py:215:52
+	s_waitcnt lgkmcnt(0)
+	s_mul_i32 s11, s11, s6
+	.loc	1 213 34                        ; utils.py:213:34
+	v_cmp_gt_i32_e32 vcc_lo, s1, v2
+	.loc	1 216 28                        ; utils.py:216:28
+	v_add_lshl_u32 v1, s11, v2, 2
+	s_and_b32 s13, s13, 0xffff
+	v_cndmask_b32_e32 v1, 0x80000000, v1, vcc_lo
+	buffer_load_dword v1, v1, s[12:15], 0 offen
+	s_waitcnt vmcnt(0)
+	v_cndmask_b32_e32 v4, -1, v1, vcc_lo
+	.loc	1 219 57                        ; utils.py:219:57
+	v_cmp_gt_i32_e64 s0, s0, v4
+	.loc	1 219 38 is_stmt 0              ; utils.py:219:38
+	v_cmp_ne_u32_e64 s1, -1, v4
+	.loc	1 219 45                        ; utils.py:219:45
+	s_and_b32 s0, s0, vcc_lo
+	.loc	1 219 71                        ; utils.py:219:71
+	s_and_b32 vcc_lo, s0, s1
+	s_mov_b32 s1, 0
+.Ltmp0:
+	.file	2 "/usr/local/lib/python3.12/dist-packages/triton/language" "standard.py"
+	.loc	2 292 25 is_stmt 1              ; standard.py:292:25 @[ utils.py:220:29 ]
+	v_cndmask_b32_e64 v1, 0, 1, vcc_lo
+	.loc	2 293 36                        ; standard.py:293:36 @[ utils.py:220:29 ]
+	ds_swizzle_b32 v1, v1 offset:swizzle(SWAP,2)
+.Ltmp1:
+	.loc	2 263 15                        ; standard.py:263:15 @[ standard.py:293:36 @[ utils.py:220:29 ] ]
+	s_waitcnt lgkmcnt(0)
+	v_add_co_ci_u32_e64 v3, null, 0, v1, vcc_lo
+.Ltmp2:
+	.loc	2 293 36                        ; standard.py:293:36 @[ utils.py:220:29 ]
+	ds_swizzle_b32 v3, v3 offset:swizzle(SWAP,1)
+.Ltmp3:
+	.loc	2 263 15                        ; standard.py:263:15 @[ standard.py:293:36 @[ utils.py:220:29 ] ]
+	s_waitcnt lgkmcnt(0)
+	v_add_co_ci_u32_e64 v1, null, v3, v1, vcc_lo
+	v_or_b32_e32 v3, v0, v5
+.Ltmp4:
+                                        ; implicit-def: $vgpr0
+	.loc	1 222 25                        ; utils.py:222:25
+	v_cmp_ne_u32_e64 s0, 0, v1
+	.loc	1 222 11 is_stmt 0              ; utils.py:222:11
+	s_and_saveexec_b32 s11, s0
+	s_xor_b32 s0, exec_lo, s11
+	s_cbranch_execnz .LBB0_14
+; %bb.7:                                ; %Flow3
+	.loc	1 0 11                          ; utils.py:0:11
+	s_andn2_saveexec_b32 s0, s0
+	s_cbranch_execnz .LBB0_15
+.LBB0_8:                                ; %Flow4
+	s_or_b32 exec_lo, exec_lo, s0
+	s_and_saveexec_b32 s0, s1
+	s_xor_b32 s0, exec_lo, s0
+	s_cbranch_execz .LBB0_10
+.LBB0_9:
+	s_lshl_b64 s[2:3], s[6:7], 2
+	v_mov_b32_e32 v2, 0
+	s_add_u32 s2, s8, s2
+	s_addc_u32 s3, s9, s3
+	s_or_b32 s10, s10, exec_lo
+	.loc	1 232 51 is_stmt 1              ; utils.py:232:51
+	s_waitcnt vmcnt(0)
+	global_store_dword v2, v0, s[2:3]
+.LBB0_10:                               ; %Flow5
+	.loc	1 0 51 is_stmt 0                ; utils.py:0:51
+	s_or_b32 exec_lo, exec_lo, s0
+.LBB0_11:                               ; %Flow2
+	s_and_saveexec_b32 s0, s10
+	s_xor_b32 s0, exec_lo, s0
+	s_cbranch_execz .LBB0_13
+; %bb.12:
+	s_load_dwordx2 s[0:1], s[4:5], 0x20
+	s_lshl_b64 s[2:3], s[6:7], 2
+	s_waitcnt vmcnt(0)
+	v_mov_b32_e32 v0, 0
+	s_waitcnt lgkmcnt(0)
+	s_add_u32 s0, s0, s2
+	s_addc_u32 s1, s1, s3
+	.loc	1 209 59 is_stmt 1              ; utils.py:209:59
+	global_store_dword v0, v1, s[0:1]
+.LBB0_13:                               ; %.critedge
+	.loc	1 200 8                         ; utils.py:200:8
+	s_endpgm
+.LBB0_14:
+	.loc	1 225 74                        ; utils.py:225:74
+	v_cndmask_b32_e32 v0, -1, v2, vcc_lo
+.Ltmp5:
+	.loc	2 191 40                        ; standard.py:191:40 @[ utils.py:225:38 ]
+	ds_swizzle_b32 v5, v0 offset:swizzle(SWAP,2)
+.Ltmp6:
+	.loc	2 170 27                        ; standard.py:170:27 @[ standard.py:191:40 @[ utils.py:225:38 ] ]
+	s_waitcnt lgkmcnt(0)
+	v_max_i32_e32 v0, v0, v5
+.Ltmp7:
+	.loc	2 191 40                        ; standard.py:191:40 @[ utils.py:225:38 ]
+	ds_swizzle_b32 v5, v0 offset:swizzle(SWAP,1)
+.Ltmp8:
+	.loc	2 170 27                        ; standard.py:170:27 @[ standard.py:191:40 @[ utils.py:225:38 ] ]
+	s_waitcnt lgkmcnt(0)
+	v_max_i32_e32 v0, v0, v5
+.Ltmp9:
+	.loc	1 230 39                        ; utils.py:230:39
+	v_cmp_eq_u32_e32 vcc_lo, v2, v0
+	.loc	1 230 68 is_stmt 0              ; utils.py:230:68
+	v_cndmask_b32_e32 v0, 0, v4, vcc_lo
+	.loc	1 232 51 is_stmt 1              ; utils.py:232:51
+	v_cmp_eq_u32_e32 vcc_lo, 0, v3
+                                        ; implicit-def: $vgpr3
+.Ltmp10:
+	.loc	2 293 36                        ; standard.py:293:36 @[ utils.py:230:16 ]
+	ds_swizzle_b32 v2, v0 offset:swizzle(SWAP,2)
+	s_and_b32 s1, vcc_lo, exec_lo
+.Ltmp11:
+	.loc	2 263 15                        ; standard.py:263:15 @[ standard.py:293:36 @[ utils.py:230:16 ] ]
+	s_waitcnt lgkmcnt(0)
+	v_add_nc_u32_e32 v0, v0, v2
+.Ltmp12:
+	.loc	2 293 36                        ; standard.py:293:36 @[ utils.py:230:16 ]
+	ds_swizzle_b32 v2, v0 offset:swizzle(SWAP,1)
+.Ltmp13:
+	.loc	2 263 15                        ; standard.py:263:15 @[ standard.py:293:36 @[ utils.py:230:16 ] ]
+	s_waitcnt lgkmcnt(0)
+	v_add_nc_u32_e32 v0, v0, v2
+	s_andn2_saveexec_b32 s0, s0
+	s_cbranch_execz .LBB0_8
+.Ltmp14:
+.LBB0_15:
+	.loc	1 235 35                        ; utils.py:235:35
+	s_lshl_b64 s[12:13], s[6:7], 2
+	v_mov_b32_e32 v0, 0
+	s_add_u32 s2, s2, s12
+	s_addc_u32 s3, s3, s13
+	.loc	1 236 51                        ; utils.py:236:51
+	v_cmp_eq_u32_e32 vcc_lo, 0, v3
+	s_andn2_b32 s1, s1, exec_lo
+	.loc	1 235 35                        ; utils.py:235:35
+	global_load_dword v0, v0, s[2:3]
+	s_and_b32 s2, vcc_lo, exec_lo
+	s_or_b32 s1, s1, s2
+	s_or_b32 exec_lo, exec_lo, s0
+	s_and_saveexec_b32 s0, s1
+	s_xor_b32 s0, exec_lo, s0
+	s_cbranch_execnz .LBB0_9
+	s_branch .LBB0_10
+.Ltmp15:
+	.section	.rodata,"a",@progbits
+	.p2align	6, 0x0
+	.amdhsa_kernel eagle_prepare_next_token_padded_kernel
+		.amdhsa_group_segment_fixed_size 0
+		.amdhsa_private_segment_fixed_size 0
+		.amdhsa_kernarg_size 72
+		.amdhsa_user_sgpr_count 6
+		.amdhsa_user_sgpr_private_segment_buffer 1
+		.amdhsa_user_sgpr_dispatch_ptr 0
+		.amdhsa_user_sgpr_queue_ptr 0
+		.amdhsa_user_sgpr_kernarg_segment_ptr 1
+		.amdhsa_user_sgpr_dispatch_id 0
+		.amdhsa_user_sgpr_flat_scratch_init 0
+		.amdhsa_user_sgpr_private_segment_size 0
+		.amdhsa_wavefront_size32 1
+		.amdhsa_uses_dynamic_stack 0
+		.amdhsa_system_sgpr_private_segment_wavefront_offset 0
+		.amdhsa_system_sgpr_workgroup_id_x 1
+		.amdhsa_system_sgpr_workgroup_id_y 0
+		.amdhsa_system_sgpr_workgroup_id_z 0
+		.amdhsa_system_sgpr_workgroup_info 0
+		.amdhsa_system_vgpr_workitem_id 0
+		.amdhsa_next_free_vgpr 6
+		.amdhsa_next_free_sgpr 16
+		.amdhsa_reserve_vcc 1
+		.amdhsa_reserve_flat_scratch 0
+		.amdhsa_float_round_mode_32 0
+		.amdhsa_float_round_mode_16_64 0
+		.amdhsa_float_denorm_mode_32 3
+		.amdhsa_float_denorm_mode_16_64 3
+		.amdhsa_dx10_clamp 1
+		.amdhsa_ieee_mode 1
+		.amdhsa_fp16_overflow 0
+		.amdhsa_workgroup_processor_mode 1
+		.amdhsa_memory_ordered 1
+		.amdhsa_forward_progress 1
+		.amdhsa_shared_vgpr_count 0
+		.amdhsa_exception_fp_ieee_invalid_op 0
+		.amdhsa_exception_fp_denorm_src 0
+		.amdhsa_exception_fp_ieee_div_zero 0
+		.amdhsa_exception_fp_ieee_overflow 0
+		.amdhsa_exception_fp_ieee_underflow 0
+		.amdhsa_exception_fp_ieee_inexact 0
+		.amdhsa_exception_int_div_zero 0
+	.end_amdhsa_kernel
+	.text
+.Lfunc_end0:
+	.size	eagle_prepare_next_token_padded_kernel, .Lfunc_end0-eagle_prepare_next_token_padded_kernel
+	.cfi_endproc
+                                        ; -- End function
+	.set eagle_prepare_next_token_padded_kernel.num_vgpr, 6
+	.set eagle_prepare_next_token_padded_kernel.num_agpr, 0
+	.set eagle_prepare_next_token_padded_kernel.numbered_sgpr, 16
+	.set eagle_prepare_next_token_padded_kernel.num_named_barrier, 0
+	.set eagle_prepare_next_token_padded_kernel.private_seg_size, 0
+	.set eagle_prepare_next_token_padded_kernel.uses_vcc, 1
+	.set eagle_prepare_next_token_padded_kernel.uses_flat_scratch, 0
+	.set eagle_prepare_next_token_padded_kernel.has_dyn_sized_stack, 0
+	.set eagle_prepare_next_token_padded_kernel.has_recursion, 0
+	.set eagle_prepare_next_token_padded_kernel.has_indirect_call, 0
+	.section	.AMDGPU.csdata,"",@progbits
+; Kernel info:
+; codeLenInByte = 652
+; TotalNumSgprs: 18
+; NumVgprs: 6
+; ScratchSize: 0
+; MemoryBound: 0
+; FloatMode: 240
+; IeeeMode: 1
+; LDSByteSize: 0 bytes/workgroup (compile time only)
+; SGPRBlocks: 0
+; VGPRBlocks: 0
+; NumSGPRsForWavesPerEU: 18
+; NumVGPRsForWavesPerEU: 6
+; Occupancy: 16
+; WaveLimiterHint : 0
+; COMPUTE_PGM_RSRC2:SCRATCH_EN: 0
+; COMPUTE_PGM_RSRC2:USER_SGPR: 6
+; COMPUTE_PGM_RSRC2:TRAP_HANDLER: 0
+; COMPUTE_PGM_RSRC2:TGID_X_EN: 1
+; COMPUTE_PGM_RSRC2:TGID_Y_EN: 0
+; COMPUTE_PGM_RSRC2:TGID_Z_EN: 0
+; COMPUTE_PGM_RSRC2:TIDIG_COMP_CNT: 0
+	.text
+	.p2alignl 6, 3214868480
+	.fill 48, 4, 3214868480
+	.section	.AMDGPU.gpr_maximums,"",@progbits
+	.set amdgpu.max_num_vgpr, 0
+	.set amdgpu.max_num_agpr, 0
+	.set amdgpu.max_num_sgpr, 0
+	.text
+	.section	.debug_abbrev,"",@progbits
+	.byte	1                               ; Abbreviation Code
+	.byte	17                              ; DW_TAG_compile_unit
+	.byte	1                               ; DW_CHILDREN_yes
+	.byte	37                              ; DW_AT_producer
+	.byte	14                              ; DW_FORM_strp
+	.byte	19                              ; DW_AT_language
+	.byte	5                               ; DW_FORM_data2
+	.byte	3                               ; DW_AT_name
+	.byte	14                              ; DW_FORM_strp
+	.byte	16                              ; DW_AT_stmt_list
+	.byte	23                              ; DW_FORM_sec_offset
+	.byte	27                              ; DW_AT_comp_dir
+	.byte	14                              ; DW_FORM_strp
+	.byte	17                              ; DW_AT_low_pc
+	.byte	1                               ; DW_FORM_addr
+	.byte	18                              ; DW_AT_high_pc
+	.byte	6                               ; DW_FORM_data4
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	2                               ; Abbreviation Code
+	.byte	46                              ; DW_TAG_subprogram
+	.byte	0                               ; DW_CHILDREN_no
+	.byte	3                               ; DW_AT_name
+	.byte	14                              ; DW_FORM_strp
+	.byte	32                              ; DW_AT_inline
+	.byte	11                              ; DW_FORM_data1
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	3                               ; Abbreviation Code
+	.byte	46                              ; DW_TAG_subprogram
+	.byte	1                               ; DW_CHILDREN_yes
+	.byte	17                              ; DW_AT_low_pc
+	.byte	1                               ; DW_FORM_addr
+	.byte	18                              ; DW_AT_high_pc
+	.byte	6                               ; DW_FORM_data4
+	.byte	49                              ; DW_AT_abstract_origin
+	.byte	19                              ; DW_FORM_ref4
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	4                               ; Abbreviation Code
+	.byte	29                              ; DW_TAG_inlined_subroutine
+	.byte	1                               ; DW_CHILDREN_yes
+	.byte	49                              ; DW_AT_abstract_origin
+	.byte	19                              ; DW_FORM_ref4
+	.byte	17                              ; DW_AT_low_pc
+	.byte	1                               ; DW_FORM_addr
+	.byte	18                              ; DW_AT_high_pc
+	.byte	6                               ; DW_FORM_data4
+	.byte	88                              ; DW_AT_call_file
+	.byte	11                              ; DW_FORM_data1
+	.byte	89                              ; DW_AT_call_line
+	.byte	11                              ; DW_FORM_data1
+	.byte	87                              ; DW_AT_call_column
+	.byte	11                              ; DW_FORM_data1
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	5                               ; Abbreviation Code
+	.byte	29                              ; DW_TAG_inlined_subroutine
+	.byte	0                               ; DW_CHILDREN_no
+	.byte	49                              ; DW_AT_abstract_origin
+	.byte	19                              ; DW_FORM_ref4
+	.byte	85                              ; DW_AT_ranges
+	.byte	23                              ; DW_FORM_sec_offset
+	.byte	88                              ; DW_AT_call_file
+	.byte	11                              ; DW_FORM_data1
+	.byte	89                              ; DW_AT_call_line
+	.byte	5                               ; DW_FORM_data2
+	.byte	87                              ; DW_AT_call_column
+	.byte	11                              ; DW_FORM_data1
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	6                               ; Abbreviation Code
+	.byte	29                              ; DW_TAG_inlined_subroutine
+	.byte	0                               ; DW_CHILDREN_no
+	.byte	49                              ; DW_AT_abstract_origin
+	.byte	19                              ; DW_FORM_ref4
+	.byte	85                              ; DW_AT_ranges
+	.byte	23                              ; DW_FORM_sec_offset
+	.byte	88                              ; DW_AT_call_file
+	.byte	11                              ; DW_FORM_data1
+	.byte	89                              ; DW_AT_call_line
+	.byte	11                              ; DW_FORM_data1
+	.byte	87                              ; DW_AT_call_column
+	.byte	11                              ; DW_FORM_data1
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	0                               ; EOM(3)
+	.section	.debug_info,"",@progbits
+.Lcu_begin0:
+	.long	.Ldebug_info_end0-.Ldebug_info_start0 ; Length of Unit
+.Ldebug_info_start0:
+	.short	4                               ; DWARF version number
+	.long	.debug_abbrev                   ; Offset Into Abbrev. Section
+	.byte	8                               ; Address Size (in bytes)
+	.byte	1                               ; Abbrev [1] 0xb:0x9d DW_TAG_compile_unit
+	.long	.Linfo_string0                  ; DW_AT_producer
+	.short	2                               ; DW_AT_language
+	.long	.Linfo_string1                  ; DW_AT_name
+	.long	.Lline_table_start0             ; DW_AT_stmt_list
+	.long	.Linfo_string2                  ; DW_AT_comp_dir
+	.quad	.Lfunc_begin0                   ; DW_AT_low_pc
+	.long	.Lfunc_end0-.Lfunc_begin0       ; DW_AT_high_pc
+	.byte	2                               ; Abbrev [2] 0x2a:0x6 DW_TAG_subprogram
+	.long	.Linfo_string3                  ; DW_AT_name
+	.byte	1                               ; DW_AT_inline
+	.byte	3                               ; Abbrev [3] 0x30:0x77 DW_TAG_subprogram
+	.quad	.Lfunc_begin0                   ; DW_AT_low_pc
+	.long	.Lfunc_end0-.Lfunc_begin0       ; DW_AT_high_pc
+	.long	42                              ; DW_AT_abstract_origin
+	.byte	4                               ; Abbrev [4] 0x41:0x22 DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.quad	.Ltmp0                          ; DW_AT_low_pc
+	.long	.Ltmp4-.Ltmp0                   ; DW_AT_high_pc
+	.byte	1                               ; DW_AT_call_file
+	.byte	220                             ; DW_AT_call_line
+	.byte	29                              ; DW_AT_call_column
+	.byte	5                               ; Abbrev [5] 0x55:0xd DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges0                 ; DW_AT_ranges
+	.byte	2                               ; DW_AT_call_file
+	.short	293                             ; DW_AT_call_line
+	.byte	36                              ; DW_AT_call_column
+	.byte	0                               ; End Of Children Mark
+	.byte	4                               ; Abbrev [4] 0x63:0x21 DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.quad	.Ltmp5                          ; DW_AT_low_pc
+	.long	.Ltmp9-.Ltmp5                   ; DW_AT_high_pc
+	.byte	1                               ; DW_AT_call_file
+	.byte	225                             ; DW_AT_call_line
+	.byte	38                              ; DW_AT_call_column
+	.byte	6                               ; Abbrev [6] 0x77:0xc DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges1                 ; DW_AT_ranges
+	.byte	2                               ; DW_AT_call_file
+	.byte	191                             ; DW_AT_call_line
+	.byte	40                              ; DW_AT_call_column
+	.byte	0                               ; End Of Children Mark
+	.byte	4                               ; Abbrev [4] 0x84:0x22 DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.quad	.Ltmp10                         ; DW_AT_low_pc
+	.long	.Ltmp14-.Ltmp10                 ; DW_AT_high_pc
+	.byte	1                               ; DW_AT_call_file
+	.byte	230                             ; DW_AT_call_line
+	.byte	16                              ; DW_AT_call_column
+	.byte	5                               ; Abbrev [5] 0x98:0xd DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges2                 ; DW_AT_ranges
+	.byte	2                               ; DW_AT_call_file
+	.short	293                             ; DW_AT_call_line
+	.byte	36                              ; DW_AT_call_column
+	.byte	0                               ; End Of Children Mark
+	.byte	0                               ; End Of Children Mark
+	.byte	0                               ; End Of Children Mark
+.Ldebug_info_end0:
+	.section	.debug_ranges,"",@progbits
+.Ldebug_ranges0:
+	.quad	.Ltmp1-.Lfunc_begin0
+	.quad	.Ltmp2-.Lfunc_begin0
+	.quad	.Ltmp3-.Lfunc_begin0
+	.quad	.Ltmp4-.Lfunc_begin0
+	.quad	0
+	.quad	0
+.Ldebug_ranges1:
+	.quad	.Ltmp6-.Lfunc_begin0
+	.quad	.Ltmp7-.Lfunc_begin0
+	.quad	.Ltmp8-.Lfunc_begin0
+	.quad	.Ltmp9-.Lfunc_begin0
+	.quad	0
+	.quad	0
+.Ldebug_ranges2:
+	.quad	.Ltmp11-.Lfunc_begin0
+	.quad	.Ltmp12-.Lfunc_begin0
+	.quad	.Ltmp13-.Lfunc_begin0
+	.quad	.Ltmp14-.Lfunc_begin0
+	.quad	0
+	.quad	0
+	.section	.debug_str,"MS",@progbits,1
+.Linfo_string0:
+	.asciz	"triton"                        ; string offset=0
+.Linfo_string1:
+	.asciz	"utils.py"                      ; string offset=7
+.Linfo_string2:
+	.asciz	"/app/vllm-src/vllm/v1/spec_decode" ; string offset=16
+.Linfo_string3:
+	.asciz	"eagle_prepare_next_token_padded_kernel" ; string offset=50
+	.section	".note.GNU-stack","",@progbits
+	.amdgpu_metadata
+---
+amdhsa.kernels:
+  - .args:
+      - .address_space:  global
+        .offset:         0
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         8
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         16
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         24
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         32
+        .size:           8
+        .value_kind:     global_buffer
+      - .offset:         40
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         44
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         48
+        .size:           4
+        .value_kind:     by_value
+      - .address_space:  global
+        .offset:         56
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         64
+        .size:           8
+        .value_kind:     global_buffer
+    .group_segment_fixed_size: 0
+    .kernarg_segment_align: 8
+    .kernarg_segment_size: 72
+    .max_flat_workgroup_size: 128
+    .name:           eagle_prepare_next_token_padded_kernel
+    .private_segment_fixed_size: 0
+    .sgpr_count:     18
+    .sgpr_spill_count: 0
+    .symbol:         eagle_prepare_next_token_padded_kernel.kd
+    .uniform_work_group_size: 1
+    .uses_dynamic_stack: false
+    .vgpr_count:     6
+    .vgpr_spill_count: 0
+    .wavefront_size: 32
+    .workgroup_processor_mode: 1
+amdhsa.target:   amdgcn-amd-amdhsa--gfx1030
+amdhsa.version:
+  - 1
+  - 2
+...
+
+	.end_amdgpu_metadata
+	.section	.debug_line,"",@progbits
+.Lline_table_start0:

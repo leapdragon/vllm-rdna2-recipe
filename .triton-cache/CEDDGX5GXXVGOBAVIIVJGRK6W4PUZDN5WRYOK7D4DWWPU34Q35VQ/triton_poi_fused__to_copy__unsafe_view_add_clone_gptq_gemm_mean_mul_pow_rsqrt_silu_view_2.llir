@@ -1,0 +1,173 @@
+; ModuleID = 'LLVMDialectModule'
+source_filename = "LLVMDialectModule"
+target datalayout = "e-p:64:64-p1:64:64-p2:32:32-p3:32:32-p4:64:64-p5:32:32-p6:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024-v2048:2048-n32:64-S32-A5-G1-ni:7:8:9"
+target triple = "amdgcn-amd-amdhsa"
+
+; Function Attrs: mustprogress nocallback nofree nosync nounwind speculatable willreturn memory(none)
+declare !dbg !6 float @llvm.amdgcn.rsq.f32(float) #0
+
+; Function Attrs: mustprogress nofree norecurse nosync nounwind willreturn memory(argmem: readwrite)
+define amdgpu_kernel void @triton_poi_fused__to_copy__unsafe_view_add_clone_gptq_gemm_mean_mul_pow_rsqrt_silu_view_2(ptr addrspace(1) inreg readonly captures(none) %0, ptr addrspace(1) inreg readonly captures(none) %1, ptr addrspace(1) inreg readonly captures(none) %2, ptr addrspace(1) inreg readonly captures(none) %3, ptr addrspace(1) inreg writeonly captures(none) %4, i64 inreg %5, i32 inreg %6, ptr addrspace(1) inreg readnone captures(none) %7, ptr addrspace(1) inreg readnone captures(none) %8) local_unnamed_addr #1 !dbg !9 {
+  %10 = tail call i32 @llvm.amdgcn.workgroup.id.x(), !dbg !10
+  %11 = shl i32 %10, 9, !dbg !11
+  %12 = tail call i32 @llvm.amdgcn.workitem.id.x(), !dbg !12
+  %13 = shl nuw nsw i32 %12, 2, !dbg !12
+  %14 = and i32 %13, 508, !dbg !12
+  %15 = or disjoint i32 %14, %11, !dbg !13
+  %16 = icmp slt i32 %15, %6, !dbg !14
+  br i1 %16, label %17, label %.critedge, !dbg !15
+
+17:                                               ; preds = %9
+  %18 = srem i32 %15, 3072, !dbg !16
+  %.lhs.trunc = trunc nsw i32 %18 to i16, !dbg !17
+  %19 = srem i16 %.lhs.trunc, 128, !dbg !17
+  %20 = sext i16 %19 to i64, !dbg !18
+  %21 = sdiv i32 %15, 128, !dbg !19
+  %22 = sext i32 %21 to i64, !dbg !20
+  %23 = mul i64 %5, 24, !dbg !21
+  %24 = srem i64 %22, %23, !dbg !20
+  %.idx = shl nsw i64 %24, 8, !dbg !22
+  %25 = getelementptr i8, ptr addrspace(1) %0, i64 %.idx, !dbg !22
+  %26 = getelementptr half, ptr addrspace(1) %25, i64 %20, !dbg !22
+  %27 = load <4 x half>, ptr addrspace(1) %26, align 8, !dbg !15
+  %28 = getelementptr float, ptr addrspace(1) %1, i64 %24, !dbg !23
+  %29 = load <1 x float>, ptr addrspace(1) %28, align 4, !dbg !24
+  %30 = extractelement <1 x float> %29, i64 0, !dbg !24
+  %31 = mul i32 %21, 128, !dbg !25
+  %.decomposed = sub i32 %15, %31, !dbg !25
+  %32 = sext i32 %.decomposed to i64, !dbg !26
+  %33 = getelementptr half, ptr addrspace(1) %2, i64 %32, !dbg !26
+  %34 = load <4 x half>, ptr addrspace(1) %33, align 8, !dbg !27
+  %.lhs.trunc9 = trunc nsw i64 %24 to i32, !dbg !28
+  %.lhs.trunc9.frozen = freeze i32 %.lhs.trunc9, !dbg !28
+  %35 = sdiv i32 %.lhs.trunc9.frozen, 24, !dbg !28
+  %.sext10 = sext i32 %35 to i64, !dbg !28
+  %36 = srem i64 %.sext10, %5, !dbg !29
+  %37 = mul i32 %35, 24, !dbg !30
+  %.decomposed13 = sub i32 %.lhs.trunc9.frozen, %37, !dbg !30
+  %.sext12 = sext i32 %.decomposed13 to i64, !dbg !30
+  %.idx1 = shl nsw i64 %.sext12, 8, !dbg !31
+  %38 = getelementptr i8, ptr addrspace(1) %3, i64 %.idx1, !dbg !31
+  %.idx2 = shl nsw i64 %36, 14, !dbg !31
+  %39 = getelementptr i8, ptr addrspace(1) %38, i64 %.idx2, !dbg !31
+  %40 = getelementptr half, ptr addrspace(1) %39, i64 %20, !dbg !31
+  %41 = load <4 x half>, ptr addrspace(1) %40, align 8, !dbg !32
+  %42 = fmul float %30, 7.812500e-03, !dbg !33
+  %43 = fadd float %42, 0x3EB0C6F7A0000000, !dbg !34
+  %44 = tail call float @llvm.amdgcn.rsq.f32(float %43), !dbg !35
+  %45 = shufflevector <4 x half> %27, <4 x half> poison, <2 x i32> <i32 0, i32 1>, !dbg !36
+  %46 = fpext <2 x half> %45 to <2 x float>, !dbg !36
+  %47 = shufflevector <4 x half> %34, <4 x half> poison, <2 x i32> <i32 0, i32 1>, !dbg !37
+  %48 = fpext <2 x half> %47 to <2 x float>, !dbg !37
+  %49 = shufflevector <4 x half> %41, <4 x half> poison, <2 x i32> <i32 0, i32 1>, !dbg !38
+  %50 = fpext <2 x half> %49 to <2 x float>, !dbg !38
+  %51 = extractelement <2 x float> %50, i64 0, !dbg !39
+  %52 = fsub float 0.000000e+00, %51, !dbg !39
+  %53 = tail call noundef float @llvm.exp.f32(float %52), !dbg !40
+  %54 = insertelement <2 x float> poison, float %44, i64 0, !dbg !41
+  %55 = shufflevector <2 x float> %54, <2 x float> poison, <2 x i32> zeroinitializer, !dbg !41
+  %56 = fmul <2 x float> %55, %46, !dbg !41
+  %57 = fmul <2 x float> %56, %48, !dbg !42
+  %58 = extractelement <2 x float> %50, i64 1, !dbg !39
+  %59 = fsub float 0.000000e+00, %58, !dbg !39
+  %60 = tail call noundef float @llvm.exp.f32(float %59), !dbg !40
+  %61 = insertelement <2 x float> poison, float %53, i64 0, !dbg !43
+  %62 = insertelement <2 x float> %61, float %60, i64 1, !dbg !43
+  %63 = fadd <2 x float> %62, splat (float 1.000000e+00), !dbg !43
+  %64 = fdiv <2 x float> %50, %63, !dbg !44
+  %65 = fmul <2 x float> %57, %64, !dbg !45
+  %66 = fptrunc <2 x float> %65 to <2 x half>, !dbg !46
+  %67 = shufflevector <4 x half> %27, <4 x half> poison, <2 x i32> <i32 2, i32 3>, !dbg !36
+  %68 = fpext <2 x half> %67 to <2 x float>, !dbg !36
+  %69 = shufflevector <4 x half> %34, <4 x half> poison, <2 x i32> <i32 2, i32 3>, !dbg !37
+  %70 = fpext <2 x half> %69 to <2 x float>, !dbg !37
+  %71 = shufflevector <4 x half> %41, <4 x half> poison, <2 x i32> <i32 2, i32 3>, !dbg !38
+  %72 = fpext <2 x half> %71 to <2 x float>, !dbg !38
+  %73 = extractelement <2 x float> %72, i64 0, !dbg !39
+  %74 = fsub float 0.000000e+00, %73, !dbg !39
+  %75 = tail call noundef float @llvm.exp.f32(float %74), !dbg !40
+  %76 = fmul <2 x float> %55, %68, !dbg !41
+  %77 = fmul <2 x float> %76, %70, !dbg !42
+  %78 = extractelement <2 x float> %72, i64 1, !dbg !39
+  %79 = fsub float 0.000000e+00, %78, !dbg !39
+  %80 = tail call noundef float @llvm.exp.f32(float %79), !dbg !40
+  %81 = insertelement <2 x float> poison, float %75, i64 0, !dbg !43
+  %82 = insertelement <2 x float> %81, float %80, i64 1, !dbg !43
+  %83 = fadd <2 x float> %82, splat (float 1.000000e+00), !dbg !43
+  %84 = fdiv <2 x float> %72, %83, !dbg !44
+  %85 = fmul <2 x float> %77, %84, !dbg !45
+  %86 = fptrunc <2 x float> %85 to <2 x half>, !dbg !46
+  %87 = shufflevector <2 x half> %66, <2 x half> %86, <4 x i32> <i32 0, i32 1, i32 2, i32 3>, !dbg !46
+  %88 = sext i32 %15 to i64, !dbg !47
+  %89 = getelementptr half, ptr addrspace(1) %4, i64 %88, !dbg !47
+  store <4 x half> %87, ptr addrspace(1) %89, align 8, !dbg !46
+  br label %.critedge, !dbg !46
+
+.critedge:                                        ; preds = %9, %17
+  ret void, !dbg !48
+}
+
+; Function Attrs: mustprogress nocallback nofree nosync nounwind speculatable willreturn memory(none)
+declare noundef i32 @llvm.amdgcn.workgroup.id.x() #0
+
+; Function Attrs: mustprogress nocallback nofree nosync nounwind speculatable willreturn memory(none)
+declare noundef range(i32 0, 1024) i32 @llvm.amdgcn.workitem.id.x() #0
+
+; Function Attrs: mustprogress nocallback nofree nosync nounwind speculatable willreturn memory(none)
+declare float @llvm.exp.f32(float) #0
+
+attributes #0 = { mustprogress nocallback nofree nosync nounwind speculatable willreturn memory(none) }
+attributes #1 = { mustprogress nofree norecurse nosync nounwind willreturn memory(argmem: readwrite) "amdgpu-agpr-alloc"="0" "amdgpu-flat-work-group-size"="1,128" "amdgpu-no-cluster-id-x" "amdgpu-no-cluster-id-y" "amdgpu-no-cluster-id-z" "amdgpu-no-completion-action" "amdgpu-no-default-queue" "amdgpu-no-dispatch-id" "amdgpu-no-dispatch-ptr" "amdgpu-no-flat-scratch-init" "amdgpu-no-heap-ptr" "amdgpu-no-hostcall-ptr" "amdgpu-no-implicitarg-ptr" "amdgpu-no-lds-kernel-id" "amdgpu-no-multigrid-sync-arg" "amdgpu-no-queue-ptr" "amdgpu-no-workgroup-id-x" "amdgpu-no-workgroup-id-y" "amdgpu-no-workgroup-id-z" "amdgpu-no-workitem-id-x" "amdgpu-no-workitem-id-y" "amdgpu-no-workitem-id-z" "amdgpu-waves-per-eu"="0, 0" "denormal-fp-math-f32"="ieee" "uniform-work-group-size"="true" }
+
+!llvm.dbg.cu = !{!0}
+!llvm.module.flags = !{!2, !3, !4, !5}
+
+!0 = distinct !DICompileUnit(language: DW_LANG_C, file: !1, producer: "triton", isOptimized: true, runtimeVersion: 0, emissionKind: LineTablesOnly)
+!1 = !DIFile(filename: "cpvchqm7xndbxiqqchocqyiuihalqev7kqd4qm3zkx42nji5m6rn.py", directory: "/compile-cache/torch_compile_cache/torch_aot_compile/d7204f1f34e6c77165926f0ab12c850fae4d90351461363e3eba42a413c914ff/inductor_cache/pv")
+!2 = !{i32 2, !"Debug Info Version", i32 3}
+!3 = !{i32 1, !"amdhsa_code_object_version", i32 500}
+!4 = !{i32 1, !"wchar_size", i32 4}
+!5 = !{i32 8, !"PIC Level", i32 0}
+!6 = !DISubprogram(name: "llvm.amdgcn.rsq.f32", linkageName: "llvm.amdgcn.rsq.f32", scope: !1, file: !1, line: 34, type: !7, scopeLine: 34, spFlags: DISPFlagOptimized)
+!7 = !DISubroutineType(cc: DW_CC_normal, types: !8)
+!8 = !{}
+!9 = distinct !DISubprogram(name: "triton_poi_fused__to_copy__unsafe_view_add_clone_gptq_gemm_mean_mul_pow_rsqrt_silu_view_2", linkageName: "triton_poi_fused__to_copy__unsafe_view_add_clone_gptq_gemm_mean_mul_pow_rsqrt_silu_view_2", scope: !1, file: !1, line: 18, type: !7, scopeLine: 18, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0)
+!10 = !DILocation(line: 19, column: 28, scope: !9)
+!11 = !DILocation(line: 19, column: 33, scope: !9)
+!12 = !DILocation(line: 20, column: 36, scope: !9)
+!13 = !DILocation(line: 20, column: 23, scope: !9)
+!14 = !DILocation(line: 21, column: 21, scope: !9)
+!15 = !DILocation(line: 25, column: 90, scope: !9)
+!16 = !DILocation(line: 22, column: 19, scope: !9)
+!17 = !DILocation(line: 25, column: 82, scope: !9)
+!18 = !DILocation(line: 25, column: 77, scope: !9)
+!19 = !DILocation(line: 25, column: 55, scope: !9)
+!20 = !DILocation(line: 25, column: 63, scope: !9)
+!21 = !DILocation(line: 25, column: 66, scope: !9)
+!22 = !DILocation(line: 25, column: 30, scope: !9)
+!23 = !DILocation(line: 26, column: 31, scope: !9)
+!24 = !DILocation(line: 26, column: 69, scope: !9)
+!25 = !DILocation(line: 27, column: 36, scope: !9)
+!26 = !DILocation(line: 27, column: 31, scope: !9)
+!27 = !DILocation(line: 27, column: 43, scope: !9)
+!28 = !DILocation(line: 28, column: 135, scope: !9)
+!29 = !DILocation(line: 28, column: 141, scope: !9)
+!30 = !DILocation(line: 28, column: 78, scope: !9)
+!31 = !DILocation(line: 28, column: 31, scope: !9)
+!32 = !DILocation(line: 28, column: 164, scope: !9)
+!33 = !DILocation(line: 31, column: 19, scope: !9)
+!34 = !DILocation(line: 33, column: 18, scope: !9)
+!35 = !DILocation(line: 34, column: 20, scope: !9)
+!36 = !DILocation(line: 25, column: 130, scope: !9)
+!37 = !DILocation(line: 27, column: 83, scope: !9)
+!38 = !DILocation(line: 28, column: 204, scope: !9)
+!39 = !DILocation(line: 39, column: 13, scope: !9)
+!40 = !DILocation(line: 40, column: 26, scope: !9)
+!41 = !DILocation(line: 35, column: 18, scope: !9)
+!42 = !DILocation(line: 37, column: 19, scope: !9)
+!43 = !DILocation(line: 42, column: 20, scope: !9)
+!44 = !DILocation(line: 43, column: 21, scope: !9)
+!45 = !DILocation(line: 44, column: 20, scope: !9)
+!46 = !DILocation(line: 46, column: 37, scope: !9)
+!47 = !DILocation(line: 46, column: 25, scope: !9)
+!48 = !DILocation(line: 46, column: 4, scope: !9)

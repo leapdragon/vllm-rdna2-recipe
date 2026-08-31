@@ -1,0 +1,943 @@
+	.amdgcn_target "amdgcn-amd-amdhsa--gfx1030"
+	.amdhsa_code_object_version 5
+	.text
+	.globl	precopy_mamba_align_fused_kernel ; -- Begin function precopy_mamba_align_fused_kernel
+	.p2align	8
+	.type	precopy_mamba_align_fused_kernel,@function
+precopy_mamba_align_fused_kernel:       ; @precopy_mamba_align_fused_kernel
+.Lfunc_begin0:
+	.file	1 "/app/vllm-src/vllm/v1/worker" "mamba_utils.py"
+	.loc	1 330 0                         ; mamba_utils.py:330:0
+	.cfi_sections .debug_frame
+	.cfi_startproc
+; %bb.0:
+	s_load_dword s0, s[4:5], 0x68
+.Ltmp0:
+	.loc	1 369 20 prologue_end           ; mamba_utils.py:369:20
+	s_waitcnt lgkmcnt(0)
+	s_cmp_lt_i32 s6, s0
+	s_cbranch_scc0 .LBB0_43
+; %bb.1:
+	.loc	1 0 20 is_stmt 0                ; mamba_utils.py:0:20
+	s_load_dwordx4 s[8:11], s[4:5], 0x0
+	s_mov_b32 s2, s7
+	.loc	1 378 22 is_stmt 1              ; mamba_utils.py:378:22
+	s_ashr_i32 s7, s6, 31
+	s_lshl_b64 s[18:19], s[6:7], 2
+	s_waitcnt lgkmcnt(0)
+	s_add_u32 s0, s10, s18
+	s_addc_u32 s1, s11, s19
+	.loc	1 379 22                        ; mamba_utils.py:379:22
+	s_add_u32 s8, s8, s18
+	.loc	1 378 22                        ; mamba_utils.py:378:22
+	s_load_dword s16, s[0:1], 0x0
+	.loc	1 379 22                        ; mamba_utils.py:379:22
+	s_addc_u32 s9, s9, s19
+	s_load_dword s0, s[8:9], 0x0
+	.loc	1 383 17                        ; mamba_utils.py:383:17
+	s_waitcnt lgkmcnt(0)
+	s_cmp_lt_i32 s16, 0
+	s_cselect_b32 s1, -1, 0
+	.loc	1 383 33 is_stmt 0              ; mamba_utils.py:383:33
+	s_cmp_eq_u32 s16, s0
+	s_cselect_b32 s3, -1, 0
+	.loc	1 383 22                        ; mamba_utils.py:383:22
+	s_or_b32 s1, s1, s3
+	s_and_b32 vcc_lo, exec_lo, s1
+	s_cbranch_vccnz .LBB0_43
+; %bb.2:
+	.loc	1 0 22                          ; mamba_utils.py:0:22
+	s_clause 0x2
+	s_load_dwordx8 s[8:15], s[4:5], 0x10
+	s_load_dwordx8 s[20:27], s[4:5], 0x30
+	s_load_dwordx2 s[4:5], s[4:5], 0x50
+	s_mov_b32 s17, -1
+	.loc	1 386 25 is_stmt 1              ; mamba_utils.py:386:25
+	s_waitcnt lgkmcnt(0)
+	s_add_u32 s8, s8, s18
+	s_addc_u32 s9, s9, s19
+.Ltmp1:
+	.loc	1 61 30                         ; mamba_utils.py:61:30 @[ mamba_utils.py:404:8 ]
+	s_ashr_i32 s3, s2, 31
+	.loc	1 73 56                         ; mamba_utils.py:73:56 @[ mamba_utils.py:404:8 ]
+	s_mul_i32 s1, s12, s7
+	.loc	1 61 30                         ; mamba_utils.py:61:30 @[ mamba_utils.py:404:8 ]
+	s_lshl_b64 s[18:19], s[2:3], 3
+	s_add_u32 s34, s14, s18
+	s_addc_u32 s35, s15, s19
+	.loc	1 62 33                         ; mamba_utils.py:62:33 @[ mamba_utils.py:404:8 ]
+	s_add_u32 s20, s20, s18
+	s_addc_u32 s21, s21, s19
+	.loc	1 63 30                         ; mamba_utils.py:63:30 @[ mamba_utils.py:404:8 ]
+	s_lshl_b64 s[2:3], s[2:3], 2
+	s_add_u32 s14, s22, s2
+	s_addc_u32 s15, s23, s3
+	.loc	1 64 31                         ; mamba_utils.py:64:31 @[ mamba_utils.py:404:8 ]
+	s_add_u32 s18, s24, s18
+	s_addc_u32 s19, s25, s19
+	.loc	1 65 25                         ; mamba_utils.py:65:25 @[ mamba_utils.py:404:8 ]
+	s_add_u32 s22, s26, s2
+	s_addc_u32 s23, s27, s3
+	.loc	1 70 24                         ; mamba_utils.py:70:24 @[ mamba_utils.py:404:8 ]
+	s_add_u32 s2, s4, s2
+	s_addc_u32 s3, s5, s3
+	.loc	1 73 56                         ; mamba_utils.py:73:56 @[ mamba_utils.py:404:8 ]
+	s_mul_hi_u32 s4, s12, s6
+	.loc	1 70 24                         ; mamba_utils.py:70:24 @[ mamba_utils.py:404:8 ]
+	s_load_dword s2, s[2:3], 0x0
+	.loc	1 73 56                         ; mamba_utils.py:73:56 @[ mamba_utils.py:404:8 ]
+	s_mul_i32 s5, s13, s6
+	.loc	1 63 30                         ; mamba_utils.py:63:30 @[ mamba_utils.py:404:8 ]
+	s_load_dword s30, s[14:15], 0x0
+	.loc	1 70 24                         ; mamba_utils.py:70:24 @[ mamba_utils.py:404:8 ]
+	s_waitcnt lgkmcnt(0)
+	s_ashr_i32 s3, s2, 31
+	.loc	1 71 30                         ; mamba_utils.py:71:30 @[ mamba_utils.py:404:8 ]
+	s_lshl_b64 s[2:3], s[2:3], 3
+	s_add_u32 s2, s10, s2
+	s_addc_u32 s3, s11, s3
+	.loc	1 73 56                         ; mamba_utils.py:73:56 @[ mamba_utils.py:404:8 ]
+	s_add_i32 s1, s4, s1
+	.loc	1 71 30                         ; mamba_utils.py:71:30 @[ mamba_utils.py:404:8 ]
+	s_load_dwordx2 s[2:3], s[2:3], 0x0
+	.loc	1 73 56                         ; mamba_utils.py:73:56 @[ mamba_utils.py:404:8 ]
+	s_mul_i32 s4, s12, s6
+	s_add_i32 s5, s1, s5
+	.loc	1 73 43 is_stmt 0               ; mamba_utils.py:73:43 @[ mamba_utils.py:404:8 ]
+	s_lshl_b64 s[4:5], s[4:5], 2
+	s_waitcnt lgkmcnt(0)
+	s_add_u32 s28, s2, s4
+	s_addc_u32 s29, s3, s5
+	.loc	1 78 47 is_stmt 1               ; mamba_utils.py:78:47 @[ mamba_utils.py:404:8 ]
+	s_ashr_i32 s1, s0, 31
+	s_lshl_b64 s[0:1], s[0:1], 2
+	s_add_u32 s0, s28, s0
+	s_addc_u32 s1, s29, s1
+	.loc	1 64 31                         ; mamba_utils.py:64:31 @[ mamba_utils.py:404:8 ]
+	s_load_dwordx2 s[14:15], s[18:19], 0x0
+	.loc	1 78 28                         ; mamba_utils.py:78:28 @[ mamba_utils.py:404:8 ]
+	s_load_dword s0, s[0:1], 0x0
+	.loc	1 62 33                         ; mamba_utils.py:62:33 @[ mamba_utils.py:404:8 ]
+	s_load_dwordx2 s[6:7], s[20:21], 0x0
+	.loc	1 61 30                         ; mamba_utils.py:61:30 @[ mamba_utils.py:404:8 ]
+	s_load_dwordx2 s[4:5], s[34:35], 0x0
+	.loc	1 65 25                         ; mamba_utils.py:65:25 @[ mamba_utils.py:404:8 ]
+	s_load_dword s31, s[22:23], 0x0
+.Ltmp2:
+	.loc	1 386 25                        ; mamba_utils.py:386:25
+	s_load_dword s8, s[8:9], 0x0
+	s_waitcnt lgkmcnt(0)
+	s_mul_hi_u32 s33, s14, s30
+.Ltmp3:
+	.loc	1 78 28                         ; mamba_utils.py:78:28 @[ mamba_utils.py:404:8 ]
+	s_ashr_i32 s1, s0, 31
+	.loc	1 79 49                         ; mamba_utils.py:79:49 @[ mamba_utils.py:404:8 ]
+	s_mul_hi_u32 s2, s6, s0
+	s_mul_i32 s1, s6, s1
+	s_mul_i32 s3, s7, s0
+	s_add_i32 s1, s2, s1
+	s_mul_i32 s0, s6, s0
+	s_add_i32 s1, s1, s3
+	.loc	1 79 33 is_stmt 0               ; mamba_utils.py:79:33 @[ mamba_utils.py:404:8 ]
+	s_add_u32 s10, s0, s4
+	s_addc_u32 s11, s1, s5
+	.loc	1 81 33 is_stmt 1               ; mamba_utils.py:81:33 @[ mamba_utils.py:404:8 ]
+	s_cmp_lt_i32 s31, 1
+	s_mul_i32 s15, s15, s30
+	s_mul_i32 s12, s14, s30
+	s_cbranch_scc0 .LBB0_7
+; %bb.3:
+	.loc	1 122 53                        ; mamba_utils.py:122:53 @[ mamba_utils.py:404:8 ]
+	s_mov_b32 s17, 0
+	s_lshl_b64 s[0:1], s[16:17], 2
+	s_add_u32 s2, s28, s0
+	s_addc_u32 s3, s29, s1
+	.loc	1 122 63 is_stmt 0              ; mamba_utils.py:122:63 @[ mamba_utils.py:404:8 ]
+	s_ashr_i32 s9, s8, 31
+	s_lshl_b64 s[0:1], s[8:9], 2
+	s_add_u32 s0, s2, s0
+	s_addc_u32 s1, s3, s1
+	.loc	1 122 34                        ; mamba_utils.py:122:34 @[ mamba_utils.py:404:8 ]
+	s_load_dword s0, s[0:1], 0x0
+	s_waitcnt lgkmcnt(0)
+	s_ashr_i32 s1, s0, 31
+	.loc	1 123 55 is_stmt 1              ; mamba_utils.py:123:55 @[ mamba_utils.py:404:8 ]
+	s_mul_hi_u32 s2, s6, s0
+	s_mul_i32 s1, s6, s1
+	s_mul_i32 s3, s7, s0
+	s_add_i32 s1, s2, s1
+	s_mul_i32 s0, s6, s0
+	s_add_i32 s1, s1, s3
+	.loc	1 123 33 is_stmt 0              ; mamba_utils.py:123:33 @[ mamba_utils.py:404:8 ]
+	s_add_u32 s18, s0, s4
+	s_addc_u32 s19, s1, s5
+	.loc	1 127 35 is_stmt 1              ; mamba_utils.py:127:35 @[ mamba_utils.py:404:8 ]
+	s_ashr_i32 s0, s30, 31
+	s_mul_i32 s0, s14, s0
+	s_add_i32 s0, s33, s0
+	s_add_i32 s13, s0, s15
+	.loc	1 134 33                        ; mamba_utils.py:134:33 @[ mamba_utils.py:404:8 ]
+	s_ashr_i32 s0, s13, 31
+	.loc	1 138 37                        ; mamba_utils.py:138:37 @[ mamba_utils.py:404:8 ]
+	v_cmp_lt_i64_e64 s2, s[12:13], 8
+	.loc	1 134 33                        ; mamba_utils.py:134:33 @[ mamba_utils.py:404:8 ]
+	s_lshr_b32 s0, s0, 29
+	s_add_u32 s0, s12, s0
+	s_addc_u32 s1, s13, 0
+	.loc	1 138 37                        ; mamba_utils.py:138:37 @[ mamba_utils.py:404:8 ]
+	s_and_b32 vcc_lo, exec_lo, s2
+	.loc	1 134 33                        ; mamba_utils.py:134:33 @[ mamba_utils.py:404:8 ]
+	s_ashr_i64 s[20:21], s[0:1], 3
+	s_cbranch_vccnz .LBB0_6
+; %bb.4:                                ; %.lr.ph
+	.loc	1 137 27                        ; mamba_utils.py:137:27 @[ mamba_utils.py:404:8 ]
+	v_lshlrev_b32_e32 v1, 3, v0
+	v_or_b32_e32 v2, 0x380, v0
+	s_mov_b64 s[22:23], 0
+	s_mov_b32 s3, 0x31027000
+	s_mov_b32 s2, 0x7ffffffe
+	v_or_b32_e32 v3, 0x400, v1
+	v_or_b32_e32 v4, 0x800, v1
+	v_or_b32_e32 v5, 0xc00, v1
+	v_or_b32_e32 v6, 0x1000, v1
+	v_or_b32_e32 v7, 0x1400, v1
+	v_or_b32_e32 v8, 0x1800, v1
+	v_lshlrev_b32_e32 v9, 3, v2
+	s_mov_b64 s[24:25], s[18:19]
+	s_mov_b64 s[26:27], s[10:11]
+.LBB0_5:                                ; =>This Inner Loop Header: Depth=1
+	.loc	1 139 20                        ; mamba_utils.py:139:20 @[ mamba_utils.py:404:8 ]
+	v_add_co_u32 v10, s0, v0, s22
+	v_add_co_ci_u32_e64 v11, null, 0, s23, s0
+	.loc	1 139 31 is_stmt 0              ; mamba_utils.py:139:31 @[ mamba_utils.py:404:8 ]
+	v_add_co_u32 v12, s0, v2, s22
+	.loc	1 139 20                        ; mamba_utils.py:139:20 @[ mamba_utils.py:404:8 ]
+	v_add_co_u32 v14, vcc_lo, 0x80, v10
+	v_add_co_ci_u32_e64 v15, null, 0, v11, vcc_lo
+	v_add_co_u32 v16, vcc_lo, 0x100, v10
+	v_add_co_ci_u32_e64 v17, null, 0, v11, vcc_lo
+	v_add_co_u32 v18, vcc_lo, 0x180, v10
+	v_add_co_ci_u32_e64 v19, null, 0, v11, vcc_lo
+	v_add_co_u32 v20, vcc_lo, 0x200, v10
+	v_add_co_ci_u32_e64 v21, null, 0, v11, vcc_lo
+	v_add_co_u32 v22, vcc_lo, 0x280, v10
+	v_add_co_ci_u32_e64 v23, null, 0, v11, vcc_lo
+	v_add_co_u32 v24, vcc_lo, 0x300, v10
+	v_add_co_ci_u32_e64 v25, null, 0, v11, vcc_lo
+	.loc	1 139 31                        ; mamba_utils.py:139:31 @[ mamba_utils.py:404:8 ]
+	v_cmp_gt_i64_e32 vcc_lo, s[20:21], v[10:11]
+	v_add_co_ci_u32_e64 v13, null, 0, s23, s0
+	.loc	1 140 23 is_stmt 1              ; mamba_utils.py:140:23 @[ mamba_utils.py:404:8 ]
+	s_and_b32 s1, s25, 0xffff
+	s_mov_b32 s0, s24
+	v_cndmask_b32_e32 v26, 0x80000000, v1, vcc_lo
+	.loc	1 139 31                        ; mamba_utils.py:139:31 @[ mamba_utils.py:404:8 ]
+	v_cmp_gt_i64_e32 vcc_lo, s[20:21], v[12:13]
+	.loc	1 140 23                        ; mamba_utils.py:140:23 @[ mamba_utils.py:404:8 ]
+	v_cndmask_b32_e32 v27, 0x80000000, v9, vcc_lo
+	.loc	1 139 31                        ; mamba_utils.py:139:31 @[ mamba_utils.py:404:8 ]
+	v_cmp_gt_i64_e32 vcc_lo, s[20:21], v[14:15]
+	.loc	1 140 23                        ; mamba_utils.py:140:23 @[ mamba_utils.py:404:8 ]
+	v_cndmask_b32_e32 v28, 0x80000000, v3, vcc_lo
+	.loc	1 139 31                        ; mamba_utils.py:139:31 @[ mamba_utils.py:404:8 ]
+	v_cmp_gt_i64_e32 vcc_lo, s[20:21], v[16:17]
+	.loc	1 140 23                        ; mamba_utils.py:140:23 @[ mamba_utils.py:404:8 ]
+	v_cndmask_b32_e32 v29, 0x80000000, v4, vcc_lo
+	.loc	1 139 31                        ; mamba_utils.py:139:31 @[ mamba_utils.py:404:8 ]
+	v_cmp_gt_i64_e32 vcc_lo, s[20:21], v[18:19]
+	.loc	1 140 23                        ; mamba_utils.py:140:23 @[ mamba_utils.py:404:8 ]
+	v_cndmask_b32_e32 v30, 0x80000000, v5, vcc_lo
+	.loc	1 139 31                        ; mamba_utils.py:139:31 @[ mamba_utils.py:404:8 ]
+	v_cmp_gt_i64_e32 vcc_lo, s[20:21], v[20:21]
+	.loc	1 140 23                        ; mamba_utils.py:140:23 @[ mamba_utils.py:404:8 ]
+	v_cndmask_b32_e32 v31, 0x80000000, v6, vcc_lo
+	.loc	1 139 31                        ; mamba_utils.py:139:31 @[ mamba_utils.py:404:8 ]
+	v_cmp_gt_i64_e32 vcc_lo, s[20:21], v[22:23]
+	.loc	1 140 23                        ; mamba_utils.py:140:23 @[ mamba_utils.py:404:8 ]
+	v_cndmask_b32_e32 v32, 0x80000000, v7, vcc_lo
+	.loc	1 139 31                        ; mamba_utils.py:139:31 @[ mamba_utils.py:404:8 ]
+	v_cmp_gt_i64_e32 vcc_lo, s[20:21], v[24:25]
+	.loc	1 140 23                        ; mamba_utils.py:140:23 @[ mamba_utils.py:404:8 ]
+	v_cndmask_b32_e32 v33, 0x80000000, v8, vcc_lo
+	s_clause 0x7
+	buffer_load_dwordx2 v[10:11], v26, s[0:3], 0 offen
+	buffer_load_dwordx2 v[12:13], v28, s[0:3], 0 offen
+	buffer_load_dwordx2 v[14:15], v29, s[0:3], 0 offen
+	buffer_load_dwordx2 v[16:17], v30, s[0:3], 0 offen
+	buffer_load_dwordx2 v[18:19], v31, s[0:3], 0 offen
+	buffer_load_dwordx2 v[20:21], v32, s[0:3], 0 offen
+	buffer_load_dwordx2 v[22:23], v33, s[0:3], 0 offen
+	buffer_load_dwordx2 v[24:25], v27, s[0:3], 0 offen
+	.loc	1 141 40                        ; mamba_utils.py:141:40 @[ mamba_utils.py:404:8 ]
+	s_and_b32 s1, s27, 0xffff
+	.loc	1 138 37                        ; mamba_utils.py:138:37 @[ mamba_utils.py:404:8 ]
+	s_add_u32 s22, s22, 0x400
+	s_addc_u32 s23, s23, 0
+	.loc	1 141 40                        ; mamba_utils.py:141:40 @[ mamba_utils.py:404:8 ]
+	s_mov_b32 s0, s26
+	.loc	1 138 37                        ; mamba_utils.py:138:37 @[ mamba_utils.py:404:8 ]
+	v_cmp_lt_i64_e64 s9, s[22:23], s[20:21]
+	s_add_u32 s26, s26, 0x2000
+	s_addc_u32 s27, s27, 0
+	s_add_u32 s24, s24, 0x2000
+	s_addc_u32 s25, s25, 0
+	.loc	1 141 40                        ; mamba_utils.py:141:40 @[ mamba_utils.py:404:8 ]
+	s_waitcnt vmcnt(7)
+	buffer_store_dwordx2 v[10:11], v26, s[0:3], 0 offen
+	s_waitcnt vmcnt(6)
+	buffer_store_dwordx2 v[12:13], v28, s[0:3], 0 offen
+	s_waitcnt vmcnt(5)
+	buffer_store_dwordx2 v[14:15], v29, s[0:3], 0 offen
+	s_waitcnt vmcnt(4)
+	buffer_store_dwordx2 v[16:17], v30, s[0:3], 0 offen
+	s_waitcnt vmcnt(3)
+	buffer_store_dwordx2 v[18:19], v31, s[0:3], 0 offen
+	s_waitcnt vmcnt(2)
+	buffer_store_dwordx2 v[20:21], v32, s[0:3], 0 offen
+	s_waitcnt vmcnt(1)
+	buffer_store_dwordx2 v[22:23], v33, s[0:3], 0 offen
+	s_waitcnt vmcnt(0)
+	buffer_store_dwordx2 v[24:25], v27, s[0:3], 0 offen
+	.loc	1 138 37                        ; mamba_utils.py:138:37 @[ mamba_utils.py:404:8 ]
+	s_and_b32 vcc_lo, exec_lo, s9
+	s_cbranch_vccnz .LBB0_5
+.LBB0_6:                                ; %._crit_edge
+	.loc	1 143 33                        ; mamba_utils.py:143:33 @[ mamba_utils.py:404:8 ]
+	s_lshl_b64 s[2:3], s[20:21], 3
+	.loc	1 145 28                        ; mamba_utils.py:145:28 @[ mamba_utils.py:404:8 ]
+	v_and_b32_e32 v1, 7, v0
+	.loc	1 148 27                        ; mamba_utils.py:148:27 @[ mamba_utils.py:404:8 ]
+	v_mov_b32_e32 v2, 0
+	.loc	1 144 29                        ; mamba_utils.py:144:29 @[ mamba_utils.py:404:8 ]
+	s_sub_u32 s22, s12, s2
+	s_subb_u32 s23, s13, s3
+	.loc	1 146 27                        ; mamba_utils.py:146:27 @[ mamba_utils.py:404:8 ]
+	s_add_u32 s0, s18, s2
+	s_addc_u32 s1, s19, s3
+	.loc	1 148 27                        ; mamba_utils.py:148:27 @[ mamba_utils.py:404:8 ]
+	v_cmp_gt_i64_e32 vcc_lo, s[22:23], v[1:2]
+	.loc	1 147 27                        ; mamba_utils.py:147:27 @[ mamba_utils.py:404:8 ]
+	s_add_u32 s20, s10, s2
+	s_addc_u32 s9, s11, s3
+	.loc	1 149 24                        ; mamba_utils.py:149:24 @[ mamba_utils.py:404:8 ]
+	s_and_b32 s1, s1, 0xffff
+	s_mov_b32 s3, 0x31027000
+	s_mov_b32 s2, 0x7ffffffe
+	v_cndmask_b32_e32 v1, 0x80000000, v1, vcc_lo
+	.loc	1 150 34                        ; mamba_utils.py:150:34 @[ mamba_utils.py:404:8 ]
+	v_and_b32_e32 v3, 0x78, v0
+	s_and_b32 s21, s9, 0xffff
+	s_mov_b32 s22, s2
+	s_mov_b32 s23, s3
+	.loc	1 149 24                        ; mamba_utils.py:149:24 @[ mamba_utils.py:404:8 ]
+	buffer_load_ubyte v2, v1, s[0:3], 0 offen
+	.loc	1 150 34                        ; mamba_utils.py:150:34 @[ mamba_utils.py:404:8 ]
+	v_cmp_eq_u32_e32 vcc_lo, 0, v3
+	v_cndmask_b32_e32 v1, 0x80000000, v1, vcc_lo
+	s_waitcnt vmcnt(0)
+	buffer_store_byte v2, v1, s[20:23], 0 offen
+.LBB0_7:                                ; %Flow43
+	.loc	1 0 34 is_stmt 0                ; mamba_utils.py:0:34
+	s_and_b32 vcc_lo, exec_lo, s17
+	s_cbranch_vccz .LBB0_43
+; %bb.8:
+	.loc	1 108 66 is_stmt 1              ; mamba_utils.py:108:66 @[ mamba_utils.py:404:8 ]
+	s_ashr_i32 s0, s30, 31
+	.loc	1 110 42                        ; mamba_utils.py:110:42 @[ mamba_utils.py:404:8 ]
+	s_sub_i32 s1, s31, s8
+	.loc	1 110 69 is_stmt 0              ; mamba_utils.py:110:69 @[ mamba_utils.py:404:8 ]
+	s_mul_i32 s0, s14, s0
+	.loc	1 110 57                        ; mamba_utils.py:110:57 @[ mamba_utils.py:404:8 ]
+	s_ashr_i32 s2, s1, 31
+	.loc	1 110 69                        ; mamba_utils.py:110:69 @[ mamba_utils.py:404:8 ]
+	s_add_i32 s0, s33, s0
+	.loc	1 111 40 is_stmt 1              ; mamba_utils.py:111:40 @[ mamba_utils.py:404:8 ]
+	s_mul_hi_u32 s3, s12, s1
+	s_mul_i32 s2, s12, s2
+	.loc	1 110 69                        ; mamba_utils.py:110:69 @[ mamba_utils.py:404:8 ]
+	s_add_i32 s0, s0, s15
+	.loc	1 111 40                        ; mamba_utils.py:111:40 @[ mamba_utils.py:404:8 ]
+	s_add_i32 s2, s3, s2
+	s_mul_i32 s3, s0, s1
+	s_mul_i32 s14, s12, s1
+	s_add_i32 s15, s2, s3
+	.loc	1 113 37                        ; mamba_utils.py:113:37 @[ mamba_utils.py:404:8 ]
+	v_cmp_lt_i64_e64 s1, s[14:15], 1
+	s_and_b32 vcc_lo, exec_lo, s1
+	s_cbranch_vccnz .LBB0_43
+; %bb.9:                                ; %.lr.ph9
+	.loc	1 114 24                        ; mamba_utils.py:114:24 @[ mamba_utils.py:404:8 ]
+	s_mov_b32 s17, 0
+	v_mov_b32_e32 v1, 0
+	.loc	1 107 50                        ; mamba_utils.py:107:50 @[ mamba_utils.py:404:8 ]
+	s_lshl_b64 s[2:3], s[16:17], 2
+	.loc	1 108 66                        ; mamba_utils.py:108:66 @[ mamba_utils.py:404:8 ]
+	s_mul_hi_u32 s1, s12, s8
+	.loc	1 107 50                        ; mamba_utils.py:107:50 @[ mamba_utils.py:404:8 ]
+	s_add_u32 s2, s28, s2
+	s_addc_u32 s3, s29, s3
+	.loc	1 108 66                        ; mamba_utils.py:108:66 @[ mamba_utils.py:404:8 ]
+	s_mul_i32 s0, s0, s8
+	.loc	1 107 31                        ; mamba_utils.py:107:31 @[ mamba_utils.py:404:8 ]
+	global_load_dword v1, v1, s[2:3]
+	.loc	1 108 35                        ; mamba_utils.py:108:35 @[ mamba_utils.py:404:8 ]
+	s_ashr_i32 s2, s8, 31
+	.loc	1 108 66 is_stmt 0              ; mamba_utils.py:108:66 @[ mamba_utils.py:404:8 ]
+	s_mul_i32 s3, s12, s8
+	s_mul_i32 s2, s12, s2
+	.loc	1 112 31 is_stmt 1              ; mamba_utils.py:112:31 @[ mamba_utils.py:404:8 ]
+	v_or_b32_e32 v5, 0x380, v0
+	.loc	1 108 66                        ; mamba_utils.py:108:66 @[ mamba_utils.py:404:8 ]
+	s_add_i32 s1, s1, s2
+	.loc	1 113 37                        ; mamba_utils.py:113:37 @[ mamba_utils.py:404:8 ]
+	v_add_co_u32 v6, s2, s10, v0
+	.loc	1 108 66                        ; mamba_utils.py:108:66 @[ mamba_utils.py:404:8 ]
+	s_add_i32 s1, s1, s0
+	.loc	1 113 37                        ; mamba_utils.py:113:37 @[ mamba_utils.py:404:8 ]
+	s_add_u32 s0, s4, s3
+	s_addc_u32 s1, s5, s1
+	v_add_co_ci_u32_e64 v7, null, s11, 0, s2
+	s_mov_b64 s[8:9], 0
+	.loc	1 107 31                        ; mamba_utils.py:107:31 @[ mamba_utils.py:404:8 ]
+	s_waitcnt vmcnt(0)
+	v_ashrrev_i32_e32 v2, 31, v1
+	.loc	1 109 52                        ; mamba_utils.py:109:52 @[ mamba_utils.py:404:8 ]
+	v_mul_hi_u32 v3, s6, v1
+	v_mul_lo_u32 v4, s7, v1
+	v_mul_lo_u32 v1, s6, v1
+	v_mul_lo_u32 v2, s6, v2
+	.loc	1 113 37                        ; mamba_utils.py:113:37 @[ mamba_utils.py:404:8 ]
+	v_add_co_u32 v1, vcc_lo, s0, v1
+	.loc	1 109 52                        ; mamba_utils.py:109:52 @[ mamba_utils.py:404:8 ]
+	v_add_nc_u32_e32 v2, v3, v2
+	.loc	1 113 37                        ; mamba_utils.py:113:37 @[ mamba_utils.py:404:8 ]
+	v_add_co_u32 v8, s0, s10, v5
+	v_add_co_ci_u32_e64 v9, null, s11, 0, s0
+	.loc	1 109 52                        ; mamba_utils.py:109:52 @[ mamba_utils.py:404:8 ]
+	v_add_nc_u32_e32 v2, v2, v4
+	.loc	1 113 37                        ; mamba_utils.py:113:37 @[ mamba_utils.py:404:8 ]
+	v_add_co_ci_u32_e64 v2, null, s1, v2, vcc_lo
+	v_add_co_u32 v10, vcc_lo, v1, v0
+	v_add_co_ci_u32_e64 v11, null, 0, v2, vcc_lo
+	v_add_co_u32 v12, vcc_lo, v1, v5
+	v_add_co_ci_u32_e64 v13, null, 0, v2, vcc_lo
+	s_branch .LBB0_11
+.LBB0_10:                               ;   in Loop: Header=BB0_11 Depth=1
+	.loc	1 0 37 is_stmt 0                ; mamba_utils.py:0:37
+	s_or_b32 exec_lo, exec_lo, s0
+	.loc	1 113 37 is_stmt 1              ; mamba_utils.py:113:37 @[ mamba_utils.py:404:8 ]
+	s_add_u32 s8, s8, 0x400
+	s_addc_u32 s9, s9, 0
+	v_cmp_ge_i64_e64 s0, s[8:9], s[14:15]
+	s_and_b32 vcc_lo, exec_lo, s0
+	s_cbranch_vccnz .LBB0_43
+.LBB0_11:                               ; =>This Inner Loop Header: Depth=1
+	.loc	1 114 24                        ; mamba_utils.py:114:24 @[ mamba_utils.py:404:8 ]
+	s_waitcnt vmcnt(0)
+	v_add_co_u32 v3, s0, v0, s8
+	v_add_co_ci_u32_e64 v4, null, 0, s9, s0
+	.loc	1 115 39                        ; mamba_utils.py:115:39 @[ mamba_utils.py:404:8 ]
+	v_add_co_u32 v1, s0, v10, s8
+	v_add_co_ci_u32_e64 v2, null, s9, v11, s0
+	.loc	1 114 35                        ; mamba_utils.py:114:35 @[ mamba_utils.py:404:8 ]
+	v_cmp_gt_i64_e32 vcc_lo, s[14:15], v[3:4]
+	v_mov_b32_e32 v15, 0
+	.loc	1 117 27                        ; mamba_utils.py:117:27 @[ mamba_utils.py:404:8 ]
+	s_and_saveexec_b32 s0, vcc_lo
+	s_cbranch_execz .LBB0_13
+; %bb.12:                               ;   in Loop: Header=BB0_11 Depth=1
+	global_load_ubyte v15, v[1:2], off
+.LBB0_13:                               ;   in Loop: Header=BB0_11 Depth=1
+	.loc	1 0 27 is_stmt 0                ; mamba_utils.py:0:27
+	s_or_b32 exec_lo, exec_lo, s0
+	.loc	1 114 24 is_stmt 1              ; mamba_utils.py:114:24 @[ mamba_utils.py:404:8 ]
+	v_add_co_u32 v16, s0, 0x80, v3
+	v_add_co_ci_u32_e64 v17, null, 0, v4, s0
+	v_mov_b32_e32 v14, 0
+	.loc	1 114 35 is_stmt 0              ; mamba_utils.py:114:35 @[ mamba_utils.py:404:8 ]
+	v_cmp_gt_i64_e64 s0, s[14:15], v[16:17]
+	v_mov_b32_e32 v16, 0
+	.loc	1 117 27 is_stmt 1              ; mamba_utils.py:117:27 @[ mamba_utils.py:404:8 ]
+	s_and_saveexec_b32 s1, s0
+	s_cbranch_execz .LBB0_15
+; %bb.14:                               ;   in Loop: Header=BB0_11 Depth=1
+	global_load_ubyte v16, v[1:2], off offset:128
+.LBB0_15:                               ;   in Loop: Header=BB0_11 Depth=1
+	.loc	1 0 27 is_stmt 0                ; mamba_utils.py:0:27
+	s_or_b32 exec_lo, exec_lo, s1
+	.loc	1 114 24 is_stmt 1              ; mamba_utils.py:114:24 @[ mamba_utils.py:404:8 ]
+	v_add_co_u32 v17, s1, 0x100, v3
+	v_add_co_ci_u32_e64 v18, null, 0, v4, s1
+	.loc	1 114 35 is_stmt 0              ; mamba_utils.py:114:35 @[ mamba_utils.py:404:8 ]
+	v_cmp_gt_i64_e64 s1, s[14:15], v[17:18]
+	.loc	1 117 27 is_stmt 1              ; mamba_utils.py:117:27 @[ mamba_utils.py:404:8 ]
+	s_and_saveexec_b32 s2, s1
+	s_cbranch_execz .LBB0_17
+; %bb.16:                               ;   in Loop: Header=BB0_11 Depth=1
+	global_load_ubyte v14, v[1:2], off offset:256
+.LBB0_17:                               ;   in Loop: Header=BB0_11 Depth=1
+	.loc	1 0 27 is_stmt 0                ; mamba_utils.py:0:27
+	s_or_b32 exec_lo, exec_lo, s2
+	.loc	1 114 24 is_stmt 1              ; mamba_utils.py:114:24 @[ mamba_utils.py:404:8 ]
+	v_add_co_u32 v17, s2, 0x180, v3
+	v_add_co_ci_u32_e64 v18, null, 0, v4, s2
+	.loc	1 114 35 is_stmt 0              ; mamba_utils.py:114:35 @[ mamba_utils.py:404:8 ]
+	v_cmp_gt_i64_e64 s2, s[14:15], v[17:18]
+	v_mov_b32_e32 v17, 0
+	v_mov_b32_e32 v18, 0
+	.loc	1 117 27 is_stmt 1              ; mamba_utils.py:117:27 @[ mamba_utils.py:404:8 ]
+	s_and_saveexec_b32 s3, s2
+	s_cbranch_execz .LBB0_19
+; %bb.18:                               ;   in Loop: Header=BB0_11 Depth=1
+	global_load_ubyte v18, v[1:2], off offset:384
+.LBB0_19:                               ;   in Loop: Header=BB0_11 Depth=1
+	.loc	1 0 27 is_stmt 0                ; mamba_utils.py:0:27
+	s_or_b32 exec_lo, exec_lo, s3
+	.loc	1 114 24 is_stmt 1              ; mamba_utils.py:114:24 @[ mamba_utils.py:404:8 ]
+	v_add_co_u32 v19, s3, 0x200, v3
+	v_add_co_ci_u32_e64 v20, null, 0, v4, s3
+	.loc	1 114 35 is_stmt 0              ; mamba_utils.py:114:35 @[ mamba_utils.py:404:8 ]
+	v_cmp_gt_i64_e64 s3, s[14:15], v[19:20]
+	.loc	1 117 27 is_stmt 1              ; mamba_utils.py:117:27 @[ mamba_utils.py:404:8 ]
+	s_and_saveexec_b32 s4, s3
+	s_cbranch_execz .LBB0_21
+; %bb.20:                               ;   in Loop: Header=BB0_11 Depth=1
+	global_load_ubyte v17, v[1:2], off offset:512
+.LBB0_21:                               ;   in Loop: Header=BB0_11 Depth=1
+	.loc	1 0 27 is_stmt 0                ; mamba_utils.py:0:27
+	s_or_b32 exec_lo, exec_lo, s4
+	.loc	1 114 24 is_stmt 1              ; mamba_utils.py:114:24 @[ mamba_utils.py:404:8 ]
+	v_add_co_u32 v19, s4, 0x280, v3
+	v_add_co_ci_u32_e64 v20, null, 0, v4, s4
+	.loc	1 114 35 is_stmt 0              ; mamba_utils.py:114:35 @[ mamba_utils.py:404:8 ]
+	v_cmp_gt_i64_e64 s4, s[14:15], v[19:20]
+	v_mov_b32_e32 v19, 0
+	v_mov_b32_e32 v20, 0
+	.loc	1 117 27 is_stmt 1              ; mamba_utils.py:117:27 @[ mamba_utils.py:404:8 ]
+	s_and_saveexec_b32 s5, s4
+	s_cbranch_execz .LBB0_23
+; %bb.22:                               ;   in Loop: Header=BB0_11 Depth=1
+	global_load_ubyte v20, v[1:2], off offset:640
+.LBB0_23:                               ;   in Loop: Header=BB0_11 Depth=1
+	.loc	1 0 27 is_stmt 0                ; mamba_utils.py:0:27
+	s_or_b32 exec_lo, exec_lo, s5
+	.loc	1 114 24 is_stmt 1              ; mamba_utils.py:114:24 @[ mamba_utils.py:404:8 ]
+	v_add_co_u32 v3, s5, 0x300, v3
+	v_add_co_ci_u32_e64 v4, null, 0, v4, s5
+	.loc	1 114 35 is_stmt 0              ; mamba_utils.py:114:35 @[ mamba_utils.py:404:8 ]
+	v_cmp_gt_i64_e64 s5, s[14:15], v[3:4]
+	.loc	1 117 27 is_stmt 1              ; mamba_utils.py:117:27 @[ mamba_utils.py:404:8 ]
+	s_and_saveexec_b32 s6, s5
+	s_cbranch_execz .LBB0_25
+; %bb.24:                               ;   in Loop: Header=BB0_11 Depth=1
+	global_load_ubyte v19, v[1:2], off offset:768
+.LBB0_25:                               ;   in Loop: Header=BB0_11 Depth=1
+	.loc	1 0 27 is_stmt 0                ; mamba_utils.py:0:27
+	s_or_b32 exec_lo, exec_lo, s6
+	.loc	1 114 35 is_stmt 1              ; mamba_utils.py:114:35 @[ mamba_utils.py:404:8 ]
+	v_add_co_u32 v1, s6, v5, s8
+	v_add_co_ci_u32_e64 v2, null, 0, s9, s6
+	v_mov_b32_e32 v3, 0
+	v_cmp_gt_i64_e64 s6, s[14:15], v[1:2]
+	.loc	1 117 27                        ; mamba_utils.py:117:27 @[ mamba_utils.py:404:8 ]
+	s_and_saveexec_b32 s10, s6
+	s_cbranch_execz .LBB0_27
+; %bb.26:                               ;   in Loop: Header=BB0_11 Depth=1
+	.loc	1 115 51                        ; mamba_utils.py:115:51 @[ mamba_utils.py:404:8 ]
+	v_add_co_u32 v1, s7, v12, s8
+	v_add_co_ci_u32_e64 v2, null, s9, v13, s7
+	.loc	1 117 27                        ; mamba_utils.py:117:27 @[ mamba_utils.py:404:8 ]
+	global_load_ubyte v3, v[1:2], off
+.LBB0_27:                               ;   in Loop: Header=BB0_11 Depth=1
+	.loc	1 0 27 is_stmt 0                ; mamba_utils.py:0:27
+	s_or_b32 exec_lo, exec_lo, s10
+	.loc	1 116 39 is_stmt 1              ; mamba_utils.py:116:39 @[ mamba_utils.py:404:8 ]
+	v_add_co_u32 v1, s7, v6, s8
+	v_add_co_ci_u32_e64 v2, null, s9, v7, s7
+	.loc	1 118 31                        ; mamba_utils.py:118:31 @[ mamba_utils.py:404:8 ]
+	s_and_saveexec_b32 s7, vcc_lo
+	s_cbranch_execnz .LBB0_35
+; %bb.28:                               ;   in Loop: Header=BB0_11 Depth=1
+	.loc	1 0 31 is_stmt 0                ; mamba_utils.py:0:31
+	s_or_b32 exec_lo, exec_lo, s7
+	.loc	1 118 31                        ; mamba_utils.py:118:31 @[ mamba_utils.py:404:8 ]
+	s_and_saveexec_b32 s7, s0
+	s_cbranch_execnz .LBB0_36
+.LBB0_29:                               ;   in Loop: Header=BB0_11 Depth=1
+	.loc	1 0 31                          ; mamba_utils.py:0:31
+	s_or_b32 exec_lo, exec_lo, s7
+	.loc	1 118 31                        ; mamba_utils.py:118:31 @[ mamba_utils.py:404:8 ]
+	s_and_saveexec_b32 s0, s1
+	s_cbranch_execnz .LBB0_37
+.LBB0_30:                               ;   in Loop: Header=BB0_11 Depth=1
+	.loc	1 0 31                          ; mamba_utils.py:0:31
+	s_or_b32 exec_lo, exec_lo, s0
+	.loc	1 118 31                        ; mamba_utils.py:118:31 @[ mamba_utils.py:404:8 ]
+	s_and_saveexec_b32 s0, s2
+	s_cbranch_execnz .LBB0_38
+.LBB0_31:                               ;   in Loop: Header=BB0_11 Depth=1
+	.loc	1 0 31                          ; mamba_utils.py:0:31
+	s_or_b32 exec_lo, exec_lo, s0
+	.loc	1 118 31                        ; mamba_utils.py:118:31 @[ mamba_utils.py:404:8 ]
+	s_and_saveexec_b32 s0, s3
+	s_cbranch_execnz .LBB0_39
+.LBB0_32:                               ;   in Loop: Header=BB0_11 Depth=1
+	.loc	1 0 31                          ; mamba_utils.py:0:31
+	s_or_b32 exec_lo, exec_lo, s0
+	.loc	1 118 31                        ; mamba_utils.py:118:31 @[ mamba_utils.py:404:8 ]
+	s_and_saveexec_b32 s0, s4
+	s_cbranch_execnz .LBB0_40
+.LBB0_33:                               ;   in Loop: Header=BB0_11 Depth=1
+	.loc	1 0 31                          ; mamba_utils.py:0:31
+	s_or_b32 exec_lo, exec_lo, s0
+	.loc	1 118 31                        ; mamba_utils.py:118:31 @[ mamba_utils.py:404:8 ]
+	s_and_saveexec_b32 s0, s5
+	s_cbranch_execnz .LBB0_41
+.LBB0_34:                               ;   in Loop: Header=BB0_11 Depth=1
+	.loc	1 0 31                          ; mamba_utils.py:0:31
+	s_or_b32 exec_lo, exec_lo, s0
+	.loc	1 118 31                        ; mamba_utils.py:118:31 @[ mamba_utils.py:404:8 ]
+	s_and_saveexec_b32 s0, s6
+	s_cbranch_execz .LBB0_10
+	s_branch .LBB0_42
+.LBB0_35:                               ;   in Loop: Header=BB0_11 Depth=1
+	s_waitcnt vmcnt(0)
+	global_store_byte v[1:2], v15, off
+	s_or_b32 exec_lo, exec_lo, s7
+	s_and_saveexec_b32 s7, s0
+	s_cbranch_execz .LBB0_29
+.LBB0_36:                               ;   in Loop: Header=BB0_11 Depth=1
+	s_waitcnt vmcnt(0)
+	global_store_byte v[1:2], v16, off offset:128
+	s_or_b32 exec_lo, exec_lo, s7
+	s_and_saveexec_b32 s0, s1
+	s_cbranch_execz .LBB0_30
+.LBB0_37:                               ;   in Loop: Header=BB0_11 Depth=1
+	s_waitcnt vmcnt(0)
+	global_store_byte v[1:2], v14, off offset:256
+	s_or_b32 exec_lo, exec_lo, s0
+	s_and_saveexec_b32 s0, s2
+	s_cbranch_execz .LBB0_31
+.LBB0_38:                               ;   in Loop: Header=BB0_11 Depth=1
+	s_waitcnt vmcnt(0)
+	global_store_byte v[1:2], v18, off offset:384
+	s_or_b32 exec_lo, exec_lo, s0
+	s_and_saveexec_b32 s0, s3
+	s_cbranch_execz .LBB0_32
+.LBB0_39:                               ;   in Loop: Header=BB0_11 Depth=1
+	s_waitcnt vmcnt(0)
+	global_store_byte v[1:2], v17, off offset:512
+	s_or_b32 exec_lo, exec_lo, s0
+	s_and_saveexec_b32 s0, s4
+	s_cbranch_execz .LBB0_33
+.LBB0_40:                               ;   in Loop: Header=BB0_11 Depth=1
+	s_waitcnt vmcnt(0)
+	global_store_byte v[1:2], v20, off offset:640
+	s_or_b32 exec_lo, exec_lo, s0
+	s_and_saveexec_b32 s0, s5
+	s_cbranch_execz .LBB0_34
+.LBB0_41:                               ;   in Loop: Header=BB0_11 Depth=1
+	s_waitcnt vmcnt(0)
+	global_store_byte v[1:2], v19, off offset:768
+	s_or_b32 exec_lo, exec_lo, s0
+	s_and_saveexec_b32 s0, s6
+	s_cbranch_execz .LBB0_10
+.LBB0_42:                               ;   in Loop: Header=BB0_11 Depth=1
+	.loc	1 116 51 is_stmt 1              ; mamba_utils.py:116:51 @[ mamba_utils.py:404:8 ]
+	v_add_co_u32 v1, vcc_lo, v8, s8
+	v_add_co_ci_u32_e64 v2, null, s9, v9, vcc_lo
+	.loc	1 118 31                        ; mamba_utils.py:118:31 @[ mamba_utils.py:404:8 ]
+	s_waitcnt vmcnt(0)
+	global_store_byte v[1:2], v3, off
+	s_branch .LBB0_10
+.Ltmp4:
+.LBB0_43:                               ; %.loopexit
+	.loc	1 370 8                         ; mamba_utils.py:370:8
+	s_endpgm
+.Ltmp5:
+	.section	.rodata,"a",@progbits
+	.p2align	6, 0x0
+	.amdhsa_kernel precopy_mamba_align_fused_kernel
+		.amdhsa_group_segment_fixed_size 0
+		.amdhsa_private_segment_fixed_size 0
+		.amdhsa_kernarg_size 128
+		.amdhsa_user_sgpr_count 6
+		.amdhsa_user_sgpr_private_segment_buffer 1
+		.amdhsa_user_sgpr_dispatch_ptr 0
+		.amdhsa_user_sgpr_queue_ptr 0
+		.amdhsa_user_sgpr_kernarg_segment_ptr 1
+		.amdhsa_user_sgpr_dispatch_id 0
+		.amdhsa_user_sgpr_flat_scratch_init 0
+		.amdhsa_user_sgpr_private_segment_size 0
+		.amdhsa_wavefront_size32 1
+		.amdhsa_uses_dynamic_stack 0
+		.amdhsa_system_sgpr_private_segment_wavefront_offset 0
+		.amdhsa_system_sgpr_workgroup_id_x 1
+		.amdhsa_system_sgpr_workgroup_id_y 1
+		.amdhsa_system_sgpr_workgroup_id_z 0
+		.amdhsa_system_sgpr_workgroup_info 0
+		.amdhsa_system_vgpr_workitem_id 0
+		.amdhsa_next_free_vgpr 34
+		.amdhsa_next_free_sgpr 36
+		.amdhsa_reserve_vcc 1
+		.amdhsa_reserve_flat_scratch 0
+		.amdhsa_float_round_mode_32 0
+		.amdhsa_float_round_mode_16_64 0
+		.amdhsa_float_denorm_mode_32 3
+		.amdhsa_float_denorm_mode_16_64 3
+		.amdhsa_dx10_clamp 1
+		.amdhsa_ieee_mode 1
+		.amdhsa_fp16_overflow 0
+		.amdhsa_workgroup_processor_mode 1
+		.amdhsa_memory_ordered 1
+		.amdhsa_forward_progress 1
+		.amdhsa_shared_vgpr_count 0
+		.amdhsa_exception_fp_ieee_invalid_op 0
+		.amdhsa_exception_fp_denorm_src 0
+		.amdhsa_exception_fp_ieee_div_zero 0
+		.amdhsa_exception_fp_ieee_overflow 0
+		.amdhsa_exception_fp_ieee_underflow 0
+		.amdhsa_exception_fp_ieee_inexact 0
+		.amdhsa_exception_int_div_zero 0
+	.end_amdhsa_kernel
+	.text
+.Lfunc_end0:
+	.size	precopy_mamba_align_fused_kernel, .Lfunc_end0-precopy_mamba_align_fused_kernel
+	.cfi_endproc
+                                        ; -- End function
+	.set precopy_mamba_align_fused_kernel.num_vgpr, 34
+	.set precopy_mamba_align_fused_kernel.num_agpr, 0
+	.set precopy_mamba_align_fused_kernel.numbered_sgpr, 36
+	.set precopy_mamba_align_fused_kernel.num_named_barrier, 0
+	.set precopy_mamba_align_fused_kernel.private_seg_size, 0
+	.set precopy_mamba_align_fused_kernel.uses_vcc, 1
+	.set precopy_mamba_align_fused_kernel.uses_flat_scratch, 0
+	.set precopy_mamba_align_fused_kernel.has_dyn_sized_stack, 0
+	.set precopy_mamba_align_fused_kernel.has_recursion, 0
+	.set precopy_mamba_align_fused_kernel.has_indirect_call, 0
+	.section	.AMDGPU.csdata,"",@progbits
+; Kernel info:
+; codeLenInByte = 2328
+; TotalNumSgprs: 38
+; NumVgprs: 34
+; ScratchSize: 0
+; MemoryBound: 0
+; FloatMode: 240
+; IeeeMode: 1
+; LDSByteSize: 0 bytes/workgroup (compile time only)
+; SGPRBlocks: 0
+; VGPRBlocks: 4
+; NumSGPRsForWavesPerEU: 38
+; NumVGPRsForWavesPerEU: 34
+; Occupancy: 16
+; WaveLimiterHint : 1
+; COMPUTE_PGM_RSRC2:SCRATCH_EN: 0
+; COMPUTE_PGM_RSRC2:USER_SGPR: 6
+; COMPUTE_PGM_RSRC2:TRAP_HANDLER: 0
+; COMPUTE_PGM_RSRC2:TGID_X_EN: 1
+; COMPUTE_PGM_RSRC2:TGID_Y_EN: 1
+; COMPUTE_PGM_RSRC2:TGID_Z_EN: 0
+; COMPUTE_PGM_RSRC2:TIDIG_COMP_CNT: 0
+	.text
+	.p2alignl 6, 3214868480
+	.fill 48, 4, 3214868480
+	.section	.AMDGPU.gpr_maximums,"",@progbits
+	.set amdgpu.max_num_vgpr, 0
+	.set amdgpu.max_num_agpr, 0
+	.set amdgpu.max_num_sgpr, 0
+	.text
+	.section	.debug_abbrev,"",@progbits
+	.byte	1                               ; Abbreviation Code
+	.byte	17                              ; DW_TAG_compile_unit
+	.byte	1                               ; DW_CHILDREN_yes
+	.byte	37                              ; DW_AT_producer
+	.byte	14                              ; DW_FORM_strp
+	.byte	19                              ; DW_AT_language
+	.byte	5                               ; DW_FORM_data2
+	.byte	3                               ; DW_AT_name
+	.byte	14                              ; DW_FORM_strp
+	.byte	16                              ; DW_AT_stmt_list
+	.byte	23                              ; DW_FORM_sec_offset
+	.byte	27                              ; DW_AT_comp_dir
+	.byte	14                              ; DW_FORM_strp
+	.byte	17                              ; DW_AT_low_pc
+	.byte	1                               ; DW_FORM_addr
+	.byte	18                              ; DW_AT_high_pc
+	.byte	6                               ; DW_FORM_data4
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	2                               ; Abbreviation Code
+	.byte	46                              ; DW_TAG_subprogram
+	.byte	0                               ; DW_CHILDREN_no
+	.byte	3                               ; DW_AT_name
+	.byte	14                              ; DW_FORM_strp
+	.byte	32                              ; DW_AT_inline
+	.byte	11                              ; DW_FORM_data1
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	3                               ; Abbreviation Code
+	.byte	46                              ; DW_TAG_subprogram
+	.byte	1                               ; DW_CHILDREN_yes
+	.byte	17                              ; DW_AT_low_pc
+	.byte	1                               ; DW_FORM_addr
+	.byte	18                              ; DW_AT_high_pc
+	.byte	6                               ; DW_FORM_data4
+	.byte	49                              ; DW_AT_abstract_origin
+	.byte	19                              ; DW_FORM_ref4
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	4                               ; Abbreviation Code
+	.byte	29                              ; DW_TAG_inlined_subroutine
+	.byte	0                               ; DW_CHILDREN_no
+	.byte	49                              ; DW_AT_abstract_origin
+	.byte	19                              ; DW_FORM_ref4
+	.byte	85                              ; DW_AT_ranges
+	.byte	23                              ; DW_FORM_sec_offset
+	.byte	88                              ; DW_AT_call_file
+	.byte	11                              ; DW_FORM_data1
+	.byte	89                              ; DW_AT_call_line
+	.byte	5                               ; DW_FORM_data2
+	.byte	87                              ; DW_AT_call_column
+	.byte	11                              ; DW_FORM_data1
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	0                               ; EOM(3)
+	.section	.debug_info,"",@progbits
+.Lcu_begin0:
+	.long	.Ldebug_info_end0-.Ldebug_info_start0 ; Length of Unit
+.Ldebug_info_start0:
+	.short	4                               ; DWARF version number
+	.long	.debug_abbrev                   ; Offset Into Abbrev. Section
+	.byte	8                               ; Address Size (in bytes)
+	.byte	1                               ; Abbrev [1] 0xb:0x45 DW_TAG_compile_unit
+	.long	.Linfo_string0                  ; DW_AT_producer
+	.short	2                               ; DW_AT_language
+	.long	.Linfo_string1                  ; DW_AT_name
+	.long	.Lline_table_start0             ; DW_AT_stmt_list
+	.long	.Linfo_string2                  ; DW_AT_comp_dir
+	.quad	.Lfunc_begin0                   ; DW_AT_low_pc
+	.long	.Lfunc_end0-.Lfunc_begin0       ; DW_AT_high_pc
+	.byte	2                               ; Abbrev [2] 0x2a:0x6 DW_TAG_subprogram
+	.long	.Linfo_string3                  ; DW_AT_name
+	.byte	1                               ; DW_AT_inline
+	.byte	3                               ; Abbrev [3] 0x30:0x1f DW_TAG_subprogram
+	.quad	.Lfunc_begin0                   ; DW_AT_low_pc
+	.long	.Lfunc_end0-.Lfunc_begin0       ; DW_AT_high_pc
+	.long	42                              ; DW_AT_abstract_origin
+	.byte	4                               ; Abbrev [4] 0x41:0xd DW_TAG_inlined_subroutine
+	.long	42                              ; DW_AT_abstract_origin
+	.long	.Ldebug_ranges0                 ; DW_AT_ranges
+	.byte	1                               ; DW_AT_call_file
+	.short	404                             ; DW_AT_call_line
+	.byte	8                               ; DW_AT_call_column
+	.byte	0                               ; End Of Children Mark
+	.byte	0                               ; End Of Children Mark
+.Ldebug_info_end0:
+	.section	.debug_ranges,"",@progbits
+.Ldebug_ranges0:
+	.quad	.Ltmp1-.Lfunc_begin0
+	.quad	.Ltmp2-.Lfunc_begin0
+	.quad	.Ltmp3-.Lfunc_begin0
+	.quad	.Ltmp4-.Lfunc_begin0
+	.quad	0
+	.quad	0
+	.section	.debug_str,"MS",@progbits,1
+.Linfo_string0:
+	.asciz	"triton"                        ; string offset=0
+.Linfo_string1:
+	.asciz	"mamba_utils.py"                ; string offset=7
+.Linfo_string2:
+	.asciz	"/app/vllm-src/vllm/v1/worker"  ; string offset=22
+.Linfo_string3:
+	.asciz	"precopy_mamba_align_fused_kernel" ; string offset=51
+	.section	".note.GNU-stack","",@progbits
+	.amdgpu_metadata
+---
+amdhsa.kernels:
+  - .args:
+      - .address_space:  global
+        .offset:         0
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         8
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         16
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         24
+        .size:           8
+        .value_kind:     global_buffer
+      - .offset:         32
+        .size:           8
+        .value_kind:     by_value
+      - .address_space:  global
+        .offset:         40
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         48
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         56
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         64
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         72
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         80
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         88
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         96
+        .size:           8
+        .value_kind:     global_buffer
+      - .offset:         104
+        .size:           4
+        .value_kind:     by_value
+      - .address_space:  global
+        .offset:         112
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         120
+        .size:           8
+        .value_kind:     global_buffer
+    .group_segment_fixed_size: 0
+    .kernarg_segment_align: 8
+    .kernarg_segment_size: 128
+    .max_flat_workgroup_size: 128
+    .name:           precopy_mamba_align_fused_kernel
+    .private_segment_fixed_size: 0
+    .sgpr_count:     38
+    .sgpr_spill_count: 0
+    .symbol:         precopy_mamba_align_fused_kernel.kd
+    .uniform_work_group_size: 1
+    .uses_dynamic_stack: false
+    .vgpr_count:     34
+    .vgpr_spill_count: 0
+    .wavefront_size: 32
+    .workgroup_processor_mode: 1
+amdhsa.target:   amdgcn-amd-amdhsa--gfx1030
+amdhsa.version:
+  - 1
+  - 2
+...
+
+	.end_amdgpu_metadata
+	.section	.debug_line,"",@progbits
+.Lline_table_start0:

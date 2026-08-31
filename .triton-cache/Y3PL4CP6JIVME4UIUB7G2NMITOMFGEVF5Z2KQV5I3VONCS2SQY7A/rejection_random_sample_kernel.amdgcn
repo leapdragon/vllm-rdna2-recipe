@@ -1,0 +1,402 @@
+	.amdgcn_target "amdgcn-amd-amdhsa--gfx1030"
+	.amdhsa_code_object_version 5
+	.text
+	.globl	rejection_random_sample_kernel  ; -- Begin function rejection_random_sample_kernel
+	.p2align	8
+	.type	rejection_random_sample_kernel,@function
+rejection_random_sample_kernel:         ; @rejection_random_sample_kernel
+.Lfunc_begin0:
+	.file	1 "/app/vllm-src/vllm/v1/sample" "rejection_sampler.py"
+	.loc	1 774 0                         ; rejection_sampler.py:774:0
+	.cfi_sections .debug_frame
+	.cfi_startproc
+; %bb.0:
+	s_load_dwordx2 s[0:1], s[4:5], 0x38
+.Ltmp0:
+	.loc	1 791 24 prologue_end           ; rejection_sampler.py:791:24
+	v_mov_b32_e32 v1, 0
+	s_ashr_i32 s7, s6, 31
+	s_mov_b32 s22, 0
+	s_waitcnt lgkmcnt(0)
+	s_add_u32 s0, s0, s6
+	s_addc_u32 s1, s1, s7
+	global_load_ubyte v1, v1, s[0:1]
+	s_waitcnt vmcnt(0)
+	v_cmp_eq_u32_e32 vcc_lo, 0, v1
+	s_cbranch_vccnz .LBB0_2
+.LBB0_1:
+	.loc	1 794 8                         ; rejection_sampler.py:794:8
+	s_endpgm
+.LBB0_2:
+	.loc	1 0 8 is_stmt 0                 ; rejection_sampler.py:0:8
+	s_load_dwordx4 s[8:11], s[4:5], 0x0
+	.loc	1 798 22 is_stmt 1              ; rejection_sampler.py:798:22
+	s_cmp_eq_u32 s6, 0
+	.loc	1 798 11 is_stmt 0              ; rejection_sampler.py:798:11
+	s_cbranch_scc1 .LBB0_4
+; %bb.3:
+	.loc	1 0 11                          ; rejection_sampler.py:0:11
+	s_add_i32 s0, s6, -1
+	s_ashr_i32 s1, s0, 31
+	s_lshl_b64 s[0:1], s[0:1], 2
+	s_waitcnt lgkmcnt(0)
+	s_add_u32 s0, s10, s0
+	s_addc_u32 s1, s11, s1
+	.loc	1 799 21 is_stmt 1              ; rejection_sampler.py:799:21
+	s_load_dword s22, s[0:1], 0x0
+.LBB0_4:
+	.loc	1 801 22                        ; rejection_sampler.py:801:22
+	s_lshl_b64 s[2:3], s[6:7], 2
+	s_waitcnt lgkmcnt(0)
+	s_add_u32 s0, s10, s2
+	s_addc_u32 s1, s11, s3
+	s_load_dword s0, s[0:1], 0x0
+	s_clause 0x1
+	s_load_dwordx2 s[10:11], s[4:5], 0x20
+	s_load_dword s7, s[4:5], 0x40
+	.loc	1 802 33                        ; rejection_sampler.py:802:33
+	s_waitcnt lgkmcnt(0)
+	s_sub_i32 s1, s0, s22
+	v_cmp_eq_u32_e64 s0, 0, v0
+	.loc	1 805 21                        ; rejection_sampler.py:805:21
+	s_cmp_lt_i32 s1, 1
+	s_cbranch_scc1 .LBB0_15
+; %bb.5:                                ; %.lr.ph
+	.loc	1 0 21 is_stmt 0                ; rejection_sampler.py:0:21
+	s_clause 0x2
+	s_load_dword s23, s[4:5], 0x44
+	s_load_dwordx4 s[12:15], s[4:5], 0x10
+	s_load_dwordx4 s[16:19], s[4:5], 0x28
+	v_mov_b32_e32 v1, 0
+	s_add_i32 s24, s7, 1
+	s_mov_b32 s4, 0
+	s_mul_i32 s24, s24, s6
+	s_mov_b32 s26, 0
+	.loc	1 805 21                        ; rejection_sampler.py:805:21
+	s_waitcnt lgkmcnt(0)
+	s_mul_i32 s25, s22, s23
+	s_branch .LBB0_8
+.LBB0_6:                                ; %Flow2
+                                        ;   in Loop: Header=BB0_8 Depth=1
+	.loc	1 0 21                          ; rejection_sampler.py:0:21
+	s_or_b32 exec_lo, exec_lo, s4
+	s_xor_b32 s4, s27, -1
+.LBB0_7:                                ;   in Loop: Header=BB0_8 Depth=1
+	.loc	1 805 21 is_stmt 1              ; rejection_sampler.py:805:21
+	s_add_i32 s26, s26, 1
+	s_add_i32 s25, s25, s23
+	s_cmp_lt_i32 s26, s1
+	s_cbranch_scc0 .LBB0_16
+.LBB0_8:                                ; =>This Inner Loop Header: Depth=1
+	.loc	1 806 11                        ; rejection_sampler.py:806:11
+	s_and_b32 vcc_lo, exec_lo, s4
+	s_mov_b32 s4, -1
+	s_cbranch_vccnz .LBB0_7
+; %bb.9:                                ;   in Loop: Header=BB0_8 Depth=1
+	.loc	1 807 37                        ; rejection_sampler.py:807:37
+	s_add_i32 s20, s22, s26
+	s_mov_b32 s27, 0
+	s_ashr_i32 s21, s20, 31
+	s_lshl_b64 s[4:5], s[20:21], 2
+	s_add_u32 s28, s12, s4
+	s_addc_u32 s29, s13, s5
+	global_load_dword v2, v1, s[28:29]
+	.loc	1 809 32                        ; rejection_sampler.py:809:32
+	s_waitcnt vmcnt(0)
+	v_cmp_gt_i32_e32 vcc_lo, 0, v2
+	.loc	1 809 15 is_stmt 0              ; rejection_sampler.py:809:15
+	s_cbranch_vccz .LBB0_12
+; %bb.10:                               ;   in Loop: Header=BB0_8 Depth=1
+	.loc	1 830 15 is_stmt 1              ; rejection_sampler.py:830:15
+	s_and_b32 vcc_lo, exec_lo, s27
+	s_cbranch_vccz .LBB0_13
+.LBB0_11:                               ;   in Loop: Header=BB0_8 Depth=1
+	.loc	1 836 75                        ; rejection_sampler.py:836:75
+	s_and_saveexec_b32 s4, s0
+	s_cbranch_execz .LBB0_6
+	s_branch .LBB0_14
+.LBB0_12:                               ;   in Loop: Header=BB0_8 Depth=1
+	.loc	1 825 20                        ; rejection_sampler.py:825:20
+	v_add_nc_u32_e32 v3, s25, v2
+	.loc	1 808 35                        ; rejection_sampler.py:808:35
+	s_lshl_b64 s[20:21], s[20:21], 3
+	s_add_u32 s20, s18, s20
+	s_addc_u32 s21, s19, s21
+	.loc	1 825 20                        ; rejection_sampler.py:825:20
+	v_ashrrev_i32_e32 v4, 31, v3
+	v_lshlrev_b64 v[3:4], 2, v[3:4]
+	v_add_co_u32 v3, vcc_lo, s14, v3
+	v_add_co_ci_u32_e64 v4, null, s15, v4, vcc_lo
+	global_load_dword v5, v[3:4], off
+	.loc	1 808 35                        ; rejection_sampler.py:808:35
+	global_load_dwordx2 v[3:4], v1, s[20:21]
+	.loc	1 829 74                        ; rejection_sampler.py:829:74
+	s_waitcnt vmcnt(1)
+	v_cvt_f64_f32_e32 v[5:6], v5
+	s_waitcnt vmcnt(0)
+	v_cmp_le_f64_e64 s27, v[3:4], v[5:6]
+	.loc	1 830 15                        ; rejection_sampler.py:830:15
+	s_and_b32 vcc_lo, exec_lo, s27
+	s_cbranch_vccnz .LBB0_11
+.LBB0_13:                               ;   in Loop: Header=BB0_8 Depth=1
+	.loc	1 0 15 is_stmt 0                ; rejection_sampler.py:0:15
+	s_add_u32 s4, s16, s4
+	s_addc_u32 s5, s17, s5
+	.loc	1 834 35 is_stmt 1              ; rejection_sampler.py:834:35
+	global_load_dword v2, v1, s[4:5]
+	.loc	1 836 75                        ; rejection_sampler.py:836:75
+	s_and_saveexec_b32 s4, s0
+	s_cbranch_execz .LBB0_6
+.LBB0_14:                               ;   in Loop: Header=BB0_8 Depth=1
+	s_add_i32 s20, s24, s26
+	s_ashr_i32 s21, s20, 31
+	s_lshl_b64 s[20:21], s[20:21], 2
+	s_add_u32 s20, s8, s20
+	s_addc_u32 s21, s9, s21
+	s_waitcnt vmcnt(0)
+	global_store_dword v1, v2, s[20:21]
+	s_branch .LBB0_6
+.LBB0_15:
+	.loc	1 0 75 is_stmt 0                ; rejection_sampler.py:0:75
+	s_mov_b32 s4, 0
+.LBB0_16:                               ; %._crit_edge
+	v_cmp_eq_u32_e32 vcc_lo, 0, v0
+	.loc	1 839 7 is_stmt 1               ; rejection_sampler.py:839:7
+	s_xor_b32 s0, s4, -1
+	s_and_b32 s0, vcc_lo, s0
+	s_and_saveexec_b32 s4, s0
+	s_xor_b32 s4, exec_lo, s4
+	s_cbranch_execz .LBB0_1
+; %bb.17:
+	.loc	1 841 33                        ; rejection_sampler.py:841:33
+	v_mov_b32_e32 v0, 0
+	s_add_u32 s2, s10, s2
+	s_addc_u32 s3, s11, s3
+	.loc	1 843 61                        ; rejection_sampler.py:843:61
+	s_add_i32 s0, s7, 1
+	.loc	1 843 46 is_stmt 0              ; rejection_sampler.py:843:46
+	s_mul_i32 s0, s0, s6
+	.loc	1 841 33 is_stmt 1              ; rejection_sampler.py:841:33
+	global_load_dword v1, v0, s[2:3]
+	.loc	1 843 66                        ; rejection_sampler.py:843:66
+	s_add_i32 s0, s1, s0
+	.loc	1 844 12                        ; rejection_sampler.py:844:12
+	s_ashr_i32 s1, s0, 31
+	s_lshl_b64 s[0:1], s[0:1], 2
+	s_add_u32 s0, s8, s0
+	s_addc_u32 s1, s9, s1
+	s_waitcnt vmcnt(0)
+	global_store_dword v0, v1, s[0:1]
+	.loc	1 794 8                         ; rejection_sampler.py:794:8
+	s_endpgm
+.Ltmp1:
+	.section	.rodata,"a",@progbits
+	.p2align	6, 0x0
+	.amdhsa_kernel rejection_random_sample_kernel
+		.amdhsa_group_segment_fixed_size 0
+		.amdhsa_private_segment_fixed_size 0
+		.amdhsa_kernarg_size 88
+		.amdhsa_user_sgpr_count 6
+		.amdhsa_user_sgpr_private_segment_buffer 1
+		.amdhsa_user_sgpr_dispatch_ptr 0
+		.amdhsa_user_sgpr_queue_ptr 0
+		.amdhsa_user_sgpr_kernarg_segment_ptr 1
+		.amdhsa_user_sgpr_dispatch_id 0
+		.amdhsa_user_sgpr_flat_scratch_init 0
+		.amdhsa_user_sgpr_private_segment_size 0
+		.amdhsa_wavefront_size32 1
+		.amdhsa_uses_dynamic_stack 0
+		.amdhsa_system_sgpr_private_segment_wavefront_offset 0
+		.amdhsa_system_sgpr_workgroup_id_x 1
+		.amdhsa_system_sgpr_workgroup_id_y 0
+		.amdhsa_system_sgpr_workgroup_id_z 0
+		.amdhsa_system_sgpr_workgroup_info 0
+		.amdhsa_system_vgpr_workitem_id 0
+		.amdhsa_next_free_vgpr 7
+		.amdhsa_next_free_sgpr 30
+		.amdhsa_reserve_vcc 1
+		.amdhsa_reserve_flat_scratch 0
+		.amdhsa_float_round_mode_32 0
+		.amdhsa_float_round_mode_16_64 0
+		.amdhsa_float_denorm_mode_32 3
+		.amdhsa_float_denorm_mode_16_64 3
+		.amdhsa_dx10_clamp 1
+		.amdhsa_ieee_mode 1
+		.amdhsa_fp16_overflow 0
+		.amdhsa_workgroup_processor_mode 1
+		.amdhsa_memory_ordered 1
+		.amdhsa_forward_progress 1
+		.amdhsa_shared_vgpr_count 0
+		.amdhsa_exception_fp_ieee_invalid_op 0
+		.amdhsa_exception_fp_denorm_src 0
+		.amdhsa_exception_fp_ieee_div_zero 0
+		.amdhsa_exception_fp_ieee_overflow 0
+		.amdhsa_exception_fp_ieee_underflow 0
+		.amdhsa_exception_fp_ieee_inexact 0
+		.amdhsa_exception_int_div_zero 0
+	.end_amdhsa_kernel
+	.text
+.Lfunc_end0:
+	.size	rejection_random_sample_kernel, .Lfunc_end0-rejection_random_sample_kernel
+	.cfi_endproc
+                                        ; -- End function
+	.set rejection_random_sample_kernel.num_vgpr, 7
+	.set rejection_random_sample_kernel.num_agpr, 0
+	.set rejection_random_sample_kernel.numbered_sgpr, 30
+	.set rejection_random_sample_kernel.num_named_barrier, 0
+	.set rejection_random_sample_kernel.private_seg_size, 0
+	.set rejection_random_sample_kernel.uses_vcc, 1
+	.set rejection_random_sample_kernel.uses_flat_scratch, 0
+	.set rejection_random_sample_kernel.has_dyn_sized_stack, 0
+	.set rejection_random_sample_kernel.has_recursion, 0
+	.set rejection_random_sample_kernel.has_indirect_call, 0
+	.section	.AMDGPU.csdata,"",@progbits
+; Kernel info:
+; codeLenInByte = 572
+; TotalNumSgprs: 32
+; NumVgprs: 7
+; ScratchSize: 0
+; MemoryBound: 0
+; FloatMode: 240
+; IeeeMode: 1
+; LDSByteSize: 0 bytes/workgroup (compile time only)
+; SGPRBlocks: 0
+; VGPRBlocks: 0
+; NumSGPRsForWavesPerEU: 32
+; NumVGPRsForWavesPerEU: 7
+; Occupancy: 16
+; WaveLimiterHint : 1
+; COMPUTE_PGM_RSRC2:SCRATCH_EN: 0
+; COMPUTE_PGM_RSRC2:USER_SGPR: 6
+; COMPUTE_PGM_RSRC2:TRAP_HANDLER: 0
+; COMPUTE_PGM_RSRC2:TGID_X_EN: 1
+; COMPUTE_PGM_RSRC2:TGID_Y_EN: 0
+; COMPUTE_PGM_RSRC2:TGID_Z_EN: 0
+; COMPUTE_PGM_RSRC2:TIDIG_COMP_CNT: 0
+	.text
+	.p2alignl 6, 3214868480
+	.fill 48, 4, 3214868480
+	.section	.AMDGPU.gpr_maximums,"",@progbits
+	.set amdgpu.max_num_vgpr, 0
+	.set amdgpu.max_num_agpr, 0
+	.set amdgpu.max_num_sgpr, 0
+	.text
+	.section	.debug_abbrev,"",@progbits
+	.byte	1                               ; Abbreviation Code
+	.byte	17                              ; DW_TAG_compile_unit
+	.byte	0                               ; DW_CHILDREN_no
+	.byte	37                              ; DW_AT_producer
+	.byte	14                              ; DW_FORM_strp
+	.byte	19                              ; DW_AT_language
+	.byte	5                               ; DW_FORM_data2
+	.byte	3                               ; DW_AT_name
+	.byte	14                              ; DW_FORM_strp
+	.byte	16                              ; DW_AT_stmt_list
+	.byte	23                              ; DW_FORM_sec_offset
+	.byte	27                              ; DW_AT_comp_dir
+	.byte	14                              ; DW_FORM_strp
+	.byte	17                              ; DW_AT_low_pc
+	.byte	1                               ; DW_FORM_addr
+	.byte	18                              ; DW_AT_high_pc
+	.byte	6                               ; DW_FORM_data4
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	0                               ; EOM(3)
+	.section	.debug_info,"",@progbits
+.Lcu_begin0:
+	.long	.Ldebug_info_end0-.Ldebug_info_start0 ; Length of Unit
+.Ldebug_info_start0:
+	.short	4                               ; DWARF version number
+	.long	.debug_abbrev                   ; Offset Into Abbrev. Section
+	.byte	8                               ; Address Size (in bytes)
+	.byte	1                               ; Abbrev [1] 0xb:0x1f DW_TAG_compile_unit
+	.long	.Linfo_string0                  ; DW_AT_producer
+	.short	2                               ; DW_AT_language
+	.long	.Linfo_string1                  ; DW_AT_name
+	.long	.Lline_table_start0             ; DW_AT_stmt_list
+	.long	.Linfo_string2                  ; DW_AT_comp_dir
+	.quad	.Lfunc_begin0                   ; DW_AT_low_pc
+	.long	.Lfunc_end0-.Lfunc_begin0       ; DW_AT_high_pc
+.Ldebug_info_end0:
+	.section	.debug_str,"MS",@progbits,1
+.Linfo_string0:
+	.asciz	"triton"                        ; string offset=0
+.Linfo_string1:
+	.asciz	"rejection_sampler.py"          ; string offset=7
+.Linfo_string2:
+	.asciz	"/app/vllm-src/vllm/v1/sample"  ; string offset=28
+	.section	".note.GNU-stack","",@progbits
+	.amdgpu_metadata
+---
+amdhsa.kernels:
+  - .args:
+      - .address_space:  global
+        .offset:         0
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         8
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         16
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         24
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         32
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         40
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         48
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         56
+        .size:           8
+        .value_kind:     global_buffer
+      - .offset:         64
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         68
+        .size:           4
+        .value_kind:     by_value
+      - .address_space:  global
+        .offset:         72
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         80
+        .size:           8
+        .value_kind:     global_buffer
+    .group_segment_fixed_size: 0
+    .kernarg_segment_align: 8
+    .kernarg_segment_size: 88
+    .max_flat_workgroup_size: 128
+    .name:           rejection_random_sample_kernel
+    .private_segment_fixed_size: 0
+    .sgpr_count:     32
+    .sgpr_spill_count: 0
+    .symbol:         rejection_random_sample_kernel.kd
+    .uniform_work_group_size: 1
+    .uses_dynamic_stack: false
+    .vgpr_count:     7
+    .vgpr_spill_count: 0
+    .wavefront_size: 32
+    .workgroup_processor_mode: 1
+amdhsa.target:   amdgcn-amd-amdhsa--gfx1030
+amdhsa.version:
+  - 1
+  - 2
+...
+
+	.end_amdgpu_metadata
+	.section	.debug_line,"",@progbits
+.Lline_table_start0:

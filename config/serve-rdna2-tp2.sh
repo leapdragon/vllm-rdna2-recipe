@@ -59,6 +59,8 @@ DEVICES="${DEVICES:-1,3}"                 # the two x16-rooted V620s
 SERVE_EXTRA=""
 # IMG: the image you built from the nine patches + plugins (02-VERSIONS build order), or the published
 # one: IMG=ghcr.io/leapdragon/vllm-rdna2-recipe:0.27.1-rocm7.2.3-gfx1030 (see containers/README.md).
+# The recorded numbers need a plugin-bearing image: one built before builds/shared/plugins existed
+# boots fine but decodes at a fraction of the recorded rate (stock context slope, no fd_rdna2).
 # DEV=1 instead mounts the repo's plugin trees and installs them at start, for
 # iterating on plugin code without a rebuild.
 IMG="${IMG:-vllm-gfx1030:0.27.1-patched}"

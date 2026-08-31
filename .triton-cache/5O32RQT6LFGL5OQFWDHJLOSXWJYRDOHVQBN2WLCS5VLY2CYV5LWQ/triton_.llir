@@ -1,0 +1,238 @@
+; ModuleID = 'LLVMDialectModule'
+source_filename = "LLVMDialectModule"
+target datalayout = "e-p:64:64-p1:64:64-p2:32:32-p3:32:32-p4:64:64-p5:32:32-p6:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024-v2048:2048-n32:64-S32-A5-G1-ni:7:8:9"
+target triple = "amdgcn-amd-amdhsa"
+
+; Function Attrs: mustprogress nofree norecurse nosync nounwind willreturn memory(argmem: readwrite)
+define amdgpu_kernel void @triton_(ptr addrspace(1) inreg readonly captures(none) %0, ptr addrspace(1) inreg writeonly captures(none) %1, i32 inreg %2, ptr addrspace(1) inreg readnone captures(none) %3, ptr addrspace(1) inreg readnone captures(none) %4) local_unnamed_addr #0 !dbg !4 {
+  %6 = tail call i32 @llvm.amdgcn.workgroup.id.x(), !dbg !7
+  %7 = shl i32 %6, 10, !dbg !8
+  %8 = tail call i32 @llvm.amdgcn.workitem.id.x(), !dbg !9
+  %9 = shl nuw nsw i32 %8, 3, !dbg !9
+  %10 = and i32 %9, 1016, !dbg !9
+  %11 = or disjoint i32 %10, %7, !dbg !10
+  %12 = or disjoint i32 %11, 1, !dbg !10
+  %13 = or disjoint i32 %11, 2, !dbg !10
+  %14 = or disjoint i32 %11, 3, !dbg !10
+  %15 = or disjoint i32 %11, 4, !dbg !10
+  %16 = or disjoint i32 %11, 5, !dbg !10
+  %17 = or disjoint i32 %11, 6, !dbg !10
+  %18 = or disjoint i32 %11, 7, !dbg !10
+  %19 = icmp slt i32 %11, %2, !dbg !11
+  %20 = icmp slt i32 %12, %2, !dbg !11
+  %21 = icmp slt i32 %13, %2, !dbg !11
+  %22 = icmp slt i32 %14, %2, !dbg !11
+  %23 = icmp slt i32 %15, %2, !dbg !11
+  %24 = icmp slt i32 %16, %2, !dbg !11
+  %25 = icmp slt i32 %17, %2, !dbg !11
+  %26 = icmp slt i32 %18, %2, !dbg !11
+  %27 = srem i32 %12, 24, !dbg !12
+  %28 = srem i32 %13, 24, !dbg !12
+  %29 = srem i32 %14, 24, !dbg !12
+  %30 = srem i32 %15, 24, !dbg !12
+  %31 = srem i32 %16, 24, !dbg !12
+  %32 = srem i32 %17, 24, !dbg !12
+  %33 = srem i32 %18, 24, !dbg !12
+  %34 = sdiv i32 %11, 24, !dbg !13
+  %35 = mul i32 %34, 48, !dbg !14
+  %36 = add i32 %35, 24, !dbg !15
+  %37 = add i32 %36, %27, !dbg !16
+  %38 = add i32 %36, %28, !dbg !16
+  %39 = add i32 %36, %29, !dbg !16
+  %40 = add i32 %36, %30, !dbg !16
+  %41 = add i32 %36, %31, !dbg !16
+  %42 = add i32 %36, %32, !dbg !16
+  %43 = add i32 %36, %33, !dbg !16
+  %44 = sext i32 %37 to i64, !dbg !17
+  %45 = getelementptr half, ptr addrspace(1) %0, i64 %44, !dbg !17
+  %46 = sext i32 %38 to i64, !dbg !17
+  %47 = getelementptr half, ptr addrspace(1) %0, i64 %46, !dbg !17
+  %48 = sext i32 %39 to i64, !dbg !17
+  %49 = getelementptr half, ptr addrspace(1) %0, i64 %48, !dbg !17
+  %50 = sext i32 %40 to i64, !dbg !17
+  %51 = getelementptr half, ptr addrspace(1) %0, i64 %50, !dbg !17
+  %52 = sext i32 %41 to i64, !dbg !17
+  %53 = getelementptr half, ptr addrspace(1) %0, i64 %52, !dbg !17
+  %54 = sext i32 %42 to i64, !dbg !17
+  %55 = getelementptr half, ptr addrspace(1) %0, i64 %54, !dbg !17
+  %56 = sext i32 %43 to i64, !dbg !17
+  %57 = getelementptr half, ptr addrspace(1) %0, i64 %56, !dbg !17
+  br i1 %19, label %58, label %65, !dbg !18
+
+58:                                               ; preds = %5
+  %59 = mul i32 %34, 24, !dbg !12
+  %.decomposed = sub i32 %11, %59, !dbg !12
+  %60 = add nsw i32 %.decomposed, 24, !dbg !15
+  %61 = add i32 %60, %35, !dbg !16
+  %62 = sext i32 %61 to i64, !dbg !17
+  %63 = getelementptr half, ptr addrspace(1) %0, i64 %62, !dbg !17
+  %64 = load <1 x half>, ptr addrspace(1) %63, align 2, !dbg !18
+  br label %65, !dbg !18
+
+65:                                               ; preds = %58, %5
+  %66 = phi <1 x half> [ %64, %58 ], [ zeroinitializer, %5 ], !dbg !18
+  br i1 %20, label %67, label %69, !dbg !18
+
+67:                                               ; preds = %65
+  %68 = load <1 x half>, ptr addrspace(1) %45, align 2, !dbg !18
+  br label %69, !dbg !18
+
+69:                                               ; preds = %67, %65
+  %70 = phi <1 x half> [ %68, %67 ], [ zeroinitializer, %65 ], !dbg !18
+  br i1 %21, label %71, label %73, !dbg !18
+
+71:                                               ; preds = %69
+  %72 = load <1 x half>, ptr addrspace(1) %47, align 2, !dbg !18
+  br label %73, !dbg !18
+
+73:                                               ; preds = %71, %69
+  %74 = phi <1 x half> [ %72, %71 ], [ zeroinitializer, %69 ], !dbg !18
+  br i1 %22, label %75, label %77, !dbg !18
+
+75:                                               ; preds = %73
+  %76 = load <1 x half>, ptr addrspace(1) %49, align 2, !dbg !18
+  br label %77, !dbg !18
+
+77:                                               ; preds = %75, %73
+  %78 = phi <1 x half> [ %76, %75 ], [ zeroinitializer, %73 ], !dbg !18
+  br i1 %23, label %79, label %81, !dbg !18
+
+79:                                               ; preds = %77
+  %80 = load <1 x half>, ptr addrspace(1) %51, align 2, !dbg !18
+  br label %81, !dbg !18
+
+81:                                               ; preds = %79, %77
+  %82 = phi <1 x half> [ %80, %79 ], [ zeroinitializer, %77 ], !dbg !18
+  br i1 %24, label %83, label %85, !dbg !18
+
+83:                                               ; preds = %81
+  %84 = load <1 x half>, ptr addrspace(1) %53, align 2, !dbg !18
+  br label %85, !dbg !18
+
+85:                                               ; preds = %83, %81
+  %86 = phi <1 x half> [ %84, %83 ], [ zeroinitializer, %81 ], !dbg !18
+  br i1 %25, label %87, label %89, !dbg !18
+
+87:                                               ; preds = %85
+  %88 = load <1 x half>, ptr addrspace(1) %55, align 2, !dbg !18
+  br label %89, !dbg !18
+
+89:                                               ; preds = %87, %85
+  %90 = phi <1 x half> [ %88, %87 ], [ zeroinitializer, %85 ], !dbg !18
+  br i1 %26, label %91, label %93, !dbg !18
+
+91:                                               ; preds = %89
+  %92 = load <1 x half>, ptr addrspace(1) %57, align 2, !dbg !18
+  br label %93, !dbg !18
+
+93:                                               ; preds = %91, %89
+  %94 = phi <1 x half> [ %92, %91 ], [ zeroinitializer, %89 ], !dbg !18
+  %95 = sext i32 %12 to i64, !dbg !19
+  %96 = getelementptr half, ptr addrspace(1) %1, i64 %95, !dbg !19
+  %97 = sext i32 %13 to i64, !dbg !19
+  %98 = getelementptr half, ptr addrspace(1) %1, i64 %97, !dbg !19
+  %99 = sext i32 %14 to i64, !dbg !19
+  %100 = getelementptr half, ptr addrspace(1) %1, i64 %99, !dbg !19
+  %101 = sext i32 %15 to i64, !dbg !19
+  %102 = getelementptr half, ptr addrspace(1) %1, i64 %101, !dbg !19
+  %103 = sext i32 %16 to i64, !dbg !19
+  %104 = getelementptr half, ptr addrspace(1) %1, i64 %103, !dbg !19
+  %105 = sext i32 %17 to i64, !dbg !19
+  %106 = getelementptr half, ptr addrspace(1) %1, i64 %105, !dbg !19
+  %107 = sext i32 %18 to i64, !dbg !19
+  %108 = getelementptr half, ptr addrspace(1) %1, i64 %107, !dbg !19
+  br i1 %19, label %109, label %112, !dbg !20
+
+109:                                              ; preds = %93
+  %110 = sext i32 %11 to i64
+  %111 = getelementptr half, ptr addrspace(1) %1, i64 %110
+  store <1 x half> %66, ptr addrspace(1) %111, align 2, !dbg !20
+  br label %112, !dbg !20
+
+112:                                              ; preds = %109, %93
+  br i1 %20, label %113, label %114, !dbg !20
+
+113:                                              ; preds = %112
+  store <1 x half> %70, ptr addrspace(1) %96, align 2, !dbg !20
+  br label %114, !dbg !20
+
+114:                                              ; preds = %113, %112
+  br i1 %21, label %115, label %116, !dbg !20
+
+115:                                              ; preds = %114
+  store <1 x half> %74, ptr addrspace(1) %98, align 2, !dbg !20
+  br label %116, !dbg !20
+
+116:                                              ; preds = %115, %114
+  br i1 %22, label %117, label %118, !dbg !20
+
+117:                                              ; preds = %116
+  store <1 x half> %78, ptr addrspace(1) %100, align 2, !dbg !20
+  br label %118, !dbg !20
+
+118:                                              ; preds = %117, %116
+  br i1 %23, label %119, label %120, !dbg !20
+
+119:                                              ; preds = %118
+  store <1 x half> %82, ptr addrspace(1) %102, align 2, !dbg !20
+  br label %120, !dbg !20
+
+120:                                              ; preds = %119, %118
+  br i1 %24, label %121, label %122, !dbg !20
+
+121:                                              ; preds = %120
+  store <1 x half> %86, ptr addrspace(1) %104, align 2, !dbg !20
+  br label %122, !dbg !20
+
+122:                                              ; preds = %121, %120
+  br i1 %25, label %123, label %124, !dbg !20
+
+123:                                              ; preds = %122
+  store <1 x half> %90, ptr addrspace(1) %106, align 2, !dbg !20
+  br label %124, !dbg !20
+
+124:                                              ; preds = %123, %122
+  br i1 %26, label %125, label %126, !dbg !20
+
+125:                                              ; preds = %124
+  store <1 x half> %94, ptr addrspace(1) %108, align 2, !dbg !20
+  br label %126, !dbg !20
+
+126:                                              ; preds = %125, %124
+  ret void, !dbg !21
+}
+
+; Function Attrs: mustprogress nocallback nofree nosync nounwind speculatable willreturn memory(none)
+declare noundef i32 @llvm.amdgcn.workgroup.id.x() #1
+
+; Function Attrs: mustprogress nocallback nofree nosync nounwind speculatable willreturn memory(none)
+declare noundef range(i32 0, 1024) i32 @llvm.amdgcn.workitem.id.x() #1
+
+attributes #0 = { mustprogress nofree norecurse nosync nounwind willreturn memory(argmem: readwrite) "amdgpu-agpr-alloc"="0" "amdgpu-flat-work-group-size"="1,128" "amdgpu-no-cluster-id-x" "amdgpu-no-cluster-id-y" "amdgpu-no-cluster-id-z" "amdgpu-no-completion-action" "amdgpu-no-default-queue" "amdgpu-no-dispatch-id" "amdgpu-no-dispatch-ptr" "amdgpu-no-flat-scratch-init" "amdgpu-no-heap-ptr" "amdgpu-no-hostcall-ptr" "amdgpu-no-implicitarg-ptr" "amdgpu-no-lds-kernel-id" "amdgpu-no-multigrid-sync-arg" "amdgpu-no-queue-ptr" "amdgpu-no-workgroup-id-x" "amdgpu-no-workgroup-id-y" "amdgpu-no-workgroup-id-z" "amdgpu-no-workitem-id-x" "amdgpu-no-workitem-id-y" "amdgpu-no-workitem-id-z" "amdgpu-waves-per-eu"="0, 0" "denormal-fp-math-f32"="ieee" "uniform-work-group-size"="true" }
+attributes #1 = { mustprogress nocallback nofree nosync nounwind speculatable willreturn memory(none) }
+
+!llvm.dbg.cu = !{!0}
+!llvm.module.flags = !{!2, !3}
+
+!0 = distinct !DICompileUnit(language: DW_LANG_C, file: !1, producer: "triton", isOptimized: true, runtimeVersion: 0, emissionKind: LineTablesOnly)
+!1 = !DIFile(filename: "cdchg3rxjsh6vu2nimawg7t3h4rijwj3eqic2etfehcpmdhdhewc.py", directory: "/compile-cache/torch_compile_cache/torch_aot_compile/d7204f1f34e6c77165926f0ab12c850fae4d90351461363e3eba42a413c914ff/inductor_cache/dc")
+!2 = !{i32 2, !"Debug Info Version", i32 3}
+!3 = !{i32 1, !"amdhsa_code_object_version", i32 500}
+!4 = distinct !DISubprogram(name: "triton_", linkageName: "triton_", scope: !1, file: !1, line: 22, type: !5, scopeLine: 22, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0)
+!5 = !DISubroutineType(cc: DW_CC_normal, types: !6)
+!6 = !{}
+!7 = !DILocation(line: 23, column: 28, scope: !4)
+!8 = !DILocation(line: 23, column: 33, scope: !4)
+!9 = !DILocation(line: 24, column: 36, scope: !4)
+!10 = !DILocation(line: 24, column: 23, scope: !4)
+!11 = !DILocation(line: 25, column: 21, scope: !4)
+!12 = !DILocation(line: 26, column: 19, scope: !4)
+!13 = !DILocation(line: 27, column: 19, scope: !4)
+!14 = !DILocation(line: 29, column: 43, scope: !4)
+!15 = !DILocation(line: 29, column: 35, scope: !4)
+!16 = !DILocation(line: 29, column: 40, scope: !4)
+!17 = !DILocation(line: 29, column: 30, scope: !4)
+!18 = !DILocation(line: 29, column: 48, scope: !4)
+!19 = !DILocation(line: 30, column: 25, scope: !4)
+!20 = !DILocation(line: 30, column: 36, scope: !4)
+!21 = !DILocation(line: 30, column: 4, scope: !4)

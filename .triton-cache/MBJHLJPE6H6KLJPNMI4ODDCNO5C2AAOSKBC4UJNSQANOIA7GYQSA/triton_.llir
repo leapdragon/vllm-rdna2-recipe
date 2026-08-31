@@ -1,0 +1,1278 @@
+; ModuleID = 'LLVMDialectModule'
+source_filename = "LLVMDialectModule"
+target datalayout = "e-p:64:64-p1:64:64-p2:32:32-p3:32:32-p4:64:64-p5:32:32-p6:32:32-p7:160:256:256:32-p8:128:128:128:48-p9:192:256:256:32-i64:64-v16:16-v24:32-v32:32-v48:64-v96:128-v192:256-v256:256-v512:512-v1024:1024-v2048:2048-n32:64-S32-A5-G1-ni:7:8:9"
+target triple = "amdgcn-amd-amdhsa"
+
+@global_smem = external local_unnamed_addr addrspace(3) global [0 x i8], align 16
+
+; Function Attrs: nofree norecurse nounwind
+define amdgpu_kernel void @triton_(ptr addrspace(1) inreg readonly captures(none) %0, ptr addrspace(1) inreg writeonly captures(none) %1, i32 inreg %2, i32 inreg %3, ptr addrspace(1) inreg readnone captures(none) %4, ptr addrspace(1) inreg readnone captures(none) %5) local_unnamed_addr #0 !dbg !4 {
+  %7 = tail call i32 @llvm.amdgcn.workgroup.id.x(), !dbg !7
+  %8 = shl i32 %7, 10, !dbg !8
+  %9 = tail call i32 @llvm.amdgcn.workitem.id.x(), !dbg !9
+  %10 = and i32 %9, 127, !dbg !9
+  %11 = shl nuw nsw i32 %10, 2, !dbg !9
+  %12 = or disjoint i32 %8, %10, !dbg !10
+  %13 = or disjoint i32 %12, 128, !dbg !10
+  %14 = or disjoint i32 %12, 256, !dbg !10
+  %15 = or disjoint i32 %12, 384, !dbg !10
+  %16 = or disjoint i32 %12, 512, !dbg !10
+  %17 = or disjoint i32 %12, 640, !dbg !10
+  %18 = or disjoint i32 %12, 768, !dbg !10
+  %19 = or disjoint i32 %9, %8, !dbg !10
+  %20 = or i32 %19, 896, !dbg !10
+  %21 = or disjoint i32 %11, %8, !dbg !10
+  %22 = or disjoint i32 %21, 1, !dbg !10
+  %23 = or disjoint i32 %21, 2, !dbg !10
+  %24 = or disjoint i32 %21, 3, !dbg !10
+  %25 = or disjoint i32 %21, 512, !dbg !10
+  %26 = or disjoint i32 %21, 513, !dbg !10
+  %27 = or disjoint i32 %21, 514, !dbg !10
+  %28 = or disjoint i32 %21, 515, !dbg !10
+  %29 = icmp slt i32 %12, %2, !dbg !11
+  %30 = icmp slt i32 %13, %2, !dbg !11
+  %31 = icmp slt i32 %14, %2, !dbg !11
+  %32 = icmp slt i32 %15, %2, !dbg !11
+  %33 = icmp slt i32 %16, %2, !dbg !11
+  %34 = icmp slt i32 %17, %2, !dbg !11
+  %35 = icmp slt i32 %18, %2, !dbg !11
+  %36 = icmp slt i32 %20, %2, !dbg !11
+  %37 = icmp slt i32 %21, %2, !dbg !11
+  %38 = icmp slt i32 %22, %2, !dbg !11
+  %39 = icmp slt i32 %23, %2, !dbg !11
+  %40 = icmp slt i32 %24, %2, !dbg !11
+  %41 = icmp slt i32 %25, %2, !dbg !11
+  %42 = icmp slt i32 %26, %2, !dbg !11
+  %43 = icmp slt i32 %27, %2, !dbg !11
+  %44 = icmp slt i32 %28, %2, !dbg !11
+  %45 = sdiv i32 %12, 12, !dbg !12
+  %46 = mul i32 %45, 12, !dbg !13
+  %.decomposed = sub i32 %12, %46, !dbg !13
+  %47 = sdiv i32 %13, 12, !dbg !12
+  %48 = sdiv i32 %14, 12, !dbg !12
+  %49 = sdiv i32 %15, 12, !dbg !12
+  %50 = sdiv i32 %16, 12, !dbg !12
+  %51 = sdiv i32 %17, 12, !dbg !12
+  %52 = sdiv i32 %18, 12, !dbg !12
+  %53 = sdiv i32 %20, 12, !dbg !12
+  %54 = shl nsw i32 %.decomposed, 9, !dbg !14
+  %55 = mul i32 %45, 7168, !dbg !15
+  %56 = shl i32 %13, 9, !dbg !16
+  %57 = shl i32 %47, 10, !dbg !16
+  %58 = add i32 %57, %56, !dbg !16
+  %59 = shl i32 %14, 9, !dbg !16
+  %60 = shl i32 %48, 10, !dbg !16
+  %61 = add i32 %60, %59, !dbg !16
+  %62 = shl i32 %15, 9, !dbg !16
+  %63 = shl i32 %49, 10, !dbg !16
+  %64 = add i32 %63, %62, !dbg !16
+  %65 = shl i32 %16, 9, !dbg !16
+  %66 = shl i32 %50, 10, !dbg !16
+  %67 = add i32 %66, %65, !dbg !16
+  %68 = shl i32 %17, 9, !dbg !16
+  %69 = shl i32 %51, 10, !dbg !16
+  %70 = add i32 %69, %68, !dbg !16
+  %71 = shl i32 %18, 9, !dbg !16
+  %72 = shl i32 %52, 10, !dbg !16
+  %73 = add i32 %72, %71, !dbg !16
+  %74 = shl i32 %20, 9, !dbg !16
+  %75 = shl i32 %53, 10, !dbg !16
+  %76 = add i32 %75, %74, !dbg !16
+  %77 = sext i32 %58 to i64, !dbg !17
+  %78 = getelementptr half, ptr addrspace(1) %0, i64 %77, !dbg !17
+  %79 = sext i32 %61 to i64, !dbg !17
+  %80 = getelementptr half, ptr addrspace(1) %0, i64 %79, !dbg !17
+  %81 = sext i32 %64 to i64, !dbg !17
+  %82 = getelementptr half, ptr addrspace(1) %0, i64 %81, !dbg !17
+  %83 = sext i32 %67 to i64, !dbg !17
+  %84 = getelementptr half, ptr addrspace(1) %0, i64 %83, !dbg !17
+  %85 = sext i32 %70 to i64, !dbg !17
+  %86 = getelementptr half, ptr addrspace(1) %0, i64 %85, !dbg !17
+  %87 = sext i32 %73 to i64, !dbg !17
+  %88 = getelementptr half, ptr addrspace(1) %0, i64 %87, !dbg !17
+  %89 = sext i32 %76 to i64, !dbg !17
+  %90 = getelementptr half, ptr addrspace(1) %0, i64 %89, !dbg !17
+  br i1 %29, label %91, label %96, !dbg !18
+
+91:                                               ; preds = %6
+  %92 = add i32 %54, %55
+  %93 = sext i32 %92 to i64
+  %94 = getelementptr half, ptr addrspace(1) %0, i64 %93
+  %95 = load <8 x half>, ptr addrspace(1) %94, align 16, !dbg !18
+  br label %96, !dbg !18
+
+96:                                               ; preds = %91, %6
+  %97 = phi <8 x half> [ %95, %91 ], [ zeroinitializer, %6 ], !dbg !18
+  %98 = extractelement <8 x half> %97, i64 0, !dbg !18
+  %99 = extractelement <8 x half> %97, i64 1, !dbg !18
+  br i1 %30, label %100, label %102, !dbg !18
+
+100:                                              ; preds = %96
+  %101 = load <8 x half>, ptr addrspace(1) %78, align 16, !dbg !18
+  br label %102, !dbg !18
+
+102:                                              ; preds = %100, %96
+  %103 = phi <8 x half> [ %101, %100 ], [ zeroinitializer, %96 ], !dbg !18
+  %104 = extractelement <8 x half> %103, i64 0, !dbg !18
+  %105 = extractelement <8 x half> %103, i64 1, !dbg !18
+  br i1 %31, label %106, label %108, !dbg !18
+
+106:                                              ; preds = %102
+  %107 = load <8 x half>, ptr addrspace(1) %80, align 16, !dbg !18
+  br label %108, !dbg !18
+
+108:                                              ; preds = %106, %102
+  %109 = phi <8 x half> [ %107, %106 ], [ zeroinitializer, %102 ], !dbg !18
+  %110 = extractelement <8 x half> %109, i64 0, !dbg !18
+  %111 = extractelement <8 x half> %109, i64 1, !dbg !18
+  br i1 %32, label %112, label %114, !dbg !18
+
+112:                                              ; preds = %108
+  %113 = load <8 x half>, ptr addrspace(1) %82, align 16, !dbg !18
+  br label %114, !dbg !18
+
+114:                                              ; preds = %112, %108
+  %115 = phi <8 x half> [ %113, %112 ], [ zeroinitializer, %108 ], !dbg !18
+  %116 = extractelement <8 x half> %115, i64 0, !dbg !18
+  %117 = extractelement <8 x half> %115, i64 1, !dbg !18
+  br i1 %33, label %118, label %120, !dbg !18
+
+118:                                              ; preds = %114
+  %119 = load <8 x half>, ptr addrspace(1) %84, align 16, !dbg !18
+  br label %120, !dbg !18
+
+120:                                              ; preds = %118, %114
+  %121 = phi <8 x half> [ %119, %118 ], [ zeroinitializer, %114 ], !dbg !18
+  %122 = extractelement <8 x half> %121, i64 0, !dbg !18
+  %123 = extractelement <8 x half> %121, i64 1, !dbg !18
+  br i1 %34, label %124, label %126, !dbg !18
+
+124:                                              ; preds = %120
+  %125 = load <8 x half>, ptr addrspace(1) %86, align 16, !dbg !18
+  br label %126, !dbg !18
+
+126:                                              ; preds = %124, %120
+  %127 = phi <8 x half> [ %125, %124 ], [ zeroinitializer, %120 ], !dbg !18
+  %128 = extractelement <8 x half> %127, i64 0, !dbg !18
+  %129 = extractelement <8 x half> %127, i64 1, !dbg !18
+  br i1 %35, label %130, label %132, !dbg !18
+
+130:                                              ; preds = %126
+  %131 = load <8 x half>, ptr addrspace(1) %88, align 16, !dbg !18
+  br label %132, !dbg !18
+
+132:                                              ; preds = %130, %126
+  %133 = phi <8 x half> [ %131, %130 ], [ zeroinitializer, %126 ], !dbg !18
+  %134 = extractelement <8 x half> %133, i64 0, !dbg !18
+  %135 = extractelement <8 x half> %133, i64 1, !dbg !18
+  br i1 %36, label %136, label %138, !dbg !18
+
+136:                                              ; preds = %132
+  %137 = load <8 x half>, ptr addrspace(1) %90, align 16, !dbg !18
+  br label %138, !dbg !18
+
+138:                                              ; preds = %136, %132
+  %139 = phi <8 x half> [ %137, %136 ], [ zeroinitializer, %132 ], !dbg !18
+  %140 = extractelement <8 x half> %139, i64 0, !dbg !18
+  %141 = extractelement <8 x half> %139, i64 1, !dbg !18
+  %142 = add i32 %55, %54
+  %143 = shufflevector <8 x half> %97, <8 x half> poison, <2 x i32> <i32 2, i32 3>
+  %144 = shufflevector <8 x half> %97, <8 x half> poison, <2 x i32> <i32 4, i32 5>
+  %145 = shufflevector <8 x half> %97, <8 x half> poison, <2 x i32> <i32 6, i32 7>
+  %146 = shufflevector <8 x half> %103, <8 x half> poison, <2 x i32> <i32 2, i32 3>
+  %147 = shufflevector <8 x half> %103, <8 x half> poison, <2 x i32> <i32 4, i32 5>
+  %148 = shufflevector <8 x half> %103, <8 x half> poison, <2 x i32> <i32 6, i32 7>
+  %149 = shufflevector <8 x half> %109, <8 x half> poison, <2 x i32> <i32 2, i32 3>
+  %150 = shufflevector <8 x half> %109, <8 x half> poison, <2 x i32> <i32 4, i32 5>
+  %151 = shufflevector <8 x half> %109, <8 x half> poison, <2 x i32> <i32 6, i32 7>
+  %152 = shufflevector <8 x half> %115, <8 x half> poison, <2 x i32> <i32 2, i32 3>
+  %153 = shufflevector <8 x half> %115, <8 x half> poison, <2 x i32> <i32 4, i32 5>
+  %154 = shufflevector <8 x half> %115, <8 x half> poison, <2 x i32> <i32 6, i32 7>
+  %155 = shufflevector <8 x half> %121, <8 x half> poison, <2 x i32> <i32 2, i32 3>
+  %156 = shufflevector <8 x half> %121, <8 x half> poison, <2 x i32> <i32 4, i32 5>
+  %157 = shufflevector <8 x half> %121, <8 x half> poison, <2 x i32> <i32 6, i32 7>
+  %158 = shufflevector <8 x half> %127, <8 x half> poison, <2 x i32> <i32 2, i32 3>
+  %159 = shufflevector <8 x half> %127, <8 x half> poison, <2 x i32> <i32 4, i32 5>
+  %160 = shufflevector <8 x half> %127, <8 x half> poison, <2 x i32> <i32 6, i32 7>
+  %161 = shufflevector <8 x half> %133, <8 x half> poison, <2 x i32> <i32 2, i32 3>
+  %162 = shufflevector <8 x half> %133, <8 x half> poison, <2 x i32> <i32 4, i32 5>
+  %163 = shufflevector <8 x half> %133, <8 x half> poison, <2 x i32> <i32 6, i32 7>
+  %164 = shufflevector <8 x half> %139, <8 x half> poison, <2 x i32> <i32 2, i32 3>
+  %165 = shufflevector <8 x half> %139, <8 x half> poison, <2 x i32> <i32 4, i32 5>
+  %166 = shufflevector <8 x half> %139, <8 x half> poison, <2 x i32> <i32 6, i32 7>
+  br label %167, !dbg !19
+
+167:                                              ; preds = %138, %326
+  %.pn13313 = phi half [ %141, %138 ], [ %329, %326 ]
+  %.pn15312 = phi half [ %140, %138 ], [ %328, %326 ]
+  %.pn29305 = phi half [ %135, %138 ], [ %323, %326 ]
+  %.pn31304 = phi half [ %134, %138 ], [ %322, %326 ]
+  %.pn45297 = phi half [ %129, %138 ], [ %317, %326 ]
+  %.pn47296 = phi half [ %128, %138 ], [ %316, %326 ]
+  %.pn61289 = phi half [ %123, %138 ], [ %311, %326 ]
+  %.pn63288 = phi half [ %122, %138 ], [ %310, %326 ]
+  %.pn77281 = phi half [ %117, %138 ], [ %305, %326 ]
+  %.pn79280 = phi half [ %116, %138 ], [ %304, %326 ]
+  %.pn93273 = phi half [ %111, %138 ], [ %299, %326 ]
+  %.pn95272 = phi half [ %110, %138 ], [ %298, %326 ]
+  %.pn109265 = phi half [ %105, %138 ], [ %293, %326 ]
+  %.pn111264 = phi half [ %104, %138 ], [ %292, %326 ]
+  %.pn125257 = phi half [ %99, %138 ], [ %287, %326 ]
+  %.pn127256 = phi half [ %98, %138 ], [ %286, %326 ]
+  %168 = phi float [ 0.000000e+00, %138 ], [ %570, %326 ]
+  %169 = phi float [ 0.000000e+00, %138 ], [ %571, %326 ]
+  %170 = phi float [ 0.000000e+00, %138 ], [ %572, %326 ]
+  %171 = phi float [ 0.000000e+00, %138 ], [ %573, %326 ]
+  %172 = phi float [ 0.000000e+00, %138 ], [ %574, %326 ]
+  %173 = phi float [ 0.000000e+00, %138 ], [ %575, %326 ]
+  %174 = phi float [ 0.000000e+00, %138 ], [ %576, %326 ]
+  %175 = phi float [ 0.000000e+00, %138 ], [ %577, %326 ]
+  %176 = phi float [ 0.000000e+00, %138 ], [ %578, %326 ]
+  %177 = phi float [ 0.000000e+00, %138 ], [ %579, %326 ]
+  %178 = phi float [ 0.000000e+00, %138 ], [ %580, %326 ]
+  %179 = phi float [ 0.000000e+00, %138 ], [ %581, %326 ]
+  %180 = phi float [ 0.000000e+00, %138 ], [ %582, %326 ]
+  %181 = phi float [ 0.000000e+00, %138 ], [ %583, %326 ]
+  %182 = phi float [ 0.000000e+00, %138 ], [ %584, %326 ]
+  %183 = phi float [ 0.000000e+00, %138 ], [ %585, %326 ]
+  %184 = phi float [ 0.000000e+00, %138 ], [ %586, %326 ]
+  %185 = phi float [ 0.000000e+00, %138 ], [ %587, %326 ]
+  %186 = phi float [ 0.000000e+00, %138 ], [ %588, %326 ]
+  %187 = phi float [ 0.000000e+00, %138 ], [ %589, %326 ]
+  %188 = phi float [ 0.000000e+00, %138 ], [ %590, %326 ]
+  %189 = phi float [ 0.000000e+00, %138 ], [ %591, %326 ]
+  %190 = phi float [ 0.000000e+00, %138 ], [ %592, %326 ]
+  %191 = phi float [ 0.000000e+00, %138 ], [ %593, %326 ]
+  %192 = phi float [ 0.000000e+00, %138 ], [ %594, %326 ]
+  %193 = phi float [ 0.000000e+00, %138 ], [ %595, %326 ]
+  %194 = phi float [ 0.000000e+00, %138 ], [ %596, %326 ]
+  %195 = phi float [ 0.000000e+00, %138 ], [ %597, %326 ]
+  %196 = phi float [ 0.000000e+00, %138 ], [ %598, %326 ]
+  %197 = phi float [ 0.000000e+00, %138 ], [ %599, %326 ]
+  %198 = phi float [ 0.000000e+00, %138 ], [ %600, %326 ]
+  %199 = phi float [ 0.000000e+00, %138 ], [ %601, %326 ]
+  %200 = phi float [ 0.000000e+00, %138 ], [ %602, %326 ]
+  %201 = phi float [ 0.000000e+00, %138 ], [ %603, %326 ]
+  %202 = phi float [ 0.000000e+00, %138 ], [ %604, %326 ]
+  %203 = phi float [ 0.000000e+00, %138 ], [ %605, %326 ]
+  %204 = phi float [ 0.000000e+00, %138 ], [ %606, %326 ]
+  %205 = phi float [ 0.000000e+00, %138 ], [ %607, %326 ]
+  %206 = phi float [ 0.000000e+00, %138 ], [ %608, %326 ]
+  %207 = phi float [ 0.000000e+00, %138 ], [ %609, %326 ]
+  %208 = phi float [ 0.000000e+00, %138 ], [ %610, %326 ]
+  %209 = phi float [ 0.000000e+00, %138 ], [ %611, %326 ]
+  %210 = phi float [ 0.000000e+00, %138 ], [ %612, %326 ]
+  %211 = phi float [ 0.000000e+00, %138 ], [ %613, %326 ]
+  %212 = phi float [ 0.000000e+00, %138 ], [ %614, %326 ]
+  %213 = phi float [ 0.000000e+00, %138 ], [ %615, %326 ]
+  %214 = phi float [ 0.000000e+00, %138 ], [ %616, %326 ]
+  %215 = phi float [ 0.000000e+00, %138 ], [ %617, %326 ]
+  %216 = phi float [ 0.000000e+00, %138 ], [ %618, %326 ]
+  %217 = phi float [ 0.000000e+00, %138 ], [ %619, %326 ]
+  %218 = phi float [ 0.000000e+00, %138 ], [ %620, %326 ]
+  %219 = phi float [ 0.000000e+00, %138 ], [ %621, %326 ]
+  %220 = phi float [ 0.000000e+00, %138 ], [ %622, %326 ]
+  %221 = phi float [ 0.000000e+00, %138 ], [ %623, %326 ]
+  %222 = phi float [ 0.000000e+00, %138 ], [ %624, %326 ]
+  %223 = phi float [ 0.000000e+00, %138 ], [ %625, %326 ]
+  %224 = phi float [ 0.000000e+00, %138 ], [ %626, %326 ]
+  %225 = phi float [ 0.000000e+00, %138 ], [ %627, %326 ]
+  %226 = phi float [ 0.000000e+00, %138 ], [ %628, %326 ]
+  %227 = phi float [ 0.000000e+00, %138 ], [ %629, %326 ]
+  %228 = phi float [ 0.000000e+00, %138 ], [ %630, %326 ]
+  %229 = phi float [ 0.000000e+00, %138 ], [ %631, %326 ]
+  %230 = phi float [ 0.000000e+00, %138 ], [ %632, %326 ]
+  %231 = phi float [ 0.000000e+00, %138 ], [ %633, %326 ]
+  %232 = phi i32 [ 0, %138 ], [ %257, %326 ]
+  %233 = phi <2 x half> [ %143, %138 ], [ %635, %326 ]
+  %234 = phi <2 x half> [ %144, %138 ], [ %636, %326 ]
+  %235 = phi <2 x half> [ %145, %138 ], [ %637, %326 ]
+  %236 = phi <2 x half> [ %146, %138 ], [ %638, %326 ]
+  %237 = phi <2 x half> [ %147, %138 ], [ %639, %326 ]
+  %238 = phi <2 x half> [ %148, %138 ], [ %640, %326 ]
+  %239 = phi <2 x half> [ %149, %138 ], [ %641, %326 ]
+  %240 = phi <2 x half> [ %150, %138 ], [ %642, %326 ]
+  %241 = phi <2 x half> [ %151, %138 ], [ %643, %326 ]
+  %242 = phi <2 x half> [ %152, %138 ], [ %644, %326 ]
+  %243 = phi <2 x half> [ %153, %138 ], [ %645, %326 ]
+  %244 = phi <2 x half> [ %154, %138 ], [ %646, %326 ]
+  %245 = phi <2 x half> [ %155, %138 ], [ %647, %326 ]
+  %246 = phi <2 x half> [ %156, %138 ], [ %648, %326 ]
+  %247 = phi <2 x half> [ %157, %138 ], [ %649, %326 ]
+  %248 = phi <2 x half> [ %158, %138 ], [ %650, %326 ]
+  %249 = phi <2 x half> [ %159, %138 ], [ %651, %326 ]
+  %250 = phi <2 x half> [ %160, %138 ], [ %652, %326 ]
+  %251 = phi <2 x half> [ %161, %138 ], [ %653, %326 ]
+  %252 = phi <2 x half> [ %162, %138 ], [ %654, %326 ]
+  %253 = phi <2 x half> [ %163, %138 ], [ %655, %326 ]
+  %254 = phi <2 x half> [ %164, %138 ], [ %656, %326 ]
+  %255 = phi <2 x half> [ %165, %138 ], [ %657, %326 ]
+  %256 = phi <2 x half> [ %166, %138 ], [ %658, %326 ]
+  %257 = add nuw nsw i32 %232, 8, !dbg !19
+  %258 = add nuw nsw i32 %58, %257, !dbg !16
+  %259 = add nuw nsw i32 %61, %257, !dbg !16
+  %260 = add nuw nsw i32 %64, %257, !dbg !16
+  %261 = add nuw nsw i32 %67, %257, !dbg !16
+  %262 = add nuw nsw i32 %70, %257, !dbg !16
+  %263 = add nuw nsw i32 %73, %257, !dbg !16
+  %264 = add nuw nsw i32 %76, %257, !dbg !16
+  %265 = sext i32 %258 to i64, !dbg !17
+  %266 = getelementptr half, ptr addrspace(1) %0, i64 %265, !dbg !17
+  %267 = sext i32 %259 to i64, !dbg !17
+  %268 = getelementptr half, ptr addrspace(1) %0, i64 %267, !dbg !17
+  %269 = sext i32 %260 to i64, !dbg !17
+  %270 = getelementptr half, ptr addrspace(1) %0, i64 %269, !dbg !17
+  %271 = sext i32 %261 to i64, !dbg !17
+  %272 = getelementptr half, ptr addrspace(1) %0, i64 %271, !dbg !17
+  %273 = sext i32 %262 to i64, !dbg !17
+  %274 = getelementptr half, ptr addrspace(1) %0, i64 %273, !dbg !17
+  %275 = sext i32 %263 to i64, !dbg !17
+  %276 = getelementptr half, ptr addrspace(1) %0, i64 %275, !dbg !17
+  %277 = sext i32 %264 to i64, !dbg !17
+  %278 = getelementptr half, ptr addrspace(1) %0, i64 %277, !dbg !17
+  br i1 %29, label %279, label %284, !dbg !18
+
+279:                                              ; preds = %167
+  %280 = add nuw nsw i32 %142, %257
+  %281 = sext i32 %280 to i64
+  %282 = getelementptr half, ptr addrspace(1) %0, i64 %281
+  %283 = load <8 x half>, ptr addrspace(1) %282, align 16, !dbg !18
+  br label %284, !dbg !18
+
+284:                                              ; preds = %279, %167
+  %285 = phi <8 x half> [ %283, %279 ], [ zeroinitializer, %167 ], !dbg !18
+  %286 = extractelement <8 x half> %285, i64 0, !dbg !18
+  %287 = extractelement <8 x half> %285, i64 1, !dbg !18
+  br i1 %30, label %288, label %290, !dbg !18
+
+288:                                              ; preds = %284
+  %289 = load <8 x half>, ptr addrspace(1) %266, align 16, !dbg !18
+  br label %290, !dbg !18
+
+290:                                              ; preds = %288, %284
+  %291 = phi <8 x half> [ %289, %288 ], [ zeroinitializer, %284 ], !dbg !18
+  %292 = extractelement <8 x half> %291, i64 0, !dbg !18
+  %293 = extractelement <8 x half> %291, i64 1, !dbg !18
+  br i1 %31, label %294, label %296, !dbg !18
+
+294:                                              ; preds = %290
+  %295 = load <8 x half>, ptr addrspace(1) %268, align 16, !dbg !18
+  br label %296, !dbg !18
+
+296:                                              ; preds = %294, %290
+  %297 = phi <8 x half> [ %295, %294 ], [ zeroinitializer, %290 ], !dbg !18
+  %298 = extractelement <8 x half> %297, i64 0, !dbg !18
+  %299 = extractelement <8 x half> %297, i64 1, !dbg !18
+  br i1 %32, label %300, label %302, !dbg !18
+
+300:                                              ; preds = %296
+  %301 = load <8 x half>, ptr addrspace(1) %270, align 16, !dbg !18
+  br label %302, !dbg !18
+
+302:                                              ; preds = %300, %296
+  %303 = phi <8 x half> [ %301, %300 ], [ zeroinitializer, %296 ], !dbg !18
+  %304 = extractelement <8 x half> %303, i64 0, !dbg !18
+  %305 = extractelement <8 x half> %303, i64 1, !dbg !18
+  br i1 %33, label %306, label %308, !dbg !18
+
+306:                                              ; preds = %302
+  %307 = load <8 x half>, ptr addrspace(1) %272, align 16, !dbg !18
+  br label %308, !dbg !18
+
+308:                                              ; preds = %306, %302
+  %309 = phi <8 x half> [ %307, %306 ], [ zeroinitializer, %302 ], !dbg !18
+  %310 = extractelement <8 x half> %309, i64 0, !dbg !18
+  %311 = extractelement <8 x half> %309, i64 1, !dbg !18
+  br i1 %34, label %312, label %314, !dbg !18
+
+312:                                              ; preds = %308
+  %313 = load <8 x half>, ptr addrspace(1) %274, align 16, !dbg !18
+  br label %314, !dbg !18
+
+314:                                              ; preds = %312, %308
+  %315 = phi <8 x half> [ %313, %312 ], [ zeroinitializer, %308 ], !dbg !18
+  %316 = extractelement <8 x half> %315, i64 0, !dbg !18
+  %317 = extractelement <8 x half> %315, i64 1, !dbg !18
+  br i1 %35, label %318, label %320, !dbg !18
+
+318:                                              ; preds = %314
+  %319 = load <8 x half>, ptr addrspace(1) %276, align 16, !dbg !18
+  br label %320, !dbg !18
+
+320:                                              ; preds = %318, %314
+  %321 = phi <8 x half> [ %319, %318 ], [ zeroinitializer, %314 ], !dbg !18
+  %322 = extractelement <8 x half> %321, i64 0, !dbg !18
+  %323 = extractelement <8 x half> %321, i64 1, !dbg !18
+  br i1 %36, label %324, label %326, !dbg !18
+
+324:                                              ; preds = %320
+  %325 = load <8 x half>, ptr addrspace(1) %278, align 16, !dbg !18
+  br label %326, !dbg !18
+
+326:                                              ; preds = %324, %320
+  %327 = phi <8 x half> [ %325, %324 ], [ zeroinitializer, %320 ], !dbg !18
+  %328 = extractelement <8 x half> %327, i64 0, !dbg !18
+  %329 = extractelement <8 x half> %327, i64 1, !dbg !18
+  %330 = fpext half %.pn127256 to float, !dbg !20
+  %331 = fpext half %.pn125257 to float, !dbg !20
+  %332 = extractelement <2 x half> %233, i64 0, !dbg !20
+  %333 = fpext half %332 to float, !dbg !20
+  %334 = extractelement <2 x half> %233, i64 1, !dbg !20
+  %335 = fpext half %334 to float, !dbg !20
+  %336 = extractelement <2 x half> %234, i64 0, !dbg !20
+  %337 = fpext half %336 to float, !dbg !20
+  %338 = extractelement <2 x half> %234, i64 1, !dbg !20
+  %339 = fpext half %338 to float, !dbg !20
+  %340 = extractelement <2 x half> %235, i64 0, !dbg !20
+  %341 = fpext half %340 to float, !dbg !20
+  %342 = extractelement <2 x half> %235, i64 1, !dbg !20
+  %343 = fpext half %342 to float, !dbg !20
+  %344 = fpext half %.pn111264 to float, !dbg !20
+  %345 = fpext half %.pn109265 to float, !dbg !20
+  %346 = extractelement <2 x half> %236, i64 0, !dbg !20
+  %347 = fpext half %346 to float, !dbg !20
+  %348 = extractelement <2 x half> %236, i64 1, !dbg !20
+  %349 = fpext half %348 to float, !dbg !20
+  %350 = extractelement <2 x half> %237, i64 0, !dbg !20
+  %351 = fpext half %350 to float, !dbg !20
+  %352 = extractelement <2 x half> %237, i64 1, !dbg !20
+  %353 = fpext half %352 to float, !dbg !20
+  %354 = extractelement <2 x half> %238, i64 0, !dbg !20
+  %355 = fpext half %354 to float, !dbg !20
+  %356 = extractelement <2 x half> %238, i64 1, !dbg !20
+  %357 = fpext half %356 to float, !dbg !20
+  %358 = fpext half %.pn95272 to float, !dbg !20
+  %359 = fpext half %.pn93273 to float, !dbg !20
+  %360 = extractelement <2 x half> %239, i64 0, !dbg !20
+  %361 = fpext half %360 to float, !dbg !20
+  %362 = extractelement <2 x half> %239, i64 1, !dbg !20
+  %363 = fpext half %362 to float, !dbg !20
+  %364 = extractelement <2 x half> %240, i64 0, !dbg !20
+  %365 = fpext half %364 to float, !dbg !20
+  %366 = extractelement <2 x half> %240, i64 1, !dbg !20
+  %367 = fpext half %366 to float, !dbg !20
+  %368 = extractelement <2 x half> %241, i64 0, !dbg !20
+  %369 = fpext half %368 to float, !dbg !20
+  %370 = extractelement <2 x half> %241, i64 1, !dbg !20
+  %371 = fpext half %370 to float, !dbg !20
+  %372 = fpext half %.pn79280 to float, !dbg !20
+  %373 = fpext half %.pn77281 to float, !dbg !20
+  %374 = extractelement <2 x half> %242, i64 0, !dbg !20
+  %375 = fpext half %374 to float, !dbg !20
+  %376 = extractelement <2 x half> %242, i64 1, !dbg !20
+  %377 = fpext half %376 to float, !dbg !20
+  %378 = extractelement <2 x half> %243, i64 0, !dbg !20
+  %379 = fpext half %378 to float, !dbg !20
+  %380 = extractelement <2 x half> %243, i64 1, !dbg !20
+  %381 = fpext half %380 to float, !dbg !20
+  %382 = extractelement <2 x half> %244, i64 0, !dbg !20
+  %383 = fpext half %382 to float, !dbg !20
+  %384 = extractelement <2 x half> %244, i64 1, !dbg !20
+  %385 = fpext half %384 to float, !dbg !20
+  %386 = fpext half %.pn63288 to float, !dbg !20
+  %387 = fpext half %.pn61289 to float, !dbg !20
+  %388 = extractelement <2 x half> %245, i64 0, !dbg !20
+  %389 = fpext half %388 to float, !dbg !20
+  %390 = extractelement <2 x half> %245, i64 1, !dbg !20
+  %391 = fpext half %390 to float, !dbg !20
+  %392 = extractelement <2 x half> %246, i64 0, !dbg !20
+  %393 = fpext half %392 to float, !dbg !20
+  %394 = extractelement <2 x half> %246, i64 1, !dbg !20
+  %395 = fpext half %394 to float, !dbg !20
+  %396 = extractelement <2 x half> %247, i64 0, !dbg !20
+  %397 = fpext half %396 to float, !dbg !20
+  %398 = extractelement <2 x half> %247, i64 1, !dbg !20
+  %399 = fpext half %398 to float, !dbg !20
+  %400 = fpext half %.pn47296 to float, !dbg !20
+  %401 = fpext half %.pn45297 to float, !dbg !20
+  %402 = extractelement <2 x half> %248, i64 0, !dbg !20
+  %403 = fpext half %402 to float, !dbg !20
+  %404 = extractelement <2 x half> %248, i64 1, !dbg !20
+  %405 = fpext half %404 to float, !dbg !20
+  %406 = extractelement <2 x half> %249, i64 0, !dbg !20
+  %407 = fpext half %406 to float, !dbg !20
+  %408 = extractelement <2 x half> %249, i64 1, !dbg !20
+  %409 = fpext half %408 to float, !dbg !20
+  %410 = extractelement <2 x half> %250, i64 0, !dbg !20
+  %411 = fpext half %410 to float, !dbg !20
+  %412 = extractelement <2 x half> %250, i64 1, !dbg !20
+  %413 = fpext half %412 to float, !dbg !20
+  %414 = fpext half %.pn31304 to float, !dbg !20
+  %415 = fpext half %.pn29305 to float, !dbg !20
+  %416 = extractelement <2 x half> %251, i64 0, !dbg !20
+  %417 = fpext half %416 to float, !dbg !20
+  %418 = extractelement <2 x half> %251, i64 1, !dbg !20
+  %419 = fpext half %418 to float, !dbg !20
+  %420 = extractelement <2 x half> %252, i64 0, !dbg !20
+  %421 = fpext half %420 to float, !dbg !20
+  %422 = extractelement <2 x half> %252, i64 1, !dbg !20
+  %423 = fpext half %422 to float, !dbg !20
+  %424 = extractelement <2 x half> %253, i64 0, !dbg !20
+  %425 = fpext half %424 to float, !dbg !20
+  %426 = extractelement <2 x half> %253, i64 1, !dbg !20
+  %427 = fpext half %426 to float, !dbg !20
+  %428 = fpext half %.pn15312 to float, !dbg !20
+  %429 = fpext half %.pn13313 to float, !dbg !20
+  %430 = extractelement <2 x half> %254, i64 0, !dbg !20
+  %431 = fpext half %430 to float, !dbg !20
+  %432 = extractelement <2 x half> %254, i64 1, !dbg !20
+  %433 = fpext half %432 to float, !dbg !20
+  %434 = extractelement <2 x half> %255, i64 0, !dbg !20
+  %435 = fpext half %434 to float, !dbg !20
+  %436 = extractelement <2 x half> %255, i64 1, !dbg !20
+  %437 = fpext half %436 to float, !dbg !20
+  %438 = extractelement <2 x half> %256, i64 0, !dbg !20
+  %439 = fpext half %438 to float, !dbg !20
+  %440 = extractelement <2 x half> %256, i64 1, !dbg !20
+  %441 = fpext half %440 to float, !dbg !20
+  %442 = fmul float %330, %330, !dbg !21
+  %443 = fmul float %331, %331, !dbg !21
+  %444 = fmul float %333, %333, !dbg !21
+  %445 = fmul float %335, %335, !dbg !21
+  %446 = fmul float %337, %337, !dbg !21
+  %447 = fmul float %339, %339, !dbg !21
+  %448 = fmul float %341, %341, !dbg !21
+  %449 = fmul float %343, %343, !dbg !21
+  %450 = fmul float %344, %344, !dbg !21
+  %451 = fmul float %345, %345, !dbg !21
+  %452 = fmul float %347, %347, !dbg !21
+  %453 = fmul float %349, %349, !dbg !21
+  %454 = fmul float %351, %351, !dbg !21
+  %455 = fmul float %353, %353, !dbg !21
+  %456 = fmul float %355, %355, !dbg !21
+  %457 = fmul float %357, %357, !dbg !21
+  %458 = fmul float %358, %358, !dbg !21
+  %459 = fmul float %359, %359, !dbg !21
+  %460 = fmul float %361, %361, !dbg !21
+  %461 = fmul float %363, %363, !dbg !21
+  %462 = fmul float %365, %365, !dbg !21
+  %463 = fmul float %367, %367, !dbg !21
+  %464 = fmul float %369, %369, !dbg !21
+  %465 = fmul float %371, %371, !dbg !21
+  %466 = fmul float %372, %372, !dbg !21
+  %467 = fmul float %373, %373, !dbg !21
+  %468 = fmul float %375, %375, !dbg !21
+  %469 = fmul float %377, %377, !dbg !21
+  %470 = fmul float %379, %379, !dbg !21
+  %471 = fmul float %381, %381, !dbg !21
+  %472 = fmul float %383, %383, !dbg !21
+  %473 = fmul float %385, %385, !dbg !21
+  %474 = fmul float %386, %386, !dbg !21
+  %475 = fmul float %387, %387, !dbg !21
+  %476 = fmul float %389, %389, !dbg !21
+  %477 = fmul float %391, %391, !dbg !21
+  %478 = fmul float %393, %393, !dbg !21
+  %479 = fmul float %395, %395, !dbg !21
+  %480 = fmul float %397, %397, !dbg !21
+  %481 = fmul float %399, %399, !dbg !21
+  %482 = fmul float %400, %400, !dbg !21
+  %483 = fmul float %401, %401, !dbg !21
+  %484 = fmul float %403, %403, !dbg !21
+  %485 = fmul float %405, %405, !dbg !21
+  %486 = fmul float %407, %407, !dbg !21
+  %487 = fmul float %409, %409, !dbg !21
+  %488 = fmul float %411, %411, !dbg !21
+  %489 = fmul float %413, %413, !dbg !21
+  %490 = fmul float %414, %414, !dbg !21
+  %491 = fmul float %415, %415, !dbg !21
+  %492 = fmul float %417, %417, !dbg !21
+  %493 = fmul float %419, %419, !dbg !21
+  %494 = fmul float %421, %421, !dbg !21
+  %495 = fmul float %423, %423, !dbg !21
+  %496 = fmul float %425, %425, !dbg !21
+  %497 = fmul float %427, %427, !dbg !21
+  %498 = fmul float %428, %428, !dbg !21
+  %499 = fmul float %429, %429, !dbg !21
+  %500 = fmul float %431, %431, !dbg !21
+  %501 = fmul float %433, %433, !dbg !21
+  %502 = fmul float %435, %435, !dbg !21
+  %503 = fmul float %437, %437, !dbg !21
+  %504 = fmul float %439, %439, !dbg !21
+  %505 = fmul float %441, %441, !dbg !21
+  %506 = fadd float %168, %442, !dbg !22
+  %507 = fadd float %169, %443, !dbg !22
+  %508 = fadd float %170, %444, !dbg !22
+  %509 = fadd float %171, %445, !dbg !22
+  %510 = fadd float %172, %446, !dbg !22
+  %511 = fadd float %173, %447, !dbg !22
+  %512 = fadd float %174, %448, !dbg !22
+  %513 = fadd float %175, %449, !dbg !22
+  %514 = fadd float %176, %450, !dbg !22
+  %515 = fadd float %177, %451, !dbg !22
+  %516 = fadd float %178, %452, !dbg !22
+  %517 = fadd float %179, %453, !dbg !22
+  %518 = fadd float %180, %454, !dbg !22
+  %519 = fadd float %181, %455, !dbg !22
+  %520 = fadd float %182, %456, !dbg !22
+  %521 = fadd float %183, %457, !dbg !22
+  %522 = fadd float %184, %458, !dbg !22
+  %523 = fadd float %185, %459, !dbg !22
+  %524 = fadd float %186, %460, !dbg !22
+  %525 = fadd float %187, %461, !dbg !22
+  %526 = fadd float %188, %462, !dbg !22
+  %527 = fadd float %189, %463, !dbg !22
+  %528 = fadd float %190, %464, !dbg !22
+  %529 = fadd float %191, %465, !dbg !22
+  %530 = fadd float %192, %466, !dbg !22
+  %531 = fadd float %193, %467, !dbg !22
+  %532 = fadd float %194, %468, !dbg !22
+  %533 = fadd float %195, %469, !dbg !22
+  %534 = fadd float %196, %470, !dbg !22
+  %535 = fadd float %197, %471, !dbg !22
+  %536 = fadd float %198, %472, !dbg !22
+  %537 = fadd float %199, %473, !dbg !22
+  %538 = fadd float %200, %474, !dbg !22
+  %539 = fadd float %201, %475, !dbg !22
+  %540 = fadd float %202, %476, !dbg !22
+  %541 = fadd float %203, %477, !dbg !22
+  %542 = fadd float %204, %478, !dbg !22
+  %543 = fadd float %205, %479, !dbg !22
+  %544 = fadd float %206, %480, !dbg !22
+  %545 = fadd float %207, %481, !dbg !22
+  %546 = fadd float %208, %482, !dbg !22
+  %547 = fadd float %209, %483, !dbg !22
+  %548 = fadd float %210, %484, !dbg !22
+  %549 = fadd float %211, %485, !dbg !22
+  %550 = fadd float %212, %486, !dbg !22
+  %551 = fadd float %213, %487, !dbg !22
+  %552 = fadd float %214, %488, !dbg !22
+  %553 = fadd float %215, %489, !dbg !22
+  %554 = fadd float %216, %490, !dbg !22
+  %555 = fadd float %217, %491, !dbg !22
+  %556 = fadd float %218, %492, !dbg !22
+  %557 = fadd float %219, %493, !dbg !22
+  %558 = fadd float %220, %494, !dbg !22
+  %559 = fadd float %221, %495, !dbg !22
+  %560 = fadd float %222, %496, !dbg !22
+  %561 = fadd float %223, %497, !dbg !22
+  %562 = fadd float %224, %498, !dbg !22
+  %563 = fadd float %225, %499, !dbg !22
+  %564 = fadd float %226, %500, !dbg !22
+  %565 = fadd float %227, %501, !dbg !22
+  %566 = fadd float %228, %502, !dbg !22
+  %567 = fadd float %229, %503, !dbg !22
+  %568 = fadd float %230, %504, !dbg !22
+  %569 = fadd float %231, %505, !dbg !22
+  %570 = select i1 %29, float %506, float %168, !dbg !23
+  %571 = select i1 %29, float %507, float %169, !dbg !23
+  %572 = select i1 %29, float %508, float %170, !dbg !23
+  %573 = select i1 %29, float %509, float %171, !dbg !23
+  %574 = select i1 %29, float %510, float %172, !dbg !23
+  %575 = select i1 %29, float %511, float %173, !dbg !23
+  %576 = select i1 %29, float %512, float %174, !dbg !23
+  %577 = select i1 %29, float %513, float %175, !dbg !23
+  %578 = select i1 %30, float %514, float %176, !dbg !23
+  %579 = select i1 %30, float %515, float %177, !dbg !23
+  %580 = select i1 %30, float %516, float %178, !dbg !23
+  %581 = select i1 %30, float %517, float %179, !dbg !23
+  %582 = select i1 %30, float %518, float %180, !dbg !23
+  %583 = select i1 %30, float %519, float %181, !dbg !23
+  %584 = select i1 %30, float %520, float %182, !dbg !23
+  %585 = select i1 %30, float %521, float %183, !dbg !23
+  %586 = select i1 %31, float %522, float %184, !dbg !23
+  %587 = select i1 %31, float %523, float %185, !dbg !23
+  %588 = select i1 %31, float %524, float %186, !dbg !23
+  %589 = select i1 %31, float %525, float %187, !dbg !23
+  %590 = select i1 %31, float %526, float %188, !dbg !23
+  %591 = select i1 %31, float %527, float %189, !dbg !23
+  %592 = select i1 %31, float %528, float %190, !dbg !23
+  %593 = select i1 %31, float %529, float %191, !dbg !23
+  %594 = select i1 %32, float %530, float %192, !dbg !23
+  %595 = select i1 %32, float %531, float %193, !dbg !23
+  %596 = select i1 %32, float %532, float %194, !dbg !23
+  %597 = select i1 %32, float %533, float %195, !dbg !23
+  %598 = select i1 %32, float %534, float %196, !dbg !23
+  %599 = select i1 %32, float %535, float %197, !dbg !23
+  %600 = select i1 %32, float %536, float %198, !dbg !23
+  %601 = select i1 %32, float %537, float %199, !dbg !23
+  %602 = select i1 %33, float %538, float %200, !dbg !23
+  %603 = select i1 %33, float %539, float %201, !dbg !23
+  %604 = select i1 %33, float %540, float %202, !dbg !23
+  %605 = select i1 %33, float %541, float %203, !dbg !23
+  %606 = select i1 %33, float %542, float %204, !dbg !23
+  %607 = select i1 %33, float %543, float %205, !dbg !23
+  %608 = select i1 %33, float %544, float %206, !dbg !23
+  %609 = select i1 %33, float %545, float %207, !dbg !23
+  %610 = select i1 %34, float %546, float %208, !dbg !23
+  %611 = select i1 %34, float %547, float %209, !dbg !23
+  %612 = select i1 %34, float %548, float %210, !dbg !23
+  %613 = select i1 %34, float %549, float %211, !dbg !23
+  %614 = select i1 %34, float %550, float %212, !dbg !23
+  %615 = select i1 %34, float %551, float %213, !dbg !23
+  %616 = select i1 %34, float %552, float %214, !dbg !23
+  %617 = select i1 %34, float %553, float %215, !dbg !23
+  %618 = select i1 %35, float %554, float %216, !dbg !23
+  %619 = select i1 %35, float %555, float %217, !dbg !23
+  %620 = select i1 %35, float %556, float %218, !dbg !23
+  %621 = select i1 %35, float %557, float %219, !dbg !23
+  %622 = select i1 %35, float %558, float %220, !dbg !23
+  %623 = select i1 %35, float %559, float %221, !dbg !23
+  %624 = select i1 %35, float %560, float %222, !dbg !23
+  %625 = select i1 %35, float %561, float %223, !dbg !23
+  %626 = select i1 %36, float %562, float %224, !dbg !23
+  %627 = select i1 %36, float %563, float %225, !dbg !23
+  %628 = select i1 %36, float %564, float %226, !dbg !23
+  %629 = select i1 %36, float %565, float %227, !dbg !23
+  %630 = select i1 %36, float %566, float %228, !dbg !23
+  %631 = select i1 %36, float %567, float %229, !dbg !23
+  %632 = select i1 %36, float %568, float %230, !dbg !23
+  %633 = select i1 %36, float %569, float %231, !dbg !23
+  %634 = icmp samesign ult i32 %232, 240, !dbg !19
+  %635 = shufflevector <8 x half> %285, <8 x half> poison, <2 x i32> <i32 2, i32 3>
+  %636 = shufflevector <8 x half> %285, <8 x half> poison, <2 x i32> <i32 4, i32 5>
+  %637 = shufflevector <8 x half> %285, <8 x half> poison, <2 x i32> <i32 6, i32 7>
+  %638 = shufflevector <8 x half> %291, <8 x half> poison, <2 x i32> <i32 2, i32 3>
+  %639 = shufflevector <8 x half> %291, <8 x half> poison, <2 x i32> <i32 4, i32 5>
+  %640 = shufflevector <8 x half> %291, <8 x half> poison, <2 x i32> <i32 6, i32 7>
+  %641 = shufflevector <8 x half> %297, <8 x half> poison, <2 x i32> <i32 2, i32 3>
+  %642 = shufflevector <8 x half> %297, <8 x half> poison, <2 x i32> <i32 4, i32 5>
+  %643 = shufflevector <8 x half> %297, <8 x half> poison, <2 x i32> <i32 6, i32 7>
+  %644 = shufflevector <8 x half> %303, <8 x half> poison, <2 x i32> <i32 2, i32 3>
+  %645 = shufflevector <8 x half> %303, <8 x half> poison, <2 x i32> <i32 4, i32 5>
+  %646 = shufflevector <8 x half> %303, <8 x half> poison, <2 x i32> <i32 6, i32 7>
+  %647 = shufflevector <8 x half> %309, <8 x half> poison, <2 x i32> <i32 2, i32 3>
+  %648 = shufflevector <8 x half> %309, <8 x half> poison, <2 x i32> <i32 4, i32 5>
+  %649 = shufflevector <8 x half> %309, <8 x half> poison, <2 x i32> <i32 6, i32 7>
+  %650 = shufflevector <8 x half> %315, <8 x half> poison, <2 x i32> <i32 2, i32 3>
+  %651 = shufflevector <8 x half> %315, <8 x half> poison, <2 x i32> <i32 4, i32 5>
+  %652 = shufflevector <8 x half> %315, <8 x half> poison, <2 x i32> <i32 6, i32 7>
+  %653 = shufflevector <8 x half> %321, <8 x half> poison, <2 x i32> <i32 2, i32 3>
+  %654 = shufflevector <8 x half> %321, <8 x half> poison, <2 x i32> <i32 4, i32 5>
+  %655 = shufflevector <8 x half> %321, <8 x half> poison, <2 x i32> <i32 6, i32 7>
+  %656 = shufflevector <8 x half> %327, <8 x half> poison, <2 x i32> <i32 2, i32 3>
+  %657 = shufflevector <8 x half> %327, <8 x half> poison, <2 x i32> <i32 4, i32 5>
+  %658 = shufflevector <8 x half> %327, <8 x half> poison, <2 x i32> <i32 6, i32 7>
+  br i1 %634, label %167, label %659, !dbg !19
+
+659:                                              ; preds = %326
+  %660 = extractelement <8 x half> %285, i64 2
+  %661 = extractelement <8 x half> %285, i64 3
+  %662 = extractelement <8 x half> %285, i64 4
+  %663 = extractelement <8 x half> %285, i64 5
+  %664 = extractelement <8 x half> %285, i64 6
+  %665 = extractelement <8 x half> %285, i64 7
+  %666 = extractelement <8 x half> %291, i64 2
+  %667 = extractelement <8 x half> %291, i64 3
+  %668 = extractelement <8 x half> %291, i64 4
+  %669 = extractelement <8 x half> %291, i64 5
+  %670 = extractelement <8 x half> %291, i64 6
+  %671 = extractelement <8 x half> %291, i64 7
+  %672 = extractelement <8 x half> %297, i64 2
+  %673 = extractelement <8 x half> %297, i64 3
+  %674 = extractelement <8 x half> %297, i64 4
+  %675 = extractelement <8 x half> %297, i64 5
+  %676 = extractelement <8 x half> %297, i64 6
+  %677 = extractelement <8 x half> %297, i64 7
+  %678 = extractelement <8 x half> %303, i64 2
+  %679 = extractelement <8 x half> %303, i64 3
+  %680 = extractelement <8 x half> %303, i64 4
+  %681 = extractelement <8 x half> %303, i64 5
+  %682 = extractelement <8 x half> %303, i64 6
+  %683 = extractelement <8 x half> %303, i64 7
+  %684 = extractelement <8 x half> %309, i64 2
+  %685 = extractelement <8 x half> %309, i64 3
+  %686 = extractelement <8 x half> %309, i64 4
+  %687 = extractelement <8 x half> %309, i64 5
+  %688 = extractelement <8 x half> %309, i64 6
+  %689 = extractelement <8 x half> %309, i64 7
+  %690 = extractelement <8 x half> %315, i64 2
+  %691 = extractelement <8 x half> %315, i64 3
+  %692 = extractelement <8 x half> %315, i64 4
+  %693 = extractelement <8 x half> %315, i64 5
+  %694 = extractelement <8 x half> %315, i64 6
+  %695 = extractelement <8 x half> %315, i64 7
+  %696 = extractelement <8 x half> %321, i64 2
+  %697 = extractelement <8 x half> %321, i64 3
+  %698 = extractelement <8 x half> %321, i64 4
+  %699 = extractelement <8 x half> %321, i64 5
+  %700 = extractelement <8 x half> %321, i64 6
+  %701 = extractelement <8 x half> %321, i64 7
+  %702 = extractelement <8 x half> %327, i64 7, !dbg !18
+  %703 = extractelement <8 x half> %327, i64 6, !dbg !18
+  %704 = extractelement <8 x half> %327, i64 5, !dbg !18
+  %705 = extractelement <8 x half> %327, i64 4, !dbg !18
+  %706 = extractelement <8 x half> %327, i64 3, !dbg !18
+  %707 = extractelement <8 x half> %327, i64 2, !dbg !18
+  %708 = fpext half %286 to float, !dbg !20
+  %709 = fpext half %287 to float, !dbg !20
+  %710 = fpext half %660 to float, !dbg !20
+  %711 = fpext half %661 to float, !dbg !20
+  %712 = fpext half %662 to float, !dbg !20
+  %713 = fpext half %663 to float, !dbg !20
+  %714 = fpext half %664 to float, !dbg !20
+  %715 = fpext half %665 to float, !dbg !20
+  %716 = fpext half %292 to float, !dbg !20
+  %717 = fpext half %293 to float, !dbg !20
+  %718 = fpext half %666 to float, !dbg !20
+  %719 = fpext half %667 to float, !dbg !20
+  %720 = fpext half %668 to float, !dbg !20
+  %721 = fpext half %669 to float, !dbg !20
+  %722 = fpext half %670 to float, !dbg !20
+  %723 = fpext half %671 to float, !dbg !20
+  %724 = fpext half %298 to float, !dbg !20
+  %725 = fpext half %299 to float, !dbg !20
+  %726 = fpext half %672 to float, !dbg !20
+  %727 = fpext half %673 to float, !dbg !20
+  %728 = fpext half %674 to float, !dbg !20
+  %729 = fpext half %675 to float, !dbg !20
+  %730 = fpext half %676 to float, !dbg !20
+  %731 = fpext half %677 to float, !dbg !20
+  %732 = fpext half %304 to float, !dbg !20
+  %733 = fpext half %305 to float, !dbg !20
+  %734 = fpext half %678 to float, !dbg !20
+  %735 = fpext half %679 to float, !dbg !20
+  %736 = fpext half %680 to float, !dbg !20
+  %737 = fpext half %681 to float, !dbg !20
+  %738 = fpext half %682 to float, !dbg !20
+  %739 = fpext half %683 to float, !dbg !20
+  %740 = fpext half %310 to float, !dbg !20
+  %741 = fpext half %311 to float, !dbg !20
+  %742 = fpext half %684 to float, !dbg !20
+  %743 = fpext half %685 to float, !dbg !20
+  %744 = fpext half %686 to float, !dbg !20
+  %745 = fpext half %687 to float, !dbg !20
+  %746 = fpext half %688 to float, !dbg !20
+  %747 = fpext half %689 to float, !dbg !20
+  %748 = fpext half %316 to float, !dbg !20
+  %749 = fpext half %317 to float, !dbg !20
+  %750 = fpext half %690 to float, !dbg !20
+  %751 = fpext half %691 to float, !dbg !20
+  %752 = fpext half %692 to float, !dbg !20
+  %753 = fpext half %693 to float, !dbg !20
+  %754 = fpext half %694 to float, !dbg !20
+  %755 = fpext half %695 to float, !dbg !20
+  %756 = fpext half %322 to float, !dbg !20
+  %757 = fpext half %323 to float, !dbg !20
+  %758 = fpext half %696 to float, !dbg !20
+  %759 = fpext half %697 to float, !dbg !20
+  %760 = fpext half %698 to float, !dbg !20
+  %761 = fpext half %699 to float, !dbg !20
+  %762 = fpext half %700 to float, !dbg !20
+  %763 = fpext half %701 to float, !dbg !20
+  %764 = fpext half %328 to float, !dbg !20
+  %765 = fpext half %329 to float, !dbg !20
+  %766 = fpext half %707 to float, !dbg !20
+  %767 = fpext half %706 to float, !dbg !20
+  %768 = fpext half %705 to float, !dbg !20
+  %769 = fpext half %704 to float, !dbg !20
+  %770 = fpext half %703 to float, !dbg !20
+  %771 = fpext half %702 to float, !dbg !20
+  %772 = fmul float %708, %708, !dbg !21
+  %773 = fmul float %709, %709, !dbg !21
+  %774 = fmul float %710, %710, !dbg !21
+  %775 = fmul float %711, %711, !dbg !21
+  %776 = fmul float %712, %712, !dbg !21
+  %777 = fmul float %713, %713, !dbg !21
+  %778 = fmul float %714, %714, !dbg !21
+  %779 = fmul float %715, %715, !dbg !21
+  %780 = fmul float %716, %716, !dbg !21
+  %781 = fmul float %717, %717, !dbg !21
+  %782 = fmul float %718, %718, !dbg !21
+  %783 = fmul float %719, %719, !dbg !21
+  %784 = fmul float %720, %720, !dbg !21
+  %785 = fmul float %721, %721, !dbg !21
+  %786 = fmul float %722, %722, !dbg !21
+  %787 = fmul float %723, %723, !dbg !21
+  %788 = fmul float %724, %724, !dbg !21
+  %789 = fmul float %725, %725, !dbg !21
+  %790 = fmul float %726, %726, !dbg !21
+  %791 = fmul float %727, %727, !dbg !21
+  %792 = fmul float %728, %728, !dbg !21
+  %793 = fmul float %729, %729, !dbg !21
+  %794 = fmul float %730, %730, !dbg !21
+  %795 = fmul float %731, %731, !dbg !21
+  %796 = fmul float %732, %732, !dbg !21
+  %797 = fmul float %733, %733, !dbg !21
+  %798 = fmul float %734, %734, !dbg !21
+  %799 = fmul float %735, %735, !dbg !21
+  %800 = fmul float %736, %736, !dbg !21
+  %801 = fmul float %737, %737, !dbg !21
+  %802 = fmul float %738, %738, !dbg !21
+  %803 = fmul float %739, %739, !dbg !21
+  %804 = fmul float %740, %740, !dbg !21
+  %805 = fmul float %741, %741, !dbg !21
+  %806 = fmul float %742, %742, !dbg !21
+  %807 = fmul float %743, %743, !dbg !21
+  %808 = fmul float %744, %744, !dbg !21
+  %809 = fmul float %745, %745, !dbg !21
+  %810 = fmul float %746, %746, !dbg !21
+  %811 = fmul float %747, %747, !dbg !21
+  %812 = fmul float %748, %748, !dbg !21
+  %813 = fmul float %749, %749, !dbg !21
+  %814 = fmul float %750, %750, !dbg !21
+  %815 = fmul float %751, %751, !dbg !21
+  %816 = fmul float %752, %752, !dbg !21
+  %817 = fmul float %753, %753, !dbg !21
+  %818 = fmul float %754, %754, !dbg !21
+  %819 = fmul float %755, %755, !dbg !21
+  %820 = fmul float %756, %756, !dbg !21
+  %821 = fmul float %757, %757, !dbg !21
+  %822 = fmul float %758, %758, !dbg !21
+  %823 = fmul float %759, %759, !dbg !21
+  %824 = fmul float %760, %760, !dbg !21
+  %825 = fmul float %761, %761, !dbg !21
+  %826 = fmul float %762, %762, !dbg !21
+  %827 = fmul float %763, %763, !dbg !21
+  %828 = fmul float %764, %764, !dbg !21
+  %829 = fmul float %765, %765, !dbg !21
+  %830 = fmul float %766, %766, !dbg !21
+  %831 = fmul float %767, %767, !dbg !21
+  %832 = fmul float %768, %768, !dbg !21
+  %833 = fmul float %769, %769, !dbg !21
+  %834 = fmul float %770, %770, !dbg !21
+  %835 = fmul float %771, %771, !dbg !21
+  %836 = fadd float %506, %772, !dbg !22
+  %837 = fadd float %507, %773, !dbg !22
+  %838 = fadd float %508, %774, !dbg !22
+  %839 = fadd float %509, %775, !dbg !22
+  %840 = fadd float %510, %776, !dbg !22
+  %841 = fadd float %511, %777, !dbg !22
+  %842 = fadd float %512, %778, !dbg !22
+  %843 = fadd float %513, %779, !dbg !22
+  %844 = fadd float %514, %780, !dbg !22
+  %845 = fadd float %515, %781, !dbg !22
+  %846 = fadd float %516, %782, !dbg !22
+  %847 = fadd float %517, %783, !dbg !22
+  %848 = fadd float %518, %784, !dbg !22
+  %849 = fadd float %519, %785, !dbg !22
+  %850 = fadd float %520, %786, !dbg !22
+  %851 = fadd float %521, %787, !dbg !22
+  %852 = fadd float %522, %788, !dbg !22
+  %853 = fadd float %523, %789, !dbg !22
+  %854 = fadd float %524, %790, !dbg !22
+  %855 = fadd float %525, %791, !dbg !22
+  %856 = fadd float %526, %792, !dbg !22
+  %857 = fadd float %527, %793, !dbg !22
+  %858 = fadd float %528, %794, !dbg !22
+  %859 = fadd float %529, %795, !dbg !22
+  %860 = fadd float %530, %796, !dbg !22
+  %861 = fadd float %531, %797, !dbg !22
+  %862 = fadd float %532, %798, !dbg !22
+  %863 = fadd float %533, %799, !dbg !22
+  %864 = fadd float %534, %800, !dbg !22
+  %865 = fadd float %535, %801, !dbg !22
+  %866 = fadd float %536, %802, !dbg !22
+  %867 = fadd float %537, %803, !dbg !22
+  %868 = fadd float %538, %804, !dbg !22
+  %869 = fadd float %539, %805, !dbg !22
+  %870 = fadd float %540, %806, !dbg !22
+  %871 = fadd float %541, %807, !dbg !22
+  %872 = fadd float %542, %808, !dbg !22
+  %873 = fadd float %543, %809, !dbg !22
+  %874 = fadd float %544, %810, !dbg !22
+  %875 = fadd float %545, %811, !dbg !22
+  %876 = fadd float %546, %812, !dbg !22
+  %877 = fadd float %547, %813, !dbg !22
+  %878 = fadd float %548, %814, !dbg !22
+  %879 = fadd float %549, %815, !dbg !22
+  %880 = fadd float %550, %816, !dbg !22
+  %881 = fadd float %551, %817, !dbg !22
+  %882 = fadd float %552, %818, !dbg !22
+  %883 = fadd float %553, %819, !dbg !22
+  %884 = fadd float %554, %820, !dbg !22
+  %885 = fadd float %555, %821, !dbg !22
+  %886 = fadd float %556, %822, !dbg !22
+  %887 = fadd float %557, %823, !dbg !22
+  %888 = fadd float %558, %824, !dbg !22
+  %889 = fadd float %559, %825, !dbg !22
+  %890 = fadd float %560, %826, !dbg !22
+  %891 = fadd float %561, %827, !dbg !22
+  %892 = fadd float %562, %828, !dbg !22
+  %893 = fadd float %563, %829, !dbg !22
+  %894 = fadd float %564, %830, !dbg !22
+  %895 = fadd float %565, %831, !dbg !22
+  %896 = fadd float %566, %832, !dbg !22
+  %897 = fadd float %567, %833, !dbg !22
+  %898 = fadd float %568, %834, !dbg !22
+  %899 = fadd float %569, %835, !dbg !22
+  %900 = select i1 %29, float %836, float %168, !dbg !23
+  %901 = select i1 %29, float %837, float %169, !dbg !23
+  %902 = select i1 %29, float %838, float %170, !dbg !23
+  %903 = select i1 %29, float %839, float %171, !dbg !23
+  %904 = select i1 %29, float %840, float %172, !dbg !23
+  %905 = select i1 %29, float %841, float %173, !dbg !23
+  %906 = select i1 %29, float %842, float %174, !dbg !23
+  %907 = select i1 %29, float %843, float %175, !dbg !23
+  %908 = select i1 %30, float %844, float %176, !dbg !23
+  %909 = select i1 %30, float %845, float %177, !dbg !23
+  %910 = select i1 %30, float %846, float %178, !dbg !23
+  %911 = select i1 %30, float %847, float %179, !dbg !23
+  %912 = select i1 %30, float %848, float %180, !dbg !23
+  %913 = select i1 %30, float %849, float %181, !dbg !23
+  %914 = select i1 %30, float %850, float %182, !dbg !23
+  %915 = select i1 %30, float %851, float %183, !dbg !23
+  %916 = select i1 %31, float %852, float %184, !dbg !23
+  %917 = select i1 %31, float %853, float %185, !dbg !23
+  %918 = select i1 %31, float %854, float %186, !dbg !23
+  %919 = select i1 %31, float %855, float %187, !dbg !23
+  %920 = select i1 %31, float %856, float %188, !dbg !23
+  %921 = select i1 %31, float %857, float %189, !dbg !23
+  %922 = select i1 %31, float %858, float %190, !dbg !23
+  %923 = select i1 %31, float %859, float %191, !dbg !23
+  %924 = select i1 %32, float %860, float %192, !dbg !23
+  %925 = select i1 %32, float %861, float %193, !dbg !23
+  %926 = select i1 %32, float %862, float %194, !dbg !23
+  %927 = select i1 %32, float %863, float %195, !dbg !23
+  %928 = select i1 %32, float %864, float %196, !dbg !23
+  %929 = select i1 %32, float %865, float %197, !dbg !23
+  %930 = select i1 %32, float %866, float %198, !dbg !23
+  %931 = select i1 %32, float %867, float %199, !dbg !23
+  %932 = select i1 %33, float %868, float %200, !dbg !23
+  %933 = select i1 %33, float %869, float %201, !dbg !23
+  %934 = select i1 %33, float %870, float %202, !dbg !23
+  %935 = select i1 %33, float %871, float %203, !dbg !23
+  %936 = select i1 %33, float %872, float %204, !dbg !23
+  %937 = select i1 %33, float %873, float %205, !dbg !23
+  %938 = select i1 %33, float %874, float %206, !dbg !23
+  %939 = select i1 %33, float %875, float %207, !dbg !23
+  %940 = select i1 %34, float %876, float %208, !dbg !23
+  %941 = select i1 %34, float %877, float %209, !dbg !23
+  %942 = select i1 %34, float %878, float %210, !dbg !23
+  %943 = select i1 %34, float %879, float %211, !dbg !23
+  %944 = select i1 %34, float %880, float %212, !dbg !23
+  %945 = select i1 %34, float %881, float %213, !dbg !23
+  %946 = select i1 %34, float %882, float %214, !dbg !23
+  %947 = select i1 %34, float %883, float %215, !dbg !23
+  %948 = select i1 %35, float %884, float %216, !dbg !23
+  %949 = select i1 %35, float %885, float %217, !dbg !23
+  %950 = select i1 %35, float %886, float %218, !dbg !23
+  %951 = select i1 %35, float %887, float %219, !dbg !23
+  %952 = select i1 %35, float %888, float %220, !dbg !23
+  %953 = select i1 %35, float %889, float %221, !dbg !23
+  %954 = select i1 %35, float %890, float %222, !dbg !23
+  %955 = select i1 %35, float %891, float %223, !dbg !23
+  %956 = select i1 %36, float %892, float %224, !dbg !23
+  %957 = select i1 %36, float %893, float %225, !dbg !23
+  %958 = select i1 %36, float %894, float %226, !dbg !23
+  %959 = select i1 %36, float %895, float %227, !dbg !23
+  %960 = select i1 %36, float %896, float %228, !dbg !23
+  %961 = select i1 %36, float %897, float %229, !dbg !23
+  %962 = select i1 %36, float %898, float %230, !dbg !23
+  %963 = select i1 %36, float %899, float %231, !dbg !23
+  %964 = fadd float %900, %901, !dbg !24
+  %965 = fadd float %964, %902, !dbg !24
+  %966 = fadd float %965, %903, !dbg !24
+  %967 = fadd float %966, %904, !dbg !24
+  %968 = fadd float %967, %905, !dbg !24
+  %969 = fadd float %968, %906, !dbg !24
+  %970 = fadd float %969, %907, !dbg !24
+  %971 = fadd float %908, %909, !dbg !24
+  %972 = fadd float %971, %910, !dbg !24
+  %973 = fadd float %972, %911, !dbg !24
+  %974 = fadd float %973, %912, !dbg !24
+  %975 = fadd float %974, %913, !dbg !24
+  %976 = fadd float %975, %914, !dbg !24
+  %977 = fadd float %976, %915, !dbg !24
+  %978 = fadd float %916, %917, !dbg !24
+  %979 = fadd float %978, %918, !dbg !24
+  %980 = fadd float %979, %919, !dbg !24
+  %981 = fadd float %980, %920, !dbg !24
+  %982 = fadd float %981, %921, !dbg !24
+  %983 = fadd float %982, %922, !dbg !24
+  %984 = fadd float %983, %923, !dbg !24
+  %985 = fadd float %924, %925, !dbg !24
+  %986 = fadd float %985, %926, !dbg !24
+  %987 = fadd float %986, %927, !dbg !24
+  %988 = fadd float %987, %928, !dbg !24
+  %989 = fadd float %988, %929, !dbg !24
+  %990 = fadd float %989, %930, !dbg !24
+  %991 = fadd float %990, %931, !dbg !24
+  %992 = fadd float %932, %933, !dbg !24
+  %993 = fadd float %992, %934, !dbg !24
+  %994 = fadd float %993, %935, !dbg !24
+  %995 = fadd float %994, %936, !dbg !24
+  %996 = fadd float %995, %937, !dbg !24
+  %997 = fadd float %996, %938, !dbg !24
+  %998 = fadd float %997, %939, !dbg !24
+  %999 = fadd float %940, %941, !dbg !24
+  %1000 = fadd float %999, %942, !dbg !24
+  %1001 = fadd float %1000, %943, !dbg !24
+  %1002 = fadd float %1001, %944, !dbg !24
+  %1003 = fadd float %1002, %945, !dbg !24
+  %1004 = fadd float %1003, %946, !dbg !24
+  %1005 = fadd float %1004, %947, !dbg !24
+  %1006 = fadd float %948, %949, !dbg !24
+  %1007 = fadd float %1006, %950, !dbg !24
+  %1008 = fadd float %1007, %951, !dbg !24
+  %1009 = fadd float %1008, %952, !dbg !24
+  %1010 = fadd float %1009, %953, !dbg !24
+  %1011 = fadd float %1010, %954, !dbg !24
+  %1012 = fadd float %1011, %955, !dbg !24
+  %1013 = fadd float %956, %957, !dbg !24
+  %1014 = fadd float %1013, %958, !dbg !24
+  %1015 = fadd float %1014, %959, !dbg !24
+  %1016 = fadd float %1015, %960, !dbg !24
+  %1017 = fadd float %1016, %961, !dbg !24
+  %1018 = fadd float %1017, %962, !dbg !24
+  %1019 = fadd float %1018, %963, !dbg !24
+  %1020 = and i32 %9, 3, !dbg !30
+  %1021 = shl nuw nsw i32 %1020, 10, !dbg !30
+  %1022 = shl nuw nsw i32 %1020, 5, !dbg !30
+  %1023 = shl nuw nsw i32 %9, 1, !dbg !30
+  %1024 = and i32 %1023, 248, !dbg !30
+  %1025 = xor i32 %1022, %1024, !dbg !30
+  %1026 = getelementptr inbounds nuw i8, ptr addrspace(3) @global_smem, i32 %1021, !dbg !30
+  %1027 = getelementptr inbounds nuw i8, ptr addrspace(3) %1026, i32 %1025, !dbg !30
+  %1028 = insertelement <2 x float> poison, float %970, i64 0, !dbg !30
+  %1029 = insertelement <2 x float> %1028, float %998, i64 1, !dbg !30
+  store <2 x float> %1029, ptr addrspace(3) %1027, align 8, !dbg !30
+  %1030 = getelementptr inbounds nuw i8, ptr addrspace(3) %1027, i32 256, !dbg !30
+  %1031 = insertelement <2 x float> poison, float %977, i64 0, !dbg !30
+  %1032 = insertelement <2 x float> %1031, float %1005, i64 1, !dbg !30
+  store <2 x float> %1032, ptr addrspace(3) %1030, align 8, !dbg !30
+  %1033 = getelementptr inbounds nuw i8, ptr addrspace(3) %1027, i32 512, !dbg !30
+  %1034 = insertelement <2 x float> poison, float %984, i64 0, !dbg !30
+  %1035 = insertelement <2 x float> %1034, float %1012, i64 1, !dbg !30
+  store <2 x float> %1035, ptr addrspace(3) %1033, align 8, !dbg !30
+  %1036 = getelementptr inbounds nuw i8, ptr addrspace(3) %1027, i32 768, !dbg !30
+  %1037 = insertelement <2 x float> poison, float %991, i64 0, !dbg !30
+  %1038 = insertelement <2 x float> %1037, float %1019, i64 1, !dbg !30
+  store <2 x float> %1038, ptr addrspace(3) %1036, align 8, !dbg !30
+  fence syncscope("workgroup") release, !dbg !30
+  tail call void @llvm.amdgcn.s.barrier(), !dbg !30
+  fence syncscope("workgroup") acquire, !dbg !30
+  %1039 = shl nuw nsw i32 %10, 3, !dbg !30
+  %1040 = getelementptr inbounds nuw i8, ptr addrspace(3) @global_smem, i32 %1039, !dbg !30
+  %1041 = load <2 x float>, ptr addrspace(3) %1040, align 8, !dbg !30
+  %1042 = xor i32 %1039, 1056, !dbg !30
+  %1043 = getelementptr inbounds nuw i8, ptr addrspace(3) @global_smem, i32 %1042, !dbg !30
+  %1044 = load <2 x float>, ptr addrspace(3) %1043, align 8, !dbg !30
+  %1045 = xor i32 %1039, 2112, !dbg !30
+  %1046 = getelementptr inbounds nuw i8, ptr addrspace(3) @global_smem, i32 %1045, !dbg !30
+  %1047 = load <2 x float>, ptr addrspace(3) %1046, align 8, !dbg !30
+  %1048 = xor i32 %1039, 3168, !dbg !30
+  %1049 = getelementptr inbounds nuw i8, ptr addrspace(3) @global_smem, i32 %1048, !dbg !30
+  %1050 = load <2 x float>, ptr addrspace(3) %1049, align 8, !dbg !30
+  %1051 = sext i32 %22 to i64, !dbg !31
+  %1052 = getelementptr float, ptr addrspace(1) %1, i64 %1051, !dbg !31
+  %1053 = sext i32 %23 to i64, !dbg !31
+  %1054 = getelementptr float, ptr addrspace(1) %1, i64 %1053, !dbg !31
+  %1055 = sext i32 %24 to i64, !dbg !31
+  %1056 = getelementptr float, ptr addrspace(1) %1, i64 %1055, !dbg !31
+  %1057 = sext i32 %25 to i64, !dbg !31
+  %1058 = getelementptr float, ptr addrspace(1) %1, i64 %1057, !dbg !31
+  %1059 = sext i32 %26 to i64, !dbg !31
+  %1060 = getelementptr float, ptr addrspace(1) %1, i64 %1059, !dbg !31
+  %1061 = sext i32 %27 to i64, !dbg !31
+  %1062 = getelementptr float, ptr addrspace(1) %1, i64 %1061, !dbg !31
+  %1063 = sext i32 %28 to i64, !dbg !31
+  %1064 = getelementptr float, ptr addrspace(1) %1, i64 %1063, !dbg !31
+  br i1 %37, label %1065, label %1069, !dbg !32
+
+1065:                                             ; preds = %659
+  %1066 = sext i32 %21 to i64
+  %1067 = getelementptr float, ptr addrspace(1) %1, i64 %1066
+  %1068 = shufflevector <2 x float> %1041, <2 x float> poison, <1 x i32> zeroinitializer
+  store <1 x float> %1068, ptr addrspace(1) %1067, align 4, !dbg !32
+  br label %1069, !dbg !32
+
+1069:                                             ; preds = %1065, %659
+  br i1 %38, label %1070, label %1072, !dbg !32
+
+1070:                                             ; preds = %1069
+  %1071 = shufflevector <2 x float> %1044, <2 x float> poison, <1 x i32> zeroinitializer
+  store <1 x float> %1071, ptr addrspace(1) %1052, align 4, !dbg !32
+  br label %1072, !dbg !32
+
+1072:                                             ; preds = %1070, %1069
+  br i1 %39, label %1073, label %1075, !dbg !32
+
+1073:                                             ; preds = %1072
+  %1074 = shufflevector <2 x float> %1047, <2 x float> poison, <1 x i32> zeroinitializer
+  store <1 x float> %1074, ptr addrspace(1) %1054, align 4, !dbg !32
+  br label %1075, !dbg !32
+
+1075:                                             ; preds = %1073, %1072
+  br i1 %40, label %1076, label %1078, !dbg !32
+
+1076:                                             ; preds = %1075
+  %1077 = shufflevector <2 x float> %1050, <2 x float> poison, <1 x i32> zeroinitializer
+  store <1 x float> %1077, ptr addrspace(1) %1056, align 4, !dbg !32
+  br label %1078, !dbg !32
+
+1078:                                             ; preds = %1076, %1075
+  br i1 %41, label %1079, label %1081, !dbg !32
+
+1079:                                             ; preds = %1078
+  %1080 = shufflevector <2 x float> %1041, <2 x float> poison, <1 x i32> <i32 1>
+  store <1 x float> %1080, ptr addrspace(1) %1058, align 4, !dbg !32
+  br label %1081, !dbg !32
+
+1081:                                             ; preds = %1079, %1078
+  br i1 %42, label %1082, label %1084, !dbg !32
+
+1082:                                             ; preds = %1081
+  %1083 = shufflevector <2 x float> %1044, <2 x float> poison, <1 x i32> <i32 1>
+  store <1 x float> %1083, ptr addrspace(1) %1060, align 4, !dbg !32
+  br label %1084, !dbg !32
+
+1084:                                             ; preds = %1082, %1081
+  br i1 %43, label %1085, label %1087, !dbg !32
+
+1085:                                             ; preds = %1084
+  %1086 = shufflevector <2 x float> %1047, <2 x float> poison, <1 x i32> <i32 1>
+  store <1 x float> %1086, ptr addrspace(1) %1062, align 4, !dbg !32
+  br label %1087, !dbg !32
+
+1087:                                             ; preds = %1085, %1084
+  br i1 %44, label %1088, label %1090, !dbg !32
+
+1088:                                             ; preds = %1087
+  %1089 = shufflevector <2 x float> %1050, <2 x float> poison, <1 x i32> <i32 1>
+  store <1 x float> %1089, ptr addrspace(1) %1064, align 4, !dbg !32
+  br label %1090, !dbg !32
+
+1090:                                             ; preds = %1088, %1087
+  ret void, !dbg !33
+}
+
+; Function Attrs: mustprogress nocallback nofree nosync nounwind speculatable willreturn memory(none)
+declare noundef i32 @llvm.amdgcn.workgroup.id.x() #1
+
+; Function Attrs: mustprogress nocallback nofree nosync nounwind speculatable willreturn memory(none)
+declare noundef range(i32 0, 1024) i32 @llvm.amdgcn.workitem.id.x() #1
+
+; Function Attrs: convergent mustprogress nocallback nofree nounwind willreturn
+declare void @llvm.amdgcn.s.barrier() #2
+
+attributes #0 = { nofree norecurse nounwind "amdgpu-agpr-alloc"="0" "amdgpu-flat-work-group-size"="1,128" "amdgpu-no-cluster-id-x" "amdgpu-no-cluster-id-y" "amdgpu-no-cluster-id-z" "amdgpu-no-completion-action" "amdgpu-no-default-queue" "amdgpu-no-dispatch-id" "amdgpu-no-dispatch-ptr" "amdgpu-no-flat-scratch-init" "amdgpu-no-heap-ptr" "amdgpu-no-hostcall-ptr" "amdgpu-no-implicitarg-ptr" "amdgpu-no-lds-kernel-id" "amdgpu-no-multigrid-sync-arg" "amdgpu-no-queue-ptr" "amdgpu-no-workgroup-id-x" "amdgpu-no-workgroup-id-y" "amdgpu-no-workgroup-id-z" "amdgpu-no-workitem-id-x" "amdgpu-no-workitem-id-y" "amdgpu-no-workitem-id-z" "amdgpu-waves-per-eu"="2, 2" "denormal-fp-math-f32"="ieee" "uniform-work-group-size"="true" }
+attributes #1 = { mustprogress nocallback nofree nosync nounwind speculatable willreturn memory(none) }
+attributes #2 = { convergent mustprogress nocallback nofree nounwind willreturn }
+
+!llvm.dbg.cu = !{!0}
+!llvm.module.flags = !{!2, !3}
+
+!0 = distinct !DICompileUnit(language: DW_LANG_C, file: !1, producer: "triton", isOptimized: true, runtimeVersion: 0, emissionKind: LineTablesOnly)
+!1 = !DIFile(filename: "ccvavm7ljqntlednor2yvien3tiqnz4zeudszgs6bcrvifkd23ml.py", directory: "/compile-cache/torch_compile_cache/torch_aot_compile/6379be49ccdb67dae640f3eaf41ad59637be7747ac8f3ded8a3430d4d1ef17a8/inductor_cache/cv")
+!2 = !{i32 2, !"Debug Info Version", i32 3}
+!3 = !{i32 1, !"amdhsa_code_object_version", i32 500}
+!4 = distinct !DISubprogram(name: "triton_", linkageName: "triton_", scope: !1, file: !1, line: 22, type: !5, scopeLine: 22, spFlags: DISPFlagDefinition | DISPFlagOptimized, unit: !0)
+!5 = !DISubroutineType(cc: DW_CC_normal, types: !6)
+!6 = !{}
+!7 = !DILocation(line: 26, column: 28, scope: !4)
+!8 = !DILocation(line: 26, column: 33, scope: !4)
+!9 = !DILocation(line: 27, column: 44, scope: !4)
+!10 = !DILocation(line: 27, column: 23, scope: !4)
+!11 = !DILocation(line: 28, column: 21, scope: !4)
+!12 = !DILocation(line: 32, column: 19, scope: !4)
+!13 = !DILocation(line: 31, column: 19, scope: !4)
+!14 = !DILocation(line: 41, column: 45, scope: !4)
+!15 = !DILocation(line: 41, column: 55, scope: !4)
+!16 = !DILocation(line: 41, column: 50, scope: !4)
+!17 = !DILocation(line: 41, column: 34, scope: !4)
+!18 = !DILocation(line: 41, column: 60, scope: !4)
+!19 = !DILocation(line: 35, column: 53, scope: !4)
+!20 = !DILocation(line: 41, column: 122, scope: !4)
+!21 = !DILocation(line: 43, column: 22, scope: !4)
+!22 = !DILocation(line: 45, column: 23, scope: !4)
+!23 = !DILocation(line: 46, column: 48, scope: !4)
+!24 = !DILocation(line: 263, column: 15, scope: !25, inlinedAt: !27)
+!25 = distinct !DILexicalBlockFile(scope: !4, file: !26, discriminator: 0)
+!26 = !DIFile(filename: "standard.py", directory: "/usr/local/lib/python3.12/dist-packages/triton/language")
+!27 = !DILocation(line: 293, column: 36, scope: !25, inlinedAt: !28)
+!28 = !DILocation(line: 47, column: 25, scope: !29)
+!29 = distinct !DILexicalBlockFile(scope: !4, file: !1, discriminator: 0)
+!30 = !DILocation(line: 47, column: 28, scope: !4)
+!31 = !DILocation(line: 48, column: 25, scope: !4)
+!32 = !DILocation(line: 48, column: 36, scope: !4)
+!33 = !DILocation(line: 48, column: 4, scope: !4)

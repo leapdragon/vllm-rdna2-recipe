@@ -35,7 +35,8 @@ Do I know what I'm doing? Categorically, no. But at this point I have done a num
 
 ## What's in this repo really, and how to use it
 
-This is **not** a fork, a distribution, or an installable package. It is a **recipe book**: two standalone plugins that
+This is **not** a fork, a distribution, or an installable package (though since 2026-08-31 it also ships as a
+prebuilt [container image](containers/README.md)). It is a **recipe book**: two standalone plugins that
 are shared for v620 model use, and then for each optimized model (see 'builds/'), needed patches or configuration items to
 enable support and/or optimize performance when applied against pristine vLLM 0.27.1, along with:
 
@@ -59,6 +60,20 @@ Used in my case with:
 
 When I started this I thought nobody was doing RDNA2 inference seriously. That was wrong — there's
 an active community. See [RDNA2-RESOURCES.md](RDNA2-RESOURCES.md) for links.
+
+## Container image (2026-08-31)
+
+The whole stack, prebuilt: `ghcr.io/leapdragon/vllm-rdna2-recipe:0.27.1-rocm7.2.3-gfx1030` — pristine
+vLLM 0.27.1 + the nine patches compiled for gfx1030 + both plugins, on ROCm 7.2.3 with a PyTorch built
+from source for gfx1030. Point the wrapper at it and skip the build:
+
+    IMG=ghcr.io/leapdragon/vllm-rdna2-recipe:0.27.1-rocm7.2.3-gfx1030 ./builds/<model>/serve.sh
+
+The two Dockerfiles that produce it (and its base image, `…-recipe-base`) live in [containers/](containers/),
+with a [README](containers/README.md) covering run flags, what is baked in, verification, publishing, and
+building it yourself. ~34 GB. The base is built from scratch by `containers/build.sh --base`, which is the
+step [02-VERSIONS.md](02-VERSIONS.md) long warned nobody had run end to end — its build status is recorded
+in the containers README.
 
 ## Qwen3.8-Flash-Next at ~100 t/s — the successor repo (2026-08-30)
 

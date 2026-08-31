@@ -87,6 +87,9 @@ was exactly backwards.** Measure before you assume.
 
 **What:** adds `gfx1030` to `PYTORCH_ROCM_ARCH` in vLLM's own `docker/Dockerfile.rocm_base`.
 
+**Where:** vendored pre-applied as [`containers/Dockerfile.rocm_base`](containers/Dockerfile.rocm_base);
+`containers/build.sh --base` builds it with `PYTORCH_ROCM_ARCH=gfx1030`.
+
 **Why:** that Dockerfile builds PyTorch from source for a fixed arch list that excludes gfx1030.
 Without this you get `HIP error: invalid device function` on the first matmul. **This one line is
 the difference between "vLLM cannot run on this card" and "vLLM runs on this card."**

@@ -5,6 +5,17 @@
 Newest first. Companion to [README.md](README.md); per-model detail lives in each
 `builds/*/BUILD.md`, and measured configs in [02-VERSIONS.md](02-VERSIONS.md).
 
+**2026-08-31 — the recipe ships as a container image.** New [containers/](containers/README.md):
+`Dockerfile.rocm_base` (upstream vLLM's `v0.27.1` base recipe, vendored verbatim with patch 0005
+applied) and `Dockerfile` (clone the pinned tag *and* commit, `git apply` patches 0001–0009,
+compile every extension for gfx1030, install both plugins, verify code-object targets / patch ops /
+patch markers / stock libhsa at build time, OCI labels, healthcheck, `vllm serve` entrypoint), plus
+`build.sh` to build, tag and push `ghcr.io/leapdragon/vllm-rdna2-recipe`. All nine patches apply
+cleanly to pristine `v0.27.1` (`6e448d0ea9`). The from-scratch base build — the step 02-VERSIONS
+said nobody had run end to end — was started the same day; result in containers/README.md "Build
+status" and 02-VERSIONS. `config/serve-rdna2-tp2.sh` now derives the `render`/`video` GIDs from the
+host instead of hardcoding this machine's 991/44, and passes `HEALTHCHECK_PORT` to the image.
+
 **2026-08-30 (later) — the ~100 t/s was measured with a handshake that never waited.** On
 this ROCm, `hipStreamWaitValue32` is accepted during stream capture but not recorded into the
 HIP graph, so the n-gram (PLE) offload's in-graph wait was a no-op on every CUDA-graph decode

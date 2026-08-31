@@ -16,6 +16,10 @@ Copyright © 2026 Aron Hsiao · GPL-3.0-or-later (see LICENSE)
 
 ## Build order
 
+The whole order is automated in [`containers/build.sh`](containers/build.sh) (`--base` runs step 1), and
+the result is published as `ghcr.io/leapdragon/vllm-rdna2-recipe` — see [containers/README.md](containers/README.md).
+Step by step, for doing it by hand:
+
 1. **Base image** — vLLM's `docker/Dockerfile.rocm_base` **with patch 0005**. Builds PyTorch from
    source for gfx1030. **Hours, not minutes.** This is the step that makes the card work at all.
 2. **vLLM image** — patched 0.27.1 source (all nine patches; 0006 touches a `.cu`, so it is
@@ -27,12 +31,16 @@ Copyright © 2026 Aron Hsiao · GPL-3.0-or-later (see LICENSE)
    already-optimized path), else `config/serve-rdna2-tp2.sh` directly with `MODEL=`/`SERVED=`/
    `QUANT=` set.
 
-⚠️ **We did not rebuild the base image from scratch to verify step 1.** Our working base was built
-by hand before this recipe existed; we later identified that vLLM's own `rocm_base` recipe plus
-the one-line arch change is what produces it. The reasoning is sound and the patch is trivial, but
-**you will be the first to run it end to end.** Budget accordingly, and if it diverges, check the
-torch build arch list — `torch.cuda.get_arch_list()` must include `gfx1030` — **with GPU devices
-attached to the container**, or it returns an empty list with no error and tells you nothing.
+⚠️ **Step 1 is being verified end to end (started 2026-08-31).** Our working base was built by hand
+before this recipe existed; we later identified vLLM's own `rocm_base` recipe plus the one-line arch
+change as what produces it. That recipe is now vendored verbatim, with patch 0005 applied, as
+[`containers/Dockerfile.rocm_base`](containers/Dockerfile.rocm_base), and `containers/build.sh --base`
+runs it from scratch with `PYTORCH_ROCM_ARCH=gfx1030`. The outcome, and how long it took, is recorded in
+[containers/README.md](containers/README.md) "Build status" — until that table shows a pass, budget for
+being an early runner. If it diverges, check the torch build arch list — `torch.cuda.get_arch_list()`
+must include `gfx1030` **with GPU devices attached to the container**, or it returns an empty list with
+no error and tells you nothing (the Dockerfile instead checks the code-object target IDs inside the
+binaries, which needs no GPU).
 
 ## Runtime configuration and what each setting is worth
 

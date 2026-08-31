@@ -57,7 +57,8 @@ PP_PART_ENV=()
 [ -n "${PP_PARTITION:-}" ] && PP_PART_ENV=(-e VLLM_PP_LAYER_PARTITION="${PP_PARTITION}")
 DEVICES="${DEVICES:-1,3}"                 # the two x16-rooted V620s
 SERVE_EXTRA=""
-# IMG: the image you built from the nine patches + plugins (02-VERSIONS build order).
+# IMG: the image you built from the nine patches + plugins (02-VERSIONS build order), or the published
+# one: IMG=ghcr.io/leapdragon/vllm-rdna2-recipe:0.27.1-rocm7.2.3-gfx1030 (see containers/README.md).
 # DEV=1 instead mounts the repo's plugin trees and installs them at start, for
 # iterating on plugin code without a rebuild.
 IMG="${IMG:-vllm-gfx1030:0.27.1-patched}"
@@ -138,14 +139,21 @@ if [ -n "${EXTRA_ENV:-}" ]; then
   for _ee in "${_EENV[@]}"; do EXTRA_ENV_ARGS+=(-e "${_ee}"); done
 fi
 
+# Host groups that own /dev/kfd and /dev/dri/renderD*; the numeric ids differ between distros.
+RENDER_GID="${RENDER_GID:-$(getent group render | cut -d: -f3)}"
+RENDER_GID="${RENDER_GID:-$(stat -c %g /dev/dri/renderD128 2>/dev/null || echo 991)}"
+VIDEO_GID="${VIDEO_GID:-$(getent group video | cut -d: -f3)}"
+VIDEO_GID="${VIDEO_GID:-44}"
+
 # Do not leave a stale container behind (the previous --rm setup vanished on exit,
 # taking its exit status with it).
 docker rm -f "$NAME" >/dev/null 2>&1 || true
 
 exec docker run -d --name "$NAME" --network=host \
-  --device /dev/kfd --device /dev/dri --group-add 991 --group-add 44 \
+  --device /dev/kfd --device /dev/dri --group-add "$RENDER_GID" --group-add "$VIDEO_GID" \
   --ipc=host --cap-add SYS_PTRACE --security-opt seccomp=unconfined --ulimit memlock=-1 \
   --restart=no \
+  -e HEALTHCHECK_PORT="$PORT" \
   -v "$HF_CACHE:/root/.cache/huggingface" \
   -v "$TUNEOP_DIR:/tuning" \
   -e FD_RDNA2="${FD_RDNA2:-1}" -e FD_MAXQ="${FD_MAXQ:-4}" -e FD_CHUNK="${FD_CHUNK:-512}" -e FD_TILE="${FD_TILE:-32}" -e FD_WARPS="${FD_WARPS:-8}" \

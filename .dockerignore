@@ -1,0 +1,11 @@
+# Build context for containers/Dockerfile is the repository root; keep it small.
+.git
+.state
+hf-cache
+tunableop
+runlogs
+.triton-cache
+**/__pycache__
+**/*.pyc
+**/*.egg-info
+**/build

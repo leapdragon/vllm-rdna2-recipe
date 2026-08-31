@@ -81,7 +81,7 @@ RUN cd /app/vllm-src \
 #    torch.cuda.get_arch_list() returns [] with no device attached and tells you nothing.
 RUN cd /app/vllm-src && python3 - <<'EOF'
 import ctypes, glob, os, pathlib, subprocess
-import torch, vllm, vllm._custom_ops  # noqa: F401  (binds _C, _moe_C, _rocm_C)
+import torch, vllm, vllm._custom_ops  # noqa: F401  (loads _C, _C_stable_libtorch, _moe_C_stable_libtorch, _rocm_C)
 
 src = pathlib.Path("/app/vllm-src")
 arch = os.environ["PYTORCH_ROCM_ARCH"]
@@ -92,7 +92,7 @@ def so(rel, floor):
     assert p is not None and p.stat().st_size > floor, (rel, p)
     return p
 
-for rel, floor in (("vllm/_C.abi3.so", 1_000_000), ("vllm/_moe_C.abi3.so", 100_000),
+for rel, floor in (("vllm/_C.abi3.so", 1_000_000), ("vllm/_moe_C_stable_libtorch.abi3.so", 10_000_000),
                    ("vllm/_C_stable_libtorch.abi3.so", 10_000_000), ("vllm/_rocm_C.abi3.so", 1_000_000)):
     p = so(rel, floor)
     assert target_id in p.read_bytes(), f"{p.name} carries no {arch} code objects"

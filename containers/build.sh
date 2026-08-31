@@ -31,7 +31,7 @@ while [ $# -gt 0 ]; do
     --base) do_base=1 ;;
     --push) do_push=1 ;;
     --asbuilt) asbuilt="${2:?--asbuilt needs a local image name}"; shift ;;
-    -h|--help) sed -n '2,16p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "unknown argument: $1" >&2; exit 2 ;;
   esac
   shift

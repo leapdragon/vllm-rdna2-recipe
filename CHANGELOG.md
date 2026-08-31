@@ -33,8 +33,17 @@ device-set-specific, and reusing one across pairs crashes boot with an aperture 
 tests killed the remaining environmental hypotheses one by one: raising the cap 170→220 W changed
 nothing (cards draw 208–214 W for the same decode — bandwidth-bound, as documented), and **v3 — the
 exact image BUILD.md's numbers came from — measures 27–31 t/s on today's host** with identical
-outputs. The recorded 41–51 t/s predates the 2026-08-25 platform-stability cmdline; its measured
-cost is now noted in the stability table, and BUILD.md carries a dated caveat.
+outputs. That platform hypothesis died the same day: **the regression was the lost TunableOp results CSV.**
+A torch profile (record_shapes) showed the MTP step paying three ~10.5 ms lm_head GEMMs
+(`tn_124160_{1,3}_5120` fp16 at 115 GB/s — rocBLAS's heuristic macro-tile for a skinny shape);
+an isolated micro-benchmark reproduced 11.08 ms default vs 2.96 ms TunableOp-tuned. One offline
+tuning session later, lookup-only decode from the published container image measures
+**49.0/45.3/41.8 t/s at 3.5k/13k/42k — the recorded table, reproduced** (outputs 8/8 identical).
+The per-rank CSVs are now shipped in `builds/btbtyler09-…/tunableop/` with restore/retune
+instructions in BUILD.md ("load-bearing rows"); the symptom is TROUBLESHOOTING 5c; the stability
+cmdline, power caps, link width, HW queues, P2P latency and the checkpoint were all exonerated
+by direct A/B along the way. `GPU_MAX_HW_QUEUES=4` is restored in the wrapper (dropped in the
+Aug-22 refactor; measured as a no-op — the container default is already 4).
 
 **2026-08-30 (later) — the ~100 t/s was measured with a handshake that never waited.** On
 this ROCm, `hipStreamWaitValue32` is accepted during stream capture but not recorded into the

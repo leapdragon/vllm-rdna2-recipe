@@ -40,13 +40,36 @@ K-strips suit 72 CUs at these shapes.
 Decode without MTP: 33.5 t/s @41k (~61% of the bandwidth ceiling). Beats llama.cpp's
 31–40 t/s @45k on the same cards. Point estimates; ±5% run-to-run/boot-to-boot spread.
 
-> **2026-08-31:** the decode rows above no longer reproduce on the machine that produced them —
-> re-measured at 27–31 t/s with the *same* image (v3), same wrapper, plugins live, acceptance
-> healthy, outputs byte-identical. Power cap (170→220 W: no change) and TP-pair link width
-> (x8 vs x16 Gen3: no change) were ruled out by direct A/B; what changed in between is the
-> 2026-08-25 platform-stability kernel cmdline (02-VERSIONS "stability" table), adopted to stop
-> cards dropping off the bus. Prefill still reproduces (759 t/s @7.5k). Treat 27–31 t/s as the
-> expected decode on a hardened platform; the table reflects the pre-hardening host.
+> **2026-08-31 (resolved same day):** these decode numbers stopped reproducing (27–31 t/s, same
+> image, same outputs) and a day of elimination — image lineage, power caps, PCIe link width,
+> HW queues, P2P latency, kernel cmdline, checkpoint — found the cause in a torch profile: the
+> **tuned TunableOp lm_head rows had been lost** (see the section below). With the rows restored
+> the table reproduces exactly: 49.0 / 45.3 / 41.8 t/s at 3.5k / 13k / 42k, outputs 8/8 identical.
+> The 2026-08-25 platform-stability cmdline was exonerated along the way — it has no measurable
+> decode cost.
+
+## TunableOp lm_head rows — load-bearing, shipped in `tunableop/` here (2026-08-31)
+
+The fp16 lm_head (vocab 248,320, TP-sharded to 124,160 per rank) is unquantized, and rocBLAS's
+heuristic gives its skinny decode GEMMs (`tn_124160_{1,3}_5120`) a macro-tile meant for large M:
+**11.1 ms at 115 GB/s instead of 2.9–3.5 ms at 360–430 GB/s**. MTP=2 pays that three times per
+step (verify at M=3, two drafts at M=1), so losing the tuned rows costs **~40% of decode
+(49 → 27 t/s)** — context-flat, prefill untouched, outputs byte-identical, so nothing looks
+broken. The rows exist only in the gitignored live `tunableop/` directory unless shipped; their
+loss burned a full diagnostic day on 2026-08-31 (the 122B build documents the same disease for
+its own head — its BUILD.md's offline-probe recipe applies here with `W = (124160, 5120)`).
+
+Restore by copying the shipped per-rank CSVs into the live dir:
+
+```bash
+cp builds/btbtyler09-Qwen3.8-27B-GPTQ-4bit/tunableop/tunableop_results{0,1}.csv tunableop/
+```
+
+or retune: one boot with `TUNEOP_TUNING=1` (warmup tunes the M=8192 prefill shapes, ~17 min),
+a few short greedy requests after `/health` (the M=1/3 head rows only appear under decode
+traffic), then a **graceful** stop. The rows carry Validator stamps (torch 2.11.0, ROCm 7.2,
+rocBLAS 5.2.0, gfx1030); TunableOp silently ignores a CSV whose validators mismatch — which
+re-creates this exact regression — so retune after any stack bump.
 
 ## Working configuration, item by item, with the why
 
@@ -67,6 +90,7 @@ Decode without MTP: 33.5 t/s @41k (~61% of the bandwidth ceiling). Beats llama.c
 - **`GPU_MAX_HW_QUEUES=4`** — 8 was a 32% regression.
 - **CompilationMode 3 + FULL_DECODE_ONLY graphs** — decode is graph-captured (launch overhead
   matters at 20 ms/token); prefill is not (shapes vary).
-- **TunableOp lookup-only** — tuning mode autotunes prompt-length-dependent shapes
-  mid-request; see the pitfall in 01-PATCHES.
+- **TunableOp lookup-only, with the shipped lm_head rows** — tuning mode autotunes
+  prompt-length-dependent shapes mid-request (see the pitfall in 01-PATCHES), and the tuned
+  rows themselves are LOAD-BEARING: losing them silently costs ~40% of decode (next section).
 - **dtype float16** — gfx1030 has no bf16 opcodes.

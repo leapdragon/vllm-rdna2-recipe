@@ -1,0 +1,549 @@
+	.amdgcn_target "amdgcn-amd-amdhsa--gfx1030"
+	.amdhsa_code_object_version 5
+	.text
+	.globl	_causal_conv1d_update_kernel    ; -- Begin function _causal_conv1d_update_kernel
+	.p2align	8
+	.type	_causal_conv1d_update_kernel,@function
+_causal_conv1d_update_kernel:           ; @_causal_conv1d_update_kernel
+.Lfunc_begin0:
+	.file	1 "/app/vllm-src/vllm/model_executor/layers/mamba/ops" "causal_conv1d.py"
+	.loc	1 763 0                         ; causal_conv1d.py:763:0
+	.cfi_sections .debug_frame
+	.cfi_startproc
+; %bb.0:
+	s_load_dword s1, s[4:5], 0x28
+.Ltmp0:
+	.loc	1 813 18 prologue_end           ; causal_conv1d.py:813:18
+	s_waitcnt lgkmcnt(0)
+	s_cmp_lt_i32 s6, s1
+	s_cbranch_scc0 .LBB0_3
+; %bb.1:
+	.loc	1 0 18 is_stmt 0                ; causal_conv1d.py:0:18
+	s_load_dwordx2 s[2:3], s[4:5], 0x18
+	s_mov_b32 s0, s7
+	.loc	1 831 8 is_stmt 1               ; causal_conv1d.py:831:8
+	s_ashr_i32 s7, s6, 31
+	s_lshl_b64 s[8:9], s[6:7], 2
+	s_waitcnt lgkmcnt(0)
+	s_add_u32 s20, s2, s8
+	s_addc_u32 s21, s3, s9
+	s_load_dword s1, s[20:21], 0x0
+	.loc	1 835 38                        ; causal_conv1d.py:835:38
+	s_waitcnt lgkmcnt(0)
+	s_cmp_eq_u32 s1, 0
+	s_cbranch_scc1 .LBB0_3
+; %bb.2:
+	.loc	1 0 38 is_stmt 0                ; causal_conv1d.py:0:38
+	s_clause 0x3
+	s_load_dwordx2 s[8:9], s[4:5], 0x10
+	s_load_dword s7, s[4:5], 0x2c
+	s_load_dwordx4 s[12:15], s[4:5], 0x0
+	s_load_dwordx2 s[2:3], s[4:5], 0x30
+	.loc	1 819 58 is_stmt 1              ; causal_conv1d.py:819:58
+	v_lshlrev_b32_e32 v1, 3, v0
+	.loc	1 906 30                        ; causal_conv1d.py:906:30
+	v_lshrrev_b32_e32 v3, 5, v0
+	.loc	1 819 35                        ; causal_conv1d.py:819:35
+	s_lshl_b32 s22, s0, 8
+	.loc	1 852 29                        ; causal_conv1d.py:852:29
+	s_waitcnt lgkmcnt(0)
+	s_lshl_b32 s3, s6, 13
+	.loc	1 883 37                        ; causal_conv1d.py:883:37
+	s_mul_i32 s6, s1, 0xc5080
+	.loc	1 819 58                        ; causal_conv1d.py:819:58
+	v_and_b32_e32 v4, 0xf8, v1
+	.loc	1 916 10                        ; causal_conv1d.py:916:10
+	v_mul_u32_u24_e32 v1, 0x1400, v3
+	.loc	1 884 11                        ; causal_conv1d.py:884:11
+	s_add_i32 s23, s6, s22
+	.loc	1 935 29                        ; causal_conv1d.py:935:29
+	v_cmp_lt_u32_e32 vcc_lo, 1, v3
+	s_mov_b32 s11, 0x31027000
+	.loc	1 819 45                        ; causal_conv1d.py:819:45
+	v_or_b32_e32 v6, s22, v4
+	.loc	1 916 10                        ; causal_conv1d.py:916:10
+	v_or_b32_e32 v5, v1, v4
+	.loc	1 922 35                        ; causal_conv1d.py:922:35
+	v_sub_co_u32 v1, s17, v3, 2
+	s_mov_b32 s10, 0x7ffffffe
+	.loc	1 939 39                        ; causal_conv1d.py:939:39
+	s_mov_b32 s19, s11
+	.loc	1 891 49                        ; causal_conv1d.py:891:49
+	s_and_b32 s9, s9, 0xffff
+	.loc	1 921 35                        ; causal_conv1d.py:921:35
+	s_cmp_lt_i32 s1, s7
+	.loc	1 916 10                        ; causal_conv1d.py:916:10
+	v_add_nc_u32_e32 v7, s23, v5
+	.loc	1 921 35                        ; causal_conv1d.py:921:35
+	s_cselect_b32 s7, -1, 0
+	.loc	1 928 33                        ; causal_conv1d.py:928:33
+	s_add_i32 s6, s22, s3
+	.loc	1 936 30                        ; causal_conv1d.py:936:30
+	v_cmp_ne_u32_e64 s1, 3, v3
+	.loc	1 931 26                        ; causal_conv1d.py:931:26
+	v_mad_u64_u32 v[1:2], null, v1, s2, s[6:7]
+	.loc	1 886 25                        ; causal_conv1d.py:886:25
+	v_cmp_gt_i32_e64 s2, 0x1400, v6
+	.loc	1 925 49                        ; causal_conv1d.py:925:49
+	v_lshl_add_u32 v2, v7, 1, 0x2800
+	.loc	1 922 10                        ; causal_conv1d.py:922:10
+	s_and_b32 s3, s17, s7
+	.loc	1 939 39                        ; causal_conv1d.py:939:39
+	s_mov_b32 s18, s10
+	s_mov_b32 s16, s12
+	.loc	1 923 10                        ; causal_conv1d.py:923:10
+	s_and_b32 s3, s2, s3
+	.loc	1 931 26                        ; causal_conv1d.py:931:26
+	v_add_lshl_u32 v6, v1, v4, 1
+	.loc	1 925 49                        ; causal_conv1d.py:925:49
+	v_cndmask_b32_e64 v1, 0x80000000, v2, s3
+	.loc	1 956 47                        ; causal_conv1d.py:956:47
+	s_and_b32 s1, s1, s2
+	.loc	1 939 39                        ; causal_conv1d.py:939:39
+	s_and_b32 s17, s13, 0xffff
+	.loc	1 937 10                        ; causal_conv1d.py:937:10
+	s_and_b32 vcc_lo, s1, vcc_lo
+	.loc	1 939 39                        ; causal_conv1d.py:939:39
+	v_add_nc_u32_e32 v8, 4, v6
+	v_add_nc_u32_e32 v11, 8, v6
+	v_add_nc_u32_e32 v13, 12, v6
+	v_add_nc_u32_e32 v7, 2, v6
+	v_cndmask_b32_e32 v9, 0x80000000, v6, vcc_lo
+	v_add_nc_u32_e32 v10, 6, v6
+	v_add_nc_u32_e32 v12, 10, v6
+	v_add_nc_u32_e32 v6, 14, v6
+	.loc	1 925 49                        ; causal_conv1d.py:925:49
+	buffer_load_dwordx4 v[1:4], v1, s[8:11], 0 offen
+	.loc	1 939 39                        ; causal_conv1d.py:939:39
+	v_cndmask_b32_e32 v8, 0x80000000, v8, vcc_lo
+	v_cndmask_b32_e32 v11, 0x80000000, v11, vcc_lo
+	v_cndmask_b32_e32 v13, 0x80000000, v13, vcc_lo
+	v_cndmask_b32_e32 v7, 0x80000000, v7, vcc_lo
+	v_cndmask_b32_e32 v10, 0x80000000, v10, vcc_lo
+	v_cndmask_b32_e32 v12, 0x80000000, v12, vcc_lo
+	v_cndmask_b32_e32 v6, 0x80000000, v6, vcc_lo
+	s_clause 0x7
+	buffer_load_ushort v9, v9, s[16:19], 0 offen
+	buffer_load_ushort v8, v8, s[16:19], 0 offen
+	buffer_load_ushort v11, v11, s[16:19], 0 offen
+	buffer_load_ushort v13, v13, s[16:19], 0 offen
+	buffer_load_ushort v6, v6, s[16:19], 0 offen
+	buffer_load_ushort v12, v12, s[16:19], 0 offen
+	buffer_load_ushort v10, v10, s[16:19], 0 offen
+	buffer_load_ushort v7, v7, s[16:19], 0 offen
+	.loc	1 819 58                        ; causal_conv1d.py:819:58
+	v_lshlrev_b32_e32 v14, 1, v0
+	.loc	1 972 22                        ; causal_conv1d.py:972:22
+	s_lshl_b32 s0, s0, 11
+	v_lshl_or_b32 v18, v0, 4, s0
+	.loc	1 819 45                        ; causal_conv1d.py:819:45
+	v_or_b32_e32 v15, s22, v14
+	.loc	1 891 49                        ; causal_conv1d.py:891:49
+	v_add_lshl_u32 v16, s23, v14, 1
+	.loc	1 928 33                        ; causal_conv1d.py:928:33
+	v_or_b32_e32 v14, s6, v14
+	.loc	1 976 33                        ; causal_conv1d.py:976:33
+	v_or_b32_e32 v20, 8, v18
+	.loc	1 978 33                        ; causal_conv1d.py:978:33
+	v_or_b32_e32 v21, 2, v18
+	.loc	1 886 25                        ; causal_conv1d.py:886:25
+	v_cmp_gt_i32_e32 vcc_lo, 0x1400, v15
+	.loc	1 894 49                        ; causal_conv1d.py:894:49
+	v_add_nc_u32_e32 v15, 0x2800, v16
+	.loc	1 897 49                        ; causal_conv1d.py:897:49
+	v_add_nc_u32_e32 v17, 0x5000, v16
+	.loc	1 978 33                        ; causal_conv1d.py:978:33
+	v_or_b32_e32 v22, 10, v18
+	.loc	1 981 33                        ; causal_conv1d.py:981:33
+	v_or_b32_e32 v23, 4, v18
+	.loc	1 891 49                        ; causal_conv1d.py:891:49
+	v_cndmask_b32_e32 v16, 0x80000000, v16, vcc_lo
+	.loc	1 894 49                        ; causal_conv1d.py:894:49
+	v_cndmask_b32_e32 v15, 0x80000000, v15, vcc_lo
+	.loc	1 897 49                        ; causal_conv1d.py:897:49
+	v_cndmask_b32_e32 v17, 0x80000000, v17, vcc_lo
+	.loc	1 891 49                        ; causal_conv1d.py:891:49
+	s_clause 0x2
+	buffer_load_dword v16, v16, s[8:11], 0 offen
+	buffer_load_dword v15, v15, s[8:11], 0 offen
+	buffer_load_dword v17, v17, s[8:11], 0 offen
+	.loc	1 940 4                         ; causal_conv1d.py:940:4
+	s_waitcnt vmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	.loc	1 947 8                         ; causal_conv1d.py:947:8
+	s_load_dword s2, s[20:21], 0x0
+	.loc	1 976 33                        ; causal_conv1d.py:976:33
+	v_cndmask_b32_e32 v19, 0x80000000, v18, vcc_lo
+	.loc	1 981 33                        ; causal_conv1d.py:981:33
+	v_or_b32_e32 v24, 12, v18
+	.loc	1 984 33                        ; causal_conv1d.py:984:33
+	v_or_b32_e32 v25, 6, v18
+	.loc	1 951 32                        ; causal_conv1d.py:951:32
+	s_waitcnt lgkmcnt(0)
+	s_mul_i32 s0, s2, 0xc5080
+	.loc	1 953 17                        ; causal_conv1d.py:953:17
+	s_add_i32 s0, s0, s22
+	.loc	1 957 53                        ; causal_conv1d.py:957:53
+	v_add_lshl_u32 v0, s0, v5, 1
+	.loc	1 925 49                        ; causal_conv1d.py:925:49
+	v_lshrrev_b32_e32 v5, 16, v1
+	v_lshrrev_b32_e32 v26, 16, v2
+	v_lshrrev_b32_e32 v27, 16, v3
+	v_lshrrev_b32_e32 v28, 16, v4
+	.loc	1 942 48                        ; causal_conv1d.py:942:48
+	v_cndmask_b32_e64 v9, v9, v1, s3
+	v_cndmask_b32_e64 v1, v8, v2, s3
+	v_cndmask_b32_e64 v2, v11, v3, s3
+	v_cndmask_b32_e64 v3, v13, v4, s3
+	v_cndmask_b32_e64 v4, v6, v28, s3
+	v_cndmask_b32_e64 v6, v12, v27, s3
+	v_cndmask_b32_e64 v8, v10, v26, s3
+	v_cndmask_b32_e64 v5, v7, v5, s3
+	.loc	1 957 53                        ; causal_conv1d.py:957:53
+	v_cndmask_b32_e64 v7, 0x80000000, v0, s1
+	v_perm_b32 v3, v4, v3, 0x5040100
+	v_perm_b32 v2, v6, v2, 0x5040100
+	v_perm_b32 v1, v8, v1, 0x5040100
+	v_perm_b32 v0, v5, v9, 0x5040100
+	.loc	1 976 33                        ; causal_conv1d.py:976:33
+	v_cndmask_b32_e32 v6, 0x80000000, v20, vcc_lo
+	.loc	1 978 33                        ; causal_conv1d.py:978:33
+	v_cndmask_b32_e32 v8, 0x80000000, v21, vcc_lo
+	.loc	1 984 33                        ; causal_conv1d.py:984:33
+	v_or_b32_e32 v4, 14, v18
+	.loc	1 1028 39                       ; causal_conv1d.py:1028:39
+	v_lshlrev_b32_e32 v5, 1, v14
+	.loc	1 957 53                        ; causal_conv1d.py:957:53
+	buffer_store_dwordx4 v[0:3], v7, s[8:11], 0 offen
+	.loc	1 976 33                        ; causal_conv1d.py:976:33
+	s_and_b32 s9, s15, 0xffff
+	s_mov_b32 s8, s14
+	s_clause 0x1
+	buffer_load_ushort v1, v19, s[8:11], 0 offen
+	buffer_load_ushort v2, v6, s[8:11], 0 offen
+	.loc	1 978 33                        ; causal_conv1d.py:978:33
+	v_cndmask_b32_e32 v0, 0x80000000, v22, vcc_lo
+	s_clause 0x1
+	buffer_load_ushort v7, v8, s[8:11], 0 offen
+	buffer_load_ushort v0, v0, s[8:11], 0 offen
+	.loc	1 981 33                        ; causal_conv1d.py:981:33
+	v_cndmask_b32_e32 v3, 0x80000000, v23, vcc_lo
+	v_cndmask_b32_e32 v6, 0x80000000, v24, vcc_lo
+	.loc	1 984 33                        ; causal_conv1d.py:984:33
+	v_cndmask_b32_e32 v8, 0x80000000, v25, vcc_lo
+	v_cndmask_b32_e32 v4, 0x80000000, v4, vcc_lo
+	.loc	1 981 33                        ; causal_conv1d.py:981:33
+	s_clause 0x3
+	buffer_load_ushort v3, v3, s[8:11], 0 offen
+	buffer_load_ushort v6, v6, s[8:11], 0 offen
+	buffer_load_ushort v8, v8, s[8:11], 0 offen
+	buffer_load_ushort v4, v4, s[8:11], 0 offen
+	.loc	1 1028 39                       ; causal_conv1d.py:1028:39
+	v_cndmask_b32_e32 v5, 0x80000000, v5, vcc_lo
+	s_load_dwordx2 s[8:9], s[4:5], 0x20
+	buffer_load_dword v9, v5, s[16:19], 0 offen
+	.loc	1 1093 25                       ; causal_conv1d.py:1093:25
+	s_waitcnt lgkmcnt(0)
+	s_and_b32 s9, s9, 0xffff
+	.loc	1 976 33                        ; causal_conv1d.py:976:33
+	s_waitcnt vmcnt(7)
+	v_perm_b32 v1, v2, v1, 0x5040100
+	.loc	1 978 33                        ; causal_conv1d.py:978:33
+	s_waitcnt vmcnt(5)
+	v_perm_b32 v0, v0, v7, 0x5040100
+	.loc	1 1061 30                       ; causal_conv1d.py:1061:30
+	v_pk_mul_f16 v1, v16, v1
+	.loc	1 981 33                        ; causal_conv1d.py:981:33
+	s_waitcnt vmcnt(3)
+	v_perm_b32 v2, v6, v3, 0x5040100
+	.loc	1 1061 30                       ; causal_conv1d.py:1061:30
+	v_pk_mul_f16 v0, v15, v0
+	.loc	1 1061 19 is_stmt 0             ; causal_conv1d.py:1061:19
+	v_cvt_f32_f16_sdwa v3, v1 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v1, v1
+	.loc	1 984 33 is_stmt 1              ; causal_conv1d.py:984:33
+	s_waitcnt vmcnt(1)
+	v_perm_b32 v4, v4, v8, 0x5040100
+	.loc	1 1061 30                       ; causal_conv1d.py:1061:30
+	v_pk_mul_f16 v2, v17, v2
+	.loc	1 1061 19 is_stmt 0             ; causal_conv1d.py:1061:19
+	v_cvt_f32_f16_sdwa v6, v0 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_add_f32_e32 v3, 0, v3
+	v_cvt_f32_f16_e32 v0, v0
+	v_add_f32_e32 v1, 0, v1
+	.loc	1 1061 30                       ; causal_conv1d.py:1061:30
+	s_waitcnt vmcnt(0)
+	v_pk_mul_f16 v4, v9, v4
+	.loc	1 1061 19                       ; causal_conv1d.py:1061:19
+	v_cvt_f32_f16_sdwa v7, v2 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_add_f32_e32 v3, v3, v6
+	v_cvt_f32_f16_e32 v2, v2
+	v_add_f32_e32 v0, v1, v0
+	v_cvt_f32_f16_sdwa v1, v4 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v4, v4
+	v_add_f32_e32 v3, v3, v7
+	v_add_f32_e32 v0, v0, v2
+	v_add_f32_e32 v1, v3, v1
+	v_add_f32_e32 v0, v0, v4
+	.loc	1 1085 36 is_stmt 1             ; causal_conv1d.py:1085:36
+	v_mul_f32_e64 v2, 0x3fb8aa3b, -v1
+	.loc	1 1085 37 is_stmt 0             ; causal_conv1d.py:1085:37
+	v_sub_f32_e32 v6, 0, v1
+	.loc	1 1085 36                       ; causal_conv1d.py:1085:36
+	v_mul_f32_e64 v3, 0x3fb8aa3b, -v0
+	.loc	1 1085 37                       ; causal_conv1d.py:1085:37
+	v_sub_f32_e32 v4, 0, v0
+	.loc	1 1085 36                       ; causal_conv1d.py:1085:36
+	v_cmp_gt_f32_e32 vcc_lo, 0xc2fc0000, v2
+	v_cmp_gt_f32_e64 s0, 0xc2fc0000, v3
+	v_cndmask_b32_e64 v2, 0, 0x42800000, vcc_lo
+	v_cndmask_b32_e64 v3, 0, 0x42800000, s0
+	v_fmac_f32_e32 v2, 0x3fb8aa3b, v6
+	v_cndmask_b32_e64 v6, 0, 0xffffffc0, s0
+	v_fmac_f32_e32 v3, 0x3fb8aa3b, v4
+	v_cndmask_b32_e64 v4, 0, 0xffffffc0, vcc_lo
+	v_exp_f32_e32 v2, v2
+	v_exp_f32_e32 v3, v3
+	v_ldexp_f32 v2, v2, v4
+	v_ldexp_f32 v3, v3, v6
+	.loc	1 1085 29                       ; causal_conv1d.py:1085:29
+	v_add_f32_e32 v2, 1.0, v2
+	v_add_f32_e32 v3, 1.0, v3
+	.loc	1 1085 25                       ; causal_conv1d.py:1085:25
+	v_div_scale_f32 v4, null, v2, v2, v1
+	v_div_scale_f32 v6, null, v3, v3, v0
+	v_div_scale_f32 v11, vcc_lo, v1, v2, v1
+	v_rcp_f32_e32 v7, v4
+	v_rcp_f32_e32 v8, v6
+	v_fma_f32 v9, -v4, v7, 1.0
+	v_fma_f32 v10, -v6, v8, 1.0
+	v_fmac_f32_e32 v7, v9, v7
+	v_div_scale_f32 v9, s0, v0, v3, v0
+	v_fmac_f32_e32 v8, v10, v8
+	v_mul_f32_e32 v10, v11, v7
+	v_mul_f32_e32 v12, v9, v8
+	v_fma_f32 v13, -v4, v10, v11
+	v_fma_f32 v14, -v6, v12, v9
+	v_fmac_f32_e32 v10, v13, v7
+	v_fmac_f32_e32 v12, v14, v8
+	v_fma_f32 v4, -v4, v10, v11
+	v_fma_f32 v6, -v6, v12, v9
+	v_div_fmas_f32 v4, v4, v7, v10
+	s_mov_b32 vcc_lo, s0
+	v_div_fmas_f32 v6, v6, v8, v12
+	v_div_fixup_f32 v1, v4, v2, v1
+	v_div_fixup_f32 v0, v6, v3, v0
+	.loc	1 1093 25 is_stmt 1             ; causal_conv1d.py:1093:25
+	v_cvt_f16_f32_e32 v1, v1
+	v_cvt_f16_f32_e32 v0, v0
+	v_pack_b32_f16 v0, v0, v1
+	buffer_store_dword v0, v5, s[8:11], 0 offen
+.LBB0_3:                                ; %common.ret
+	.loc	1 0 0 is_stmt 0                 ; causal_conv1d.py:0
+	s_endpgm
+.Ltmp1:
+	.section	.rodata,"a",@progbits
+	.p2align	6, 0x0
+	.amdhsa_kernel _causal_conv1d_update_kernel
+		.amdhsa_group_segment_fixed_size 0
+		.amdhsa_private_segment_fixed_size 0
+		.amdhsa_kernarg_size 80
+		.amdhsa_user_sgpr_count 6
+		.amdhsa_user_sgpr_private_segment_buffer 1
+		.amdhsa_user_sgpr_dispatch_ptr 0
+		.amdhsa_user_sgpr_queue_ptr 0
+		.amdhsa_user_sgpr_kernarg_segment_ptr 1
+		.amdhsa_user_sgpr_dispatch_id 0
+		.amdhsa_user_sgpr_flat_scratch_init 0
+		.amdhsa_user_sgpr_private_segment_size 0
+		.amdhsa_wavefront_size32 1
+		.amdhsa_uses_dynamic_stack 0
+		.amdhsa_system_sgpr_private_segment_wavefront_offset 0
+		.amdhsa_system_sgpr_workgroup_id_x 1
+		.amdhsa_system_sgpr_workgroup_id_y 1
+		.amdhsa_system_sgpr_workgroup_id_z 0
+		.amdhsa_system_sgpr_workgroup_info 0
+		.amdhsa_system_vgpr_workitem_id 0
+		.amdhsa_next_free_vgpr 29
+		.amdhsa_next_free_sgpr 24
+		.amdhsa_reserve_vcc 1
+		.amdhsa_reserve_flat_scratch 0
+		.amdhsa_float_round_mode_32 0
+		.amdhsa_float_round_mode_16_64 0
+		.amdhsa_float_denorm_mode_32 3
+		.amdhsa_float_denorm_mode_16_64 3
+		.amdhsa_dx10_clamp 1
+		.amdhsa_ieee_mode 1
+		.amdhsa_fp16_overflow 0
+		.amdhsa_workgroup_processor_mode 1
+		.amdhsa_memory_ordered 1
+		.amdhsa_forward_progress 1
+		.amdhsa_shared_vgpr_count 0
+		.amdhsa_exception_fp_ieee_invalid_op 0
+		.amdhsa_exception_fp_denorm_src 0
+		.amdhsa_exception_fp_ieee_div_zero 0
+		.amdhsa_exception_fp_ieee_overflow 0
+		.amdhsa_exception_fp_ieee_underflow 0
+		.amdhsa_exception_fp_ieee_inexact 0
+		.amdhsa_exception_int_div_zero 0
+	.end_amdhsa_kernel
+	.text
+.Lfunc_end0:
+	.size	_causal_conv1d_update_kernel, .Lfunc_end0-_causal_conv1d_update_kernel
+	.cfi_endproc
+                                        ; -- End function
+	.set _causal_conv1d_update_kernel.num_vgpr, 29
+	.set _causal_conv1d_update_kernel.num_agpr, 0
+	.set _causal_conv1d_update_kernel.numbered_sgpr, 24
+	.set _causal_conv1d_update_kernel.num_named_barrier, 0
+	.set _causal_conv1d_update_kernel.private_seg_size, 0
+	.set _causal_conv1d_update_kernel.uses_vcc, 1
+	.set _causal_conv1d_update_kernel.uses_flat_scratch, 0
+	.set _causal_conv1d_update_kernel.has_dyn_sized_stack, 0
+	.set _causal_conv1d_update_kernel.has_recursion, 0
+	.set _causal_conv1d_update_kernel.has_indirect_call, 0
+	.section	.AMDGPU.csdata,"",@progbits
+; Kernel info:
+; codeLenInByte = 1508
+; TotalNumSgprs: 26
+; NumVgprs: 29
+; ScratchSize: 0
+; MemoryBound: 0
+; FloatMode: 240
+; IeeeMode: 1
+; LDSByteSize: 0 bytes/workgroup (compile time only)
+; SGPRBlocks: 0
+; VGPRBlocks: 3
+; NumSGPRsForWavesPerEU: 26
+; NumVGPRsForWavesPerEU: 29
+; Occupancy: 16
+; WaveLimiterHint : 0
+; COMPUTE_PGM_RSRC2:SCRATCH_EN: 0
+; COMPUTE_PGM_RSRC2:USER_SGPR: 6
+; COMPUTE_PGM_RSRC2:TRAP_HANDLER: 0
+; COMPUTE_PGM_RSRC2:TGID_X_EN: 1
+; COMPUTE_PGM_RSRC2:TGID_Y_EN: 1
+; COMPUTE_PGM_RSRC2:TGID_Z_EN: 0
+; COMPUTE_PGM_RSRC2:TIDIG_COMP_CNT: 0
+	.text
+	.p2alignl 6, 3214868480
+	.fill 48, 4, 3214868480
+	.section	.AMDGPU.gpr_maximums,"",@progbits
+	.set amdgpu.max_num_vgpr, 0
+	.set amdgpu.max_num_agpr, 0
+	.set amdgpu.max_num_sgpr, 0
+	.text
+	.section	.debug_abbrev,"",@progbits
+	.byte	1                               ; Abbreviation Code
+	.byte	17                              ; DW_TAG_compile_unit
+	.byte	0                               ; DW_CHILDREN_no
+	.byte	37                              ; DW_AT_producer
+	.byte	14                              ; DW_FORM_strp
+	.byte	19                              ; DW_AT_language
+	.byte	5                               ; DW_FORM_data2
+	.byte	3                               ; DW_AT_name
+	.byte	14                              ; DW_FORM_strp
+	.byte	16                              ; DW_AT_stmt_list
+	.byte	23                              ; DW_FORM_sec_offset
+	.byte	27                              ; DW_AT_comp_dir
+	.byte	14                              ; DW_FORM_strp
+	.byte	17                              ; DW_AT_low_pc
+	.byte	1                               ; DW_FORM_addr
+	.byte	18                              ; DW_AT_high_pc
+	.byte	6                               ; DW_FORM_data4
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	0                               ; EOM(3)
+	.section	.debug_info,"",@progbits
+.Lcu_begin0:
+	.long	.Ldebug_info_end0-.Ldebug_info_start0 ; Length of Unit
+.Ldebug_info_start0:
+	.short	4                               ; DWARF version number
+	.long	.debug_abbrev                   ; Offset Into Abbrev. Section
+	.byte	8                               ; Address Size (in bytes)
+	.byte	1                               ; Abbrev [1] 0xb:0x1f DW_TAG_compile_unit
+	.long	.Linfo_string0                  ; DW_AT_producer
+	.short	2                               ; DW_AT_language
+	.long	.Linfo_string1                  ; DW_AT_name
+	.long	.Lline_table_start0             ; DW_AT_stmt_list
+	.long	.Linfo_string2                  ; DW_AT_comp_dir
+	.quad	.Lfunc_begin0                   ; DW_AT_low_pc
+	.long	.Lfunc_end0-.Lfunc_begin0       ; DW_AT_high_pc
+.Ldebug_info_end0:
+	.section	.debug_str,"MS",@progbits,1
+.Linfo_string0:
+	.asciz	"triton"                        ; string offset=0
+.Linfo_string1:
+	.asciz	"causal_conv1d.py"              ; string offset=7
+.Linfo_string2:
+	.asciz	"/app/vllm-src/vllm/model_executor/layers/mamba/ops" ; string offset=24
+	.section	".note.GNU-stack","",@progbits
+	.amdgpu_metadata
+---
+amdhsa.kernels:
+  - .args:
+      - .address_space:  global
+        .offset:         0
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         8
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         16
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         24
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         32
+        .size:           8
+        .value_kind:     global_buffer
+      - .offset:         40
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         44
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         48
+        .size:           8
+        .value_kind:     by_value
+      - .offset:         56
+        .size:           8
+        .value_kind:     by_value
+      - .address_space:  global
+        .offset:         64
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         72
+        .size:           8
+        .value_kind:     global_buffer
+    .group_segment_fixed_size: 0
+    .kernarg_segment_align: 8
+    .kernarg_segment_size: 80
+    .max_flat_workgroup_size: 128
+    .name:           _causal_conv1d_update_kernel
+    .private_segment_fixed_size: 0
+    .sgpr_count:     26
+    .sgpr_spill_count: 0
+    .symbol:         _causal_conv1d_update_kernel.kd
+    .uniform_work_group_size: 1
+    .uses_dynamic_stack: false
+    .vgpr_count:     29
+    .vgpr_spill_count: 0
+    .wavefront_size: 32
+    .workgroup_processor_mode: 1
+amdhsa.target:   amdgcn-amd-amdhsa--gfx1030
+amdhsa.version:
+  - 1
+  - 2
+...
+
+	.end_amdgpu_metadata
+	.section	.debug_line,"",@progbits
+.Lline_table_start0:

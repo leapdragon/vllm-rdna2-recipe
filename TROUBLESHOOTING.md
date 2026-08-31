@@ -266,6 +266,25 @@ automatically (`$STATE_DIR/compile-cache-<devices>`); if you mount `VLLM_CACHE_R
 the host directory by the device list, or wipe it when you change `DEVICES`. (The container writes
 as root: wipe with `docker run --rm -v <dir>:/wipe --entrypoint sh <image> -c 'rm -rf /wipe/*'`.)
 
+## 5c. Decode at ~55–65% of the recorded numbers; context-flat; prefill fine (2026-08-31)
+
+**Symptom:** decode is a flat ~30 ms/token at every context length instead of ~20–24; prefill and
+correctness are untouched (greedy outputs byte-identical); MTP acceptance is healthy. Nothing in the
+logs complains.
+
+**Cause:** the TunableOp results CSV is missing or its Validator lines no longer match the stack
+(torch/ROCm/rocBLAS/arch). `PYTORCH_TUNABLEOP_ENABLED=1` with `TUNING=0` then silently falls back to
+rocBLAS's heuristic for every shape — and for the unquantized fp16 lm_head's skinny decode GEMMs the
+heuristic picks a large-M macro-tile running at ~115 GB/s instead of the tuned ~360–430 GB/s.
+MTP pays the head three times per step, so the loss is ~40% of decode.
+
+**Check:** `grep tn_124160 tunableop/tunableop_results0.csv` (27B; the 122B head rows are
+`tn_151936_*`). No rows, no file, or mismatched `Validator` stamps → this is your problem.
+
+**Fix:** copy the shipped per-build CSVs from `builds/<model>/tunableop/` into the live
+`tunableop/` dir, or retune (offline procedure in the build's BUILD.md). The live dir is
+gitignored — treat the CSVs like weights, not like scratch.
+
 ## 6. Meta-lessons (the generalizable part)
 
 - **Keep the KFD homogeneous.** Only put GPUs in the machine that your

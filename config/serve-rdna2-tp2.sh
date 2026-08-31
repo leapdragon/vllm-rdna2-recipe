@@ -29,7 +29,8 @@ set -euo pipefail
 RECIPE_ROOT="${RECIPE_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 VLLM_SRC="${VLLM_SRC:-}"
 HF_CACHE="${HF_CACHE:-$RECIPE_ROOT/hf-cache}"
-TUNEOP_DIR="${TUNEOP_DIR:-$RECIPE_ROOT/tunableop}"
+TUNEOP_DIR="${TUNEOP_DIR:-$RECIPE_ROOT/tunableop}"   # LOAD-BEARING: needs the tuned lm_head rows —
+                                          # seed from builds/<model>/tunableop/ (TROUBLESHOOTING 5c)
 STATE_DIR="${STATE_DIR:-$RECIPE_ROOT/.state}"
 mkdir -p "$HF_CACHE" "$TUNEOP_DIR" \
          "$STATE_DIR/ext-cache" "$STATE_DIR/traces"
@@ -99,7 +100,7 @@ if [ "${DEV:-0}" = "1" ]; then
 fi
 CMODE="${CMODE:-3}"                       # 0 NONE, 1 stock compile, 2 dynamo-trace-once, 3 VLLM_COMPILE
 CGMODE="${CGMODE:-FULL_DECODE_ONLY}"
-[ "${PROFILE:-0}" = "1" ] && SERVE_EXTRA="--profiler-config.profiler=torch --profiler-config.torch_profiler_dir=/traces --profiler-config.torch_profiler_with_stack=false"
+[ "${PROFILE:-0}" = "1" ] && SERVE_EXTRA="--profiler-config.profiler=torch --profiler-config.torch_profiler_dir=/traces --profiler-config.torch_profiler_with_stack=false --profiler-config.torch_profiler_record_shapes=true"
 # V1 async scheduling assumes width-1 sampled-token broadcasts between PP ranks,
 # which speculative decoding violates — run MTP-under-PP with ASYNC_SCHED=0.
 [ "${ASYNC_SCHED:-1}" = "0" ] && SERVE_EXTRA="$SERVE_EXTRA --no-async-scheduling"

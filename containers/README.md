@@ -101,9 +101,12 @@ Then the recipe's own checks against a running server: [`verify/validate.py`](..
 ```
 
 - `Dockerfile.rocm_base` is upstream vLLM's `docker/Dockerfile.rocm_base` at `v0.27.1`, vendored
-  verbatim with patch 0005 applied (one line: gfx1030 added to the arch default). `build.sh` passes
+  verbatim with patch 0005 applied: gfx1030 in the arch default, and the CDNA-only stages
+  (flash-attention, AITER, MORI) skipped when the arch list has no `gfx9xx` — flash-attention refuses
+  gfx10xx outright, and the measured base never contained the three. `build.sh` passes
   `PYTORCH_ROCM_ARCH=gfx1030` so nothing is compiled for other targets. It does not read
-  `MAX_JOBS`: expect all cores for the duration — don't benchmark on the same box meanwhile.
+  `MAX_JOBS`: expect all cores for the duration — don't benchmark on the same box meanwhile. On a
+  32-core host the PyTorch stage alone is ~45 min (Triton ~16 min, hipify ~5 min).
 - `Dockerfile` pins the vLLM tag **and** its commit (`6e448d0ea9…`): a moved tag fails the build
   instead of silently changing what the patches apply to. Every extension is checked at build
   time for gfx1030 code objects (torch via its compiled-in arch flags), for the patch-0007/0008 ops,
@@ -121,7 +124,7 @@ Then the recipe's own checks against a running server: [`verify/validate.py`](..
 | Date | What | Result |
 |---|---|---|
 | 2026-08-31 | Runtime `Dockerfile` against the pre-existing hand-built base (the one 02-VERSIONS warned about) | **PASS.** Clone+patches+deps+compile 4.7 min at `MAX_JOBS=16` (32-core host), whole build ~5.5 min; image 27.5 GB (vs 34 GB hand-built). All build-time checks green. GPU smoke test: `torch.cuda.get_arch_list()` → `['gfx1030']`, fp16 matmul, `_rocm_C` bound, Triton 3.6.0 — on an RX 6700 XT (gfx1031) through the baked `HSA_OVERRIDE_GFX_VERSION`. |
-| 2026-08-31 | `Dockerfile.rocm_base` from scratch (`--base`), then the runtime image FROM it | in progress — started 03:14 local; result recorded here when done |
+| 2026-08-31 | `Dockerfile.rocm_base` from scratch (`--base`), then the runtime image FROM it | Attempt 1: PyTorch (45 min), Triton, amdsmi stages built; **failed at flash-attention** after 57 min — `setup.py` rejects `['gfx1030']` (upstream's RDNA strip assumes a CDNA-led list). Fix: patch 0005 now skips FA/AITER/MORI for RDNA-only arch lists. Attempt 2 in progress (cached PyTorch stage). |
 
 (Updated by the maintainer after each build.)
 

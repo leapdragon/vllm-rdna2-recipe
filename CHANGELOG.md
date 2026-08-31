@@ -15,6 +15,11 @@ cleanly to pristine `v0.27.1` (`6e448d0ea9`). The from-scratch base build — th
 said nobody had run end to end — was started the same day; result in containers/README.md "Build
 status" and 02-VERSIONS. `config/serve-rdna2-tp2.sh` now derives the `render`/`video` GIDs from the
 host instead of hardcoding this machine's 991/44, and passes `HEALTHCHECK_PORT` to the image.
+Validation build of the runtime Dockerfile against the old hand-built base: PASS (27.5 GB, ~5.5 min,
+GPU smoke test OK — on the RX 6700 XT through the baked `HSA_OVERRIDE_GFX_VERSION`). The first
+from-scratch base attempt died 57 min in at flash-attention (`['gfx1030']` unsupported): **patch 0005
+grew** — it now also skips the CDNA-only flash-attention/AITER/MORI stages when the arch list has no
+`gfx9xx`, which is what the measured base always was (torch/vision/audio/triton/amdsmi, nothing else).
 
 **2026-08-30 (later) — the ~100 t/s was measured with a handshake that never waited.** On
 this ROCm, `hipStreamWaitValue32` is accepted during stream capture but not recorded into the

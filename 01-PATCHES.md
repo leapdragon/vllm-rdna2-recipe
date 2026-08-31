@@ -85,7 +85,13 @@ was exactly backwards.** Measure before you assume.
 
 ## 0005 — base image gfx1030 arch · *mandatory if you build the base yourself*
 
-**What:** adds `gfx1030` to `PYTORCH_ROCM_ARCH` in vLLM's own `docker/Dockerfile.rocm_base`.
+**What:** adds `gfx1030` to `PYTORCH_ROCM_ARCH` in vLLM's own `docker/Dockerfile.rocm_base`, and (since
+2026-08-31) skips the three CDNA-only components — flash-attention, AITER, MORI — whenever the arch list
+carries no `gfx9xx` entry. Flash-attention's `setup.py` asserts `One of GPU archs of ['gfx1030'] is
+invalid or not supported`; upstream only strips RDNA arches from a CDNA-led list (`sed 's/;gfx1…//'`),
+so an RDNA-only build died there 57 minutes in. The base every measured number came from never had any
+of the three (torch/vision/audio/triton/amdsmi only); the skip reproduces that. Multi-arch lists with a
+`gfx9xx` still build them.
 
 **Where:** vendored pre-applied as [`containers/Dockerfile.rocm_base`](containers/Dockerfile.rocm_base);
 `containers/build.sh --base` builds it with `PYTORCH_ROCM_ARCH=gfx1030`.

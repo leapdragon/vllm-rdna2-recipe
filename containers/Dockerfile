@@ -165,7 +165,9 @@ ENV HSA_OVERRIDE_GFX_VERSION=10.3.0 \
 ARG BUILD_DATE=unknown
 ARG VCS_REF=unknown
 ARG IMAGE_VERSION=0.27.1-rocm7.2.3-gfx1030
-LABEL org.opencontainers.image.title="vLLM for AMD RDNA2 (gfx1030 / Radeon PRO V620)" \
+# "maintainer" overrides the label inherited from the rocm/dev-ubuntu base (AMD's address).
+LABEL maintainer="Aron Hsiao (github.com/leapdragon)" \
+      org.opencontainers.image.title="vLLM for AMD RDNA2 (gfx1030 / Radeon PRO V620)" \
       org.opencontainers.image.description="vLLM ${VLLM_VERSION} with the vllm-rdna2-recipe patches and plugins on ROCm 7.2.3; PyTorch built from source for ${PYTORCH_ROCM_ARCH}." \
       org.opencontainers.image.source="https://github.com/leapdragon/vllm-rdna2-recipe" \
       org.opencontainers.image.url="https://github.com/leapdragon/vllm-rdna2-recipe" \

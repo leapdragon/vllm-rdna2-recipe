@@ -9,7 +9,7 @@ pins, produced by two Dockerfiles in this directory instead of by hand.
 
 | Image | Tag | What |
 |---|---|---|
-| `ghcr.io/leapdragon/vllm-rdna2-recipe` | `0.27.1-rocm7.2.3-gfx1030`, `latest` | Runtime image — [`Dockerfile`](Dockerfile). ~34 GB. |
+| `ghcr.io/leapdragon/vllm-rdna2-recipe` | `0.27.1-rocm7.2.3-gfx1030`, `latest` | Runtime image — [`Dockerfile`](Dockerfile). ~28 GB. |
 | `ghcr.io/leapdragon/vllm-rdna2-recipe-base` | `rocm7.2.3-torch2.11.0-gfx1030` | PyTorch/ROCm base — [`Dockerfile.rocm_base`](Dockerfile.rocm_base). ~27 GB. Only needed to rebuild the runtime image. |
 | `ghcr.io/leapdragon/vllm-rdna2-recipe` | `0.27.1-rocm7.2.3-gfx1030-asbuilt` | Optional: a snapshot of the hand-built image every number in this repo was measured on. Not reproducible from the Dockerfiles; published only as a reference point. |
 
@@ -47,7 +47,8 @@ docker run -d --name vllm-rdna2 --network=host \
 ```
 
 - The entrypoint is `vllm serve`; everything after the image name is its arguments
-  (`docker run --rm IMAGE --help`). `--entrypoint bash` gets you a shell.
+  (`docker run --rm --device /dev/kfd --device /dev/dri IMAGE --help` — upstream vLLM infers the
+  device while parsing arguments, so even `--help` wants `/dev/kfd`). `--entrypoint bash` gets you a shell.
 - The three named volumes persist the JIT-built all-reduce extension, the torch.compile cache
   (cold boot compiles for 10–15 min; warm is 3–4 min) and the Triton kernel cache.
 - `render`/`video` are the host groups that own `/dev/kfd` and `/dev/dri/renderD*`; the numeric
@@ -119,11 +120,10 @@ Then the recipe's own checks against a running server: [`verify/validate.py`](..
 
 | Date | What | Result |
 |---|---|---|
-| 2026-08-31 | Runtime `Dockerfile` against the pre-existing hand-built base (the one 02-VERSIONS warned about) | see below |
-| 2026-08-31 | `Dockerfile.rocm_base` from scratch (`--base`), then the runtime image FROM it | see below |
+| 2026-08-31 | Runtime `Dockerfile` against the pre-existing hand-built base (the one 02-VERSIONS warned about) | **PASS.** Clone+patches+deps+compile 4.7 min at `MAX_JOBS=16` (32-core host), whole build ~5.5 min; image 27.5 GB (vs 34 GB hand-built). All build-time checks green. GPU smoke test: `torch.cuda.get_arch_list()` → `['gfx1030']`, fp16 matmul, `_rocm_C` bound, Triton 3.6.0 — on an RX 6700 XT (gfx1031) through the baked `HSA_OVERRIDE_GFX_VERSION`. |
+| 2026-08-31 | `Dockerfile.rocm_base` from scratch (`--base`), then the runtime image FROM it | in progress — started 03:14 local; result recorded here when done |
 
-(This table is updated by the maintainer after each build; the entries above are filled in as
-the builds recorded in the repo's changelog complete.)
+(Updated by the maintainer after each build.)
 
 ## Publishing (maintainer)
 

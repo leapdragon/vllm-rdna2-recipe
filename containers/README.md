@@ -128,6 +128,8 @@ Then the recipe's own checks against a running server: [`verify/validate.py`](..
 
 | 2026-08-31 | Serving test: `builds/btbtyler09-…/serve.sh` (TP=2, MTP=2, int8 KV) from the published image | **PASS.** Cold boot 703 s (warm 171 s); `verify/validate.py` 8/8 byte-identical to the recorded RCCL baseline, spot-checks pass; plugins engaged. Decode 27–29 t/s flat across 3.5k–42k ctx, prefill 382–701 t/s — below BUILD.md's table because the *host* has changed since those numbers: cards now power-capped to 170 W (pinned at the cap during decode; recorded era 232 W, ~180 W draw) and the TP pair's root links verified x8 Gen3 (all-reduce is PCIe-bound). Same-day A/B on the same host: the newest hand-built image (v7) scores the same (24–27 t/s); the pre-plugin Aug-18 image collapses to 3–17 t/s with the stock context slope. The published image reproduces the as-built stack; the delta vs the recorded table is environmental. |
 
+| 2026-08-31 | Pair test: same serve on the other V620 pair (`DEVICES=2,4`, x16 Gen3 root links vs the default pair's x8 Gen3) | **PASS after one real finding.** First boot crashed with an aperture violation — the shared compile cache from the 1,3 runs is device-set-specific (now [TROUBLESHOOTING 5b](../TROUBLESHOOTING.md), and the wrapper scopes the cache per `DEVICES`). With fresh caches: 8/8 outputs identical, decode 22–28 t/s — same as the x8 pair within noise, so link width is not the decode bottleneck; the 170 W caps remain the dominant delta vs the recorded table. |
+
 (Updated by the maintainer after each build.)
 
 ## Publishing (maintainer)

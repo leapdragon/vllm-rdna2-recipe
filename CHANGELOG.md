@@ -26,7 +26,10 @@ nobody had rebuilt the base from scratch is retired. Serving test from the publi
 TP=2, MTP=2): outputs 8/8 byte-identical to the recorded baseline; decode equal to the newest
 hand-built image in a same-day A/B and far ahead of the pre-plugin Aug-18 one — the shortfall vs
 BUILD.md's table tracked to the host itself (170 W power caps, TP pair root links at x8 Gen3), not
-the image.
+the image. A pair test on the x16-Gen3-rooted pair (`DEVICES=2,4`) decoded the same within noise —
+link width is not the bottleneck — and surfaced a real trap: the torch.compile/AOT cache is
+device-set-specific, and reusing one across pairs crashes boot with an aperture violation
+(TROUBLESHOOTING 5b; the wrapper now scopes `compile-cache-<devices>` per device set).
 
 **2026-08-30 (later) — the ~100 t/s was measured with a handshake that never waited.** On
 this ROCm, `hipStreamWaitValue32` is accepted during stream capture but not recorded into the

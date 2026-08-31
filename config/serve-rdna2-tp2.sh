@@ -32,7 +32,7 @@ HF_CACHE="${HF_CACHE:-$RECIPE_ROOT/hf-cache}"
 TUNEOP_DIR="${TUNEOP_DIR:-$RECIPE_ROOT/tunableop}"
 STATE_DIR="${STATE_DIR:-$RECIPE_ROOT/.state}"
 mkdir -p "$HF_CACHE" "$TUNEOP_DIR" \
-         "$STATE_DIR/compile-cache" "$STATE_DIR/ext-cache" "$STATE_DIR/traces"
+         "$STATE_DIR/ext-cache" "$STATE_DIR/traces"
 
 # When VLLM_SRC is set, overlay the patched source files that change most often
 # (attention, W4A16 kernels, platform gates) over the image's copies.
@@ -56,6 +56,11 @@ PP="${PP:-1}"                             # pipeline-parallel stages (layer spli
 PP_PART_ENV=()
 [ -n "${PP_PARTITION:-}" ] && PP_PART_ENV=(-e VLLM_PP_LAYER_PARTITION="${PP_PARTITION}")
 DEVICES="${DEVICES:-1,3}"                 # the two x16-rooted V620s
+# The torch.compile/AOT cache is device-set-specific in practice: reusing a cache written on one
+# pair from another pair crashed the worker with HSA_STATUS_ERROR_MEMORY_APERTURE_VIOLATION as the
+# MTP drafter's AOT artifacts loaded (2026-08-31, TROUBLESHOOTING 5b). Scope it by DEVICES.
+COMPILE_CACHE_DIR="$STATE_DIR/compile-cache-${DEVICES//,/-}"
+mkdir -p "$COMPILE_CACHE_DIR"
 SERVE_EXTRA=""
 # IMG: the image you built from the nine patches + plugins (02-VERSIONS build order), or the published
 # one: IMG=ghcr.io/leapdragon/vllm-rdna2-recipe:0.27.1-rocm7.2.3-gfx1030 (see containers/README.md).
@@ -176,7 +181,7 @@ exec docker run -d --name "$NAME" --network=host \
   -e VLLM_EXECUTE_MODEL_TIMEOUT_SECONDS="${EXEC_TIMEOUT:-300}" \
   -e VLLM_LOG_STATS_INTERVAL="${STATS_INTERVAL:-10}" \
   -v "$STATE_DIR/traces:/traces" \
-  -v "$STATE_DIR/compile-cache:/compile-cache" \
+  -v "$COMPILE_CACHE_DIR:/compile-cache" \
   "${DEV_MOUNT[@]}" "${MOE_MOUNT[@]}" "${EXTRA_ENV_ARGS[@]}" \
   -e VLLM_CACHE_ROOT=/compile-cache \
   "${PROF_ARGS[@]}" \

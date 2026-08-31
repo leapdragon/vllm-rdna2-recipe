@@ -1,0 +1,1227 @@
+	.amdgcn_target "amdgcn-amd-amdhsa--gfx1030"
+	.amdhsa_code_object_version 5
+	.text
+	.globl	triton_poi_fused__to_copy_add_cat_mul_rms_norm_slice_split_split_with_sizes_sub_unsqueeze_view_8 ; -- Begin function triton_poi_fused__to_copy_add_cat_mul_rms_norm_slice_split_split_with_sizes_sub_unsqueeze_view_8
+	.p2align	8
+	.type	triton_poi_fused__to_copy_add_cat_mul_rms_norm_slice_split_split_with_sizes_sub_unsqueeze_view_8,@function
+triton_poi_fused__to_copy_add_cat_mul_rms_norm_slice_split_split_with_sizes_sub_unsqueeze_view_8: ; @triton_poi_fused__to_copy_add_cat_mul_rms_norm_slice_split_split_with_sizes_sub_unsqueeze_view_8
+.Lfunc_begin0:
+	.cfi_sections .debug_frame
+	.cfi_startproc
+; %bb.0:
+	.file	1 "/compile-cache/torch_compile_cache/torch_aot_compile/6379be49ccdb67dae640f3eaf41ad59637be7747ac8f3ded8a3430d4d1ef17a8/inductor_cache/53" "c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py"
+	.loc	1 20 69 prologue_end            ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:20:69
+	s_clause 0x1
+	s_load_dword s0, s[4:5], 0x4c
+	s_load_dword s12, s[4:5], 0x30
+	.loc	1 21 44                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:21:44
+	v_lshrrev_b32_e32 v1, 2, v0
+	.loc	1 24 44                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:24:44
+	v_lshlrev_b32_e32 v3, 3, v0
+	.loc	1 23 33                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:23:33
+	s_lshl_b32 s16, s6, 5
+	v_mov_b32_e32 v8, 0
+	.loc	1 24 23                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:24:23
+	v_and_or_b32 v49, v3, 24, s16
+	v_mov_b32_e32 v3, 0
+	.loc	1 34 18                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:34:18
+	v_cmp_gt_i32_e32 vcc_lo, 32, v49
+	.loc	1 20 53                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:20:53
+	s_waitcnt lgkmcnt(0)
+	s_mul_i32 s0, s0, s8
+	s_load_dwordx4 s[8:11], s[4:5], 0x0
+	.loc	1 20 34 is_stmt 0               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:20:34
+	s_add_i32 s0, s0, s7
+	.loc	1 20 75                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:20:75
+	s_lshl_b32 s2, s0, 5
+	.loc	1 21 23 is_stmt 1               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:21:23
+	v_or_b32_e32 v69, s2, v1
+	.loc	1 28 19                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:28:19
+	v_lshrrev_b32_e32 v1, 31, v69
+	.loc	1 22 21                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:22:21
+	v_cmp_gt_i32_e64 s0, s12, v69
+	.loc	1 28 19                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:28:19
+	v_add_nc_u32_e32 v1, v69, v1
+	.loc	1 36 78                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:36:78
+	s_and_b32 s17, vcc_lo, s0
+	.loc	1 28 19                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:28:19
+	v_ashrrev_i32_e32 v7, 1, v1
+	.loc	1 27 19                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:27:19
+	v_and_b32_e32 v1, 0xfffffe, v1
+	.loc	1 36 51                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:36:51
+	v_mul_lo_u32 v2, 0x1c00, v7
+	.loc	1 27 19                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:27:19
+	v_sub_nc_u32_e32 v4, v69, v1
+	v_mov_b32_e32 v1, 0
+	.loc	1 36 37                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:36:37
+	v_lshl_add_u32 v13, v4, 8, v2
+	v_mov_b32_e32 v2, 0
+	v_mov_b32_e32 v4, 0
+	.loc	1 36 46 is_stmt 0               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:36:46
+	v_add_nc_u32_e32 v34, 0x1800, v13
+	.loc	1 36 63                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:36:63
+	s_and_saveexec_b32 s3, s17
+	s_cbranch_execz .LBB0_2
+; %bb.1:
+	.loc	1 0 63                          ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:63
+	v_add_nc_u32_e32 v1, v34, v49
+	v_ashrrev_i32_e32 v2, 31, v1
+	v_lshlrev_b64 v[1:2], 1, v[1:2]
+	s_waitcnt lgkmcnt(0)
+	v_add_co_u32 v1, s1, s8, v1
+	v_add_co_ci_u32_e64 v2, null, s9, v2, s1
+	.loc	1 36 63                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:36:63
+	global_load_dwordx4 v[1:4], v[1:2], off
+.LBB0_2:
+	.loc	1 0 63                          ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:63
+	s_or_b32 exec_lo, exec_lo, s3
+	.loc	1 21 44 is_stmt 1               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:21:44
+	v_and_b32_e32 v9, 7, v0
+	.loc	1 24 44                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:24:44
+	v_lshrrev_b32_e32 v10, 3, v0
+	.loc	1 21 23                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:21:23
+	v_lshl_or_b32 v5, v9, 2, s2
+	.loc	1 24 23                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:24:23
+	v_or_b32_e32 v12, s16, v10
+	.loc	1 38 30                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:38:30
+	v_ashrrev_i32_e32 v6, 31, v5
+	.loc	1 22 21                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:22:21
+	v_cmp_gt_i32_e64 s1, s12, v5
+	.loc	1 34 18                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:34:18
+	v_cmp_gt_i32_e64 s7, 32, v12
+	.loc	1 38 30                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:38:30
+	v_lshlrev_b64 v[10:11], 2, v[5:6]
+	v_mov_b32_e32 v6, 0
+	s_waitcnt lgkmcnt(0)
+	v_add_co_u32 v25, s2, s10, v10
+	v_add_co_ci_u32_e64 v26, null, s11, v11, s2
+	.loc	1 36 78                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:36:78
+	s_and_b32 s10, s7, s1
+	.loc	1 38 70                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:38:70
+	s_and_saveexec_b32 s2, s10
+	s_cbranch_execz .LBB0_4
+; %bb.3:
+	global_load_dword v6, v[25:26], off
+.LBB0_4:
+	.loc	1 0 70 is_stmt 0                ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:70
+	s_or_b32 exec_lo, exec_lo, s2
+	.loc	1 21 23 is_stmt 1               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:21:23
+	v_or_b32_e32 v10, 1, v5
+	.loc	1 22 21                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:22:21
+	v_cmp_gt_i32_e64 s3, s12, v10
+	.loc	1 36 78                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:36:78
+	s_and_b32 s11, s7, s3
+	.loc	1 38 70                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:38:70
+	s_and_saveexec_b32 s2, s11
+	s_cbranch_execz .LBB0_6
+; %bb.5:
+	global_load_dword v8, v[25:26], off offset:4
+.LBB0_6:
+	.loc	1 0 70 is_stmt 0                ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:70
+	s_or_b32 exec_lo, exec_lo, s2
+	.loc	1 21 23 is_stmt 1               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:21:23
+	v_or_b32_e32 v10, 2, v5
+	v_mov_b32_e32 v11, 0
+	.loc	1 22 21                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:22:21
+	v_cmp_gt_i32_e64 s2, s12, v10
+	v_mov_b32_e32 v10, 0
+	.loc	1 36 78                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:36:78
+	s_and_b32 s13, s7, s2
+	.loc	1 38 70                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:38:70
+	s_and_saveexec_b32 s6, s13
+	s_cbranch_execz .LBB0_8
+; %bb.7:
+	global_load_dword v11, v[25:26], off offset:8
+.LBB0_8:
+	.loc	1 0 70 is_stmt 0                ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:70
+	s_or_b32 exec_lo, exec_lo, s6
+	.loc	1 21 23 is_stmt 1               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:21:23
+	v_or_b32_e32 v5, 3, v5
+	.loc	1 22 21                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:22:21
+	v_cmp_gt_i32_e64 s6, s12, v5
+	.loc	1 36 78                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:36:78
+	s_and_b32 s7, s7, s6
+	.loc	1 38 70                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:38:70
+	s_and_saveexec_b32 s12, s7
+	s_cbranch_execz .LBB0_10
+; %bb.9:
+	global_load_dword v10, v[25:26], off offset:12
+.LBB0_10:
+	.loc	1 0 70 is_stmt 0                ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:70
+	s_or_b32 exec_lo, exec_lo, s12
+	v_mov_b32_e32 v5, 0
+	v_mov_b32_e32 v12, 0
+	.loc	1 38 70                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:38:70
+	s_and_saveexec_b32 s12, s10
+	s_cbranch_execz .LBB0_12
+; %bb.11:
+	global_load_dword v12, v[25:26], off
+.LBB0_12:
+	.loc	1 0 70                          ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:70
+	s_or_b32 exec_lo, exec_lo, s12
+	.loc	1 38 70                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:38:70
+	s_and_saveexec_b32 s10, s11
+	s_cbranch_execz .LBB0_14
+; %bb.13:
+	global_load_dword v5, v[25:26], off offset:4
+.LBB0_14:
+	.loc	1 0 70                          ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:70
+	s_or_b32 exec_lo, exec_lo, s10
+	s_load_dwordx2 s[10:11], s[4:5], 0x10
+	v_mov_b32_e32 v14, 0
+	v_mov_b32_e32 v15, 0
+	.loc	1 38 70                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:38:70
+	s_and_saveexec_b32 s12, s13
+	s_cbranch_execz .LBB0_16
+; %bb.15:
+	global_load_dword v15, v[25:26], off offset:8
+.LBB0_16:
+	.loc	1 0 70                          ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:70
+	s_or_b32 exec_lo, exec_lo, s12
+	.loc	1 38 70                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:38:70
+	s_and_saveexec_b32 s12, s7
+	s_cbranch_execz .LBB0_18
+; %bb.17:
+	global_load_dword v14, v[25:26], off offset:12
+.LBB0_18:
+	.loc	1 0 70                          ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:70
+	s_or_b32 exec_lo, exec_lo, s12
+	.loc	1 43 21 is_stmt 1               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:43:21
+	v_lshlrev_b32_e32 v9, 3, v9
+	v_bfe_i32 v16, v0, 3, 1
+	v_bfe_i32 v17, v0, 4, 1
+	v_lshlrev_b32_e32 v18, 2, v0
+	v_and_b32_e32 v19, 64, v0
+	s_mov_b32 s7, 0x3b800000
+	v_and_or_b32 v9, 0x440, v16, v9
+	v_and_b32_e32 v16, 0x804, v17
+	v_and_b32_e32 v17, 0x80, v18
+	.loc	1 42 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:42:20
+	s_waitcnt vmcnt(0)
+	v_fmaak_f32 v6, s7, v6, 0x358637bd
+	v_fmaak_f32 v8, s7, v8, 0x358637bd
+	.loc	1 43 21                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:43:21
+	v_xor_b32_e32 v9, v9, v19
+	.loc	1 42 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:42:20
+	v_fmaak_f32 v11, s7, v11, 0x358637bd
+	v_fmaak_f32 v10, s7, v10, 0x358637bd
+	.loc	1 43 21                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:43:21
+	v_rsq_f32_e32 v6, v6
+	v_rsq_f32_e32 v8, v8
+	v_or3_b32 v9, v16, v17, v9
+	v_rsq_f32_e32 v11, v11
+	v_rsq_f32_e32 v10, v10
+	.loc	1 42 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:42:20
+	v_fmaak_f32 v12, s7, v12, 0x358637bd
+	v_fmaak_f32 v5, s7, v5, 0x358637bd
+	v_xor_b32_e32 v16, 16, v9
+	.loc	1 43 21                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:43:21
+	v_add_nc_u32_e32 v35, 0, v9
+	v_xor_b32_e32 v17, 48, v9
+	.loc	1 42 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:42:20
+	v_fmaak_f32 v15, s7, v15, 0x358637bd
+	v_fmaak_f32 v14, s7, v14, 0x358637bd
+	.loc	1 43 21                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:43:21
+	v_add_nc_u32_e32 v36, 0, v16
+	v_xor_b32_e32 v16, 32, v9
+	v_add_nc_u32_e32 v38, 0, v17
+	ds_write_b32 v35, v6
+	ds_write_b32 v36, v8 offset:256
+	v_lshlrev_b32_e32 v6, 6, v0
+	v_add_nc_u32_e32 v37, 0, v16
+	v_lshrrev_b32_e32 v8, 1, v0
+	v_and_b32_e32 v16, 48, v18
+	v_rsq_f32_e32 v12, v12
+	ds_write_b32 v37, v11 offset:512
+	ds_write_b32 v38, v10 offset:768
+	v_and_b32_e32 v8, 56, v8
+	v_and_or_b32 v6, 0x340, v6, v16
+	v_xor_b32_e32 v10, 4, v9
+	v_lshlrev_b32_e32 v17, 1, v0
+	v_rsq_f32_e32 v5, v5
+	v_xor_b32_e32 v11, 20, v9
+	v_xor_b32_e32 v6, v6, v8
+	v_rsq_f32_e32 v15, v15
+	v_xor_b32_e32 v16, 36, v9
+	v_rsq_f32_e32 v14, v14
+	v_xor_b32_e32 v9, 52, v9
+	v_add_nc_u32_e32 v0, 0, v10
+	v_and_or_b32 v6, v17, 4, v6
+	v_add_nc_u32_e32 v39, 0, v11
+	v_add_nc_u32_e32 v40, 0, v16
+	v_add_nc_u32_e32 v41, 0, v9
+	ds_write_b32 v0, v12
+	ds_write_b32 v39, v5 offset:256
+	ds_write_b32 v40, v15 offset:512
+	ds_write_b32 v41, v14 offset:768
+	v_xor_b32_e32 v5, 64, v6
+	v_xor_b32_e32 v8, 4, v6
+	v_xor_b32_e32 v9, 0x44, v6
+	v_add_nc_u32_e32 v42, 0, v6
+	s_waitcnt lgkmcnt(0)
+	v_add_nc_u32_e32 v45, 0, v5
+	v_add_nc_u32_e32 v44, 0, v8
+	v_add_nc_u32_e32 v43, 0, v9
+	s_barrier
+	buffer_gl0_inv
+	v_add_nc_u32_e32 v5, 0x400, v45
+	v_add_nc_u32_e32 v6, 0x800, v44
+	v_add_nc_u32_e32 v8, 0xc00, v43
+	ds_read2_b32 v[55:56], v42 offset1:32
+	ds_read2_b32 v[57:58], v5 offset1:32
+	ds_read2_b32 v[53:54], v6 offset1:32
+	ds_read2_b32 v[51:52], v8 offset1:32
+	s_load_dwordx2 s[12:13], s[4:5], 0x18
+	.loc	1 45 31                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:45:31
+	v_ashrrev_i32_e32 v50, 31, v49
+	v_mov_b32_e32 v9, 0
+	v_mov_b32_e32 v10, 0
+	v_mov_b32_e32 v11, 0
+	v_mov_b32_e32 v12, 0
+	v_lshlrev_b64 v[5:6], 1, v[49:50]
+	v_add_co_u32 v27, s7, s10, v5
+	v_add_co_ci_u32_e64 v28, null, s11, v6, s7
+	v_mov_b32_e32 v5, 0
+	.loc	1 45 71 is_stmt 0               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:45:71
+	s_and_saveexec_b32 s7, s17
+	s_cbranch_execz .LBB0_20
+; %bb.19:
+	global_load_dwordx4 v[9:12], v[27:28], off
+.LBB0_20:
+	.loc	1 0 71                          ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:71
+	s_or_b32 exec_lo, exec_lo, s7
+	.loc	1 51 34 is_stmt 1               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:51:34
+	v_lshlrev_b32_e32 v46, 5, v7
+	v_mov_b32_e32 v6, 0
+	v_mov_b32_e32 v7, 0
+	v_mov_b32_e32 v8, 0
+	.loc	1 51 40 is_stmt 0               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:51:40
+	v_add_nc_u32_e32 v30, v46, v49
+	v_ashrrev_i32_e32 v31, 31, v30
+	.loc	1 51 46                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:51:46
+	s_and_saveexec_b32 s14, s17
+	s_cbranch_execz .LBB0_22
+; %bb.21:
+	.loc	1 0 46                          ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:46
+	v_lshlrev_b64 v[5:6], 1, v[30:31]
+	s_waitcnt lgkmcnt(0)
+	v_add_co_u32 v5, s7, s12, v5
+	v_add_co_ci_u32_e64 v6, null, s13, v6, s7
+	.loc	1 51 46                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:51:46
+	global_load_dwordx4 v[5:8], v[5:6], off
+.LBB0_22:
+	.loc	1 0 46                          ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:46
+	s_or_b32 exec_lo, exec_lo, s14
+	.loc	1 53 47 is_stmt 1               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:53:47
+	v_add_nc_u32_e32 v47, 0x1820, v13
+	v_mov_b32_e32 v17, 0
+	v_mov_b32_e32 v21, 0
+	v_mov_b32_e32 v22, 0
+	v_mov_b32_e32 v23, 0
+	v_mov_b32_e32 v24, 0
+	.loc	1 53 64 is_stmt 0               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:53:64
+	s_and_saveexec_b32 s14, s17
+	s_cbranch_execz .LBB0_24
+; %bb.23:
+	.loc	1 0 64                          ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:64
+	v_add_nc_u32_e32 v13, v47, v49
+	v_ashrrev_i32_e32 v14, 31, v13
+	v_lshlrev_b64 v[13:14], 1, v[13:14]
+	v_add_co_u32 v13, s7, s8, v13
+	v_add_co_ci_u32_e64 v14, null, s9, v14, s7
+	.loc	1 53 64                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:53:64
+	global_load_dwordx4 v[21:24], v[13:14], off
+.LBB0_24:
+	.loc	1 0 64                          ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:64
+	s_or_b32 exec_lo, exec_lo, s14
+	s_load_dwordx2 s[14:15], s[4:5], 0x20
+	v_mov_b32_e32 v18, 0
+	v_mov_b32_e32 v19, 0
+	v_mov_b32_e32 v20, 0
+	.loc	1 56 78 is_stmt 1               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:56:78
+	s_and_saveexec_b32 s7, s17
+	s_cbranch_execz .LBB0_26
+; %bb.25:
+	global_load_dwordx4 v[17:20], v[27:28], off offset:64
+.LBB0_26:
+	.loc	1 0 78 is_stmt 0                ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:78
+	s_or_b32 exec_lo, exec_lo, s7
+	v_mov_b32_e32 v29, 0
+	v_mov_b32_e32 v13, 0
+	v_mov_b32_e32 v14, 0
+	v_mov_b32_e32 v15, 0
+	v_mov_b32_e32 v16, 0
+	.loc	1 61 46 is_stmt 1               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:61:46
+	s_and_saveexec_b32 s18, s17
+	s_cbranch_execz .LBB0_28
+; %bb.27:
+	.loc	1 0 46 is_stmt 0                ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:46
+	v_lshlrev_b64 v[13:14], 1, v[30:31]
+	s_waitcnt lgkmcnt(0)
+	v_add_co_u32 v13, s7, s14, v13
+	v_add_co_ci_u32_e64 v14, null, s15, v14, s7
+	.loc	1 61 46                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:61:46
+	global_load_dwordx4 v[13:16], v[13:14], off
+.LBB0_28:
+	.loc	1 0 46                          ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:46
+	s_or_b32 exec_lo, exec_lo, s18
+	.loc	1 70 80 is_stmt 1               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:70:80
+	s_cmp_eq_u32 s16, 32
+	.loc	1 70 66 is_stmt 0               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:70:66
+	v_subrev_nc_u32_e32 v33, 32, v49
+	v_mov_b32_e32 v30, 0
+	v_mov_b32_e32 v31, 0
+	v_mov_b32_e32 v32, 0
+	.loc	1 70 80                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:70:80
+	s_cselect_b32 s17, -1, 0
+	.loc	1 70 88                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:70:88
+	s_and_b32 s16, s17, s0
+	.loc	1 70 72                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:70:72
+	s_and_saveexec_b32 s18, s16
+	s_cbranch_execz .LBB0_30
+; %bb.29:
+	.loc	1 0 72                          ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:72
+	v_or_b32_e32 v29, v47, v33
+	v_ashrrev_i32_e32 v30, 31, v29
+	v_lshlrev_b64 v[29:30], 1, v[29:30]
+	v_add_co_u32 v29, s7, s8, v29
+	v_add_co_ci_u32_e64 v30, null, s9, v30, s7
+	.loc	1 70 72                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:70:72
+	global_load_dwordx4 v[29:32], v[29:30], off
+.LBB0_30:
+	.loc	1 0 72                          ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:72
+	s_or_b32 exec_lo, exec_lo, s18
+	v_mov_b32_e32 v47, 0
+	v_mov_b32_e32 v48, 0
+	.loc	1 70 88                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:70:88
+	s_and_b32 s1, s17, s1
+	.loc	1 72 71 is_stmt 1               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:72:71
+	s_and_saveexec_b32 s7, s1
+	s_cbranch_execz .LBB0_32
+; %bb.31:
+	global_load_dword v48, v[25:26], off
+.LBB0_32:
+	.loc	1 0 71 is_stmt 0                ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:71
+	s_or_b32 exec_lo, exec_lo, s7
+	.loc	1 70 88 is_stmt 1               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:70:88
+	s_and_b32 s3, s17, s3
+	.loc	1 72 71                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:72:71
+	s_and_saveexec_b32 s7, s3
+	s_cbranch_execz .LBB0_34
+; %bb.33:
+	global_load_dword v47, v[25:26], off offset:4
+.LBB0_34:
+	.loc	1 0 71 is_stmt 0                ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:71
+	s_or_b32 exec_lo, exec_lo, s7
+	v_mov_b32_e32 v50, 0
+	v_mov_b32_e32 v59, 0
+	.loc	1 70 88 is_stmt 1               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:70:88
+	s_and_b32 s2, s17, s2
+	.loc	1 72 71                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:72:71
+	s_and_saveexec_b32 s7, s2
+	s_cbranch_execz .LBB0_36
+; %bb.35:
+	global_load_dword v59, v[25:26], off offset:8
+.LBB0_36:
+	.loc	1 0 71 is_stmt 0                ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:71
+	s_or_b32 exec_lo, exec_lo, s7
+	.loc	1 70 88 is_stmt 1               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:70:88
+	s_and_b32 s6, s17, s6
+	.loc	1 72 71                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:72:71
+	s_and_saveexec_b32 s7, s6
+	s_cbranch_execz .LBB0_38
+; %bb.37:
+	global_load_dword v50, v[25:26], off offset:12
+.LBB0_38:
+	.loc	1 0 71 is_stmt 0                ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:71
+	s_or_b32 exec_lo, exec_lo, s7
+	v_mov_b32_e32 v60, 0
+	v_mov_b32_e32 v61, 0
+	.loc	1 72 71                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:72:71
+	s_and_saveexec_b32 s7, s1
+	s_cbranch_execz .LBB0_40
+; %bb.39:
+	global_load_dword v61, v[25:26], off
+.LBB0_40:
+	.loc	1 0 71                          ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:71
+	s_or_b32 exec_lo, exec_lo, s7
+	.loc	1 72 71                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:72:71
+	s_and_saveexec_b32 s1, s3
+	s_cbranch_execz .LBB0_42
+; %bb.41:
+	global_load_dword v60, v[25:26], off offset:4
+.LBB0_42:
+	.loc	1 0 71                          ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:71
+	s_or_b32 exec_lo, exec_lo, s1
+	v_mov_b32_e32 v62, 0
+	v_mov_b32_e32 v63, 0
+	.loc	1 72 71                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:72:71
+	s_and_saveexec_b32 s1, s2
+	s_cbranch_execz .LBB0_44
+; %bb.43:
+	global_load_dword v63, v[25:26], off offset:8
+.LBB0_44:
+	.loc	1 0 71                          ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:71
+	s_or_b32 exec_lo, exec_lo, s1
+	.loc	1 72 71                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:72:71
+	s_and_saveexec_b32 s1, s6
+	s_cbranch_execz .LBB0_46
+; %bb.45:
+	global_load_dword v62, v[25:26], off offset:12
+.LBB0_46:
+	.loc	1 0 71                          ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:71
+	s_or_b32 exec_lo, exec_lo, s1
+	s_mov_b32 s1, 0x3b800000
+	.loc	1 77 21 is_stmt 1               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:77:21
+	s_waitcnt vmcnt(0) lgkmcnt(0)
+	.loc	1 76 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:76:20
+	v_fmaak_f32 v25, s1, v48, 0x358637bd
+	v_fmaak_f32 v26, s1, v47, 0x358637bd
+	v_fmaak_f32 v47, s1, v59, 0x358637bd
+	v_fmaak_f32 v48, s1, v50, 0x358637bd
+	v_fmaak_f32 v50, s1, v61, 0x358637bd
+	v_fmaak_f32 v59, s1, v60, 0x358637bd
+	.loc	1 77 21                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:77:21
+	v_rsq_f32_e32 v25, v25
+	.loc	1 76 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:76:20
+	v_fmaak_f32 v60, s1, v63, 0x358637bd
+	.loc	1 77 21                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:77:21
+	v_rsq_f32_e32 v26, v26
+	.loc	1 76 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:76:20
+	v_fmaak_f32 v61, s1, v62, 0x358637bd
+	.loc	1 77 21                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:77:21
+	v_rsq_f32_e32 v47, v47
+	v_rsq_f32_e32 v48, v48
+	v_rsq_f32_e32 v50, v50
+	v_rsq_f32_e32 v59, v59
+	v_rsq_f32_e32 v60, v60
+	v_rsq_f32_e32 v61, v61
+	s_barrier
+	buffer_gl0_inv
+	ds_write_b32 v35, v25
+	ds_write_b32 v36, v26 offset:256
+	ds_write_b32 v37, v47 offset:512
+	ds_write_b32 v38, v48 offset:768
+	ds_write_b32 v0, v50
+	ds_write_b32 v39, v59 offset:256
+	ds_write_b32 v40, v60 offset:512
+	ds_write_b32 v41, v61 offset:768
+	v_add_nc_u32_e32 v0, 0x400, v45
+	v_add_nc_u32_e32 v25, 0x800, v44
+	v_add_nc_u32_e32 v26, 0xc00, v43
+	s_waitcnt lgkmcnt(0)
+	s_barrier
+	buffer_gl0_inv
+	ds_read2_b32 v[63:64], v42 offset1:32
+	ds_read2_b32 v[65:66], v0 offset1:32
+	ds_read2_b32 v[61:62], v25 offset1:32
+	ds_read2_b32 v[59:60], v26 offset1:32
+	v_mov_b32_e32 v25, 0
+	v_mov_b32_e32 v37, 0
+	v_mov_b32_e32 v38, 0
+	v_mov_b32_e32 v39, 0
+	v_mov_b32_e32 v40, 0
+	.loc	1 79 86                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:79:86
+	s_and_saveexec_b32 s1, s16
+	s_cbranch_execz .LBB0_48
+; %bb.47:
+	global_load_dwordx4 v[37:40], v[27:28], off
+.LBB0_48:
+	.loc	1 0 86 is_stmt 0                ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:86
+	s_or_b32 exec_lo, exec_lo, s1
+	.loc	1 85 40 is_stmt 1               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:85:40
+	v_add_nc_u32_e32 v67, v46, v33
+	v_mov_b32_e32 v26, 0
+	v_mov_b32_e32 v27, 0
+	v_mov_b32_e32 v28, 0
+	v_ashrrev_i32_e32 v68, 31, v67
+	.loc	1 85 54 is_stmt 0               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:85:54
+	s_and_saveexec_b32 s2, s16
+	s_cbranch_execz .LBB0_50
+; %bb.49:
+	.loc	1 0 54                          ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:54
+	v_lshlrev_b64 v[25:26], 1, v[67:68]
+	v_add_co_u32 v25, s1, s12, v25
+	v_add_co_ci_u32_e64 v26, null, s13, v26, s1
+	.loc	1 85 54                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:85:54
+	global_load_dwordx4 v[25:28], v[25:26], off
+.LBB0_50:
+	.loc	1 0 54                          ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:54
+	s_or_b32 exec_lo, exec_lo, s2
+	v_mov_b32_e32 v41, 0
+	v_mov_b32_e32 v45, 0
+	v_mov_b32_e32 v46, 0
+	v_mov_b32_e32 v47, 0
+	v_mov_b32_e32 v48, 0
+	.loc	1 87 72 is_stmt 1               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:87:72
+	s_and_saveexec_b32 s2, s16
+	s_cbranch_execz .LBB0_52
+; %bb.51:
+	.loc	1 0 72 is_stmt 0                ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:72
+	v_or_b32_e32 v34, v34, v33
+	v_ashrrev_i32_e32 v35, 31, v34
+	v_lshlrev_b64 v[34:35], 1, v[34:35]
+	v_add_co_u32 v34, s1, s8, v34
+	v_add_co_ci_u32_e64 v35, null, s9, v35, s1
+	.loc	1 87 72                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:87:72
+	global_load_dwordx4 v[45:48], v[34:35], off
+.LBB0_52:
+	.loc	1 0 72                          ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:72
+	s_or_b32 exec_lo, exec_lo, s2
+	v_mov_b32_e32 v42, 0
+	v_mov_b32_e32 v43, 0
+	v_mov_b32_e32 v44, 0
+	.loc	1 90 79 is_stmt 1               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:90:79
+	s_and_saveexec_b32 s2, s16
+	s_cbranch_execz .LBB0_54
+; %bb.53:
+	.loc	1 0 79 is_stmt 0                ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:79
+	v_mov_b32_e32 v34, 0
+	v_lshlrev_b64 v[33:34], 1, v[33:34]
+	v_add_co_u32 v33, s1, s10, v33
+	v_add_co_ci_u32_e64 v34, null, s11, v34, s1
+	.loc	1 90 79                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:90:79
+	global_load_dwordx4 v[41:44], v[33:34], off
+.LBB0_54:
+	.loc	1 0 79                          ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:79
+	s_or_b32 exec_lo, exec_lo, s2
+	v_mov_b32_e32 v33, 0
+	v_mov_b32_e32 v34, 0
+	v_mov_b32_e32 v35, 0
+	v_mov_b32_e32 v36, 0
+	.loc	1 95 54 is_stmt 1               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:95:54
+	s_and_saveexec_b32 s2, s16
+	s_cbranch_execz .LBB0_56
+; %bb.55:
+	.loc	1 0 54 is_stmt 0                ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:54
+	v_lshlrev_b64 v[33:34], 1, v[67:68]
+	v_add_co_u32 v33, s1, s14, v33
+	v_add_co_ci_u32_e64 v34, null, s15, v34, s1
+	.loc	1 95 54                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:95:54
+	global_load_dwordx4 v[33:36], v[33:34], off
+.LBB0_56:
+	.loc	1 0 54                          ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0:54
+	s_or_b32 exec_lo, exec_lo, s2
+	.loc	1 25 21 is_stmt 1               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:25:21
+	v_cmp_gt_i32_e64 s1, 64, v49
+	.loc	1 101 54                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:101:54
+	s_and_b32 s0, s1, s0
+	.loc	1 101 46 is_stmt 0              ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:101:46
+	s_and_saveexec_b32 s1, s0
+	s_cbranch_execz .LBB0_58
+; %bb.57:
+	.loc	1 87 139 is_stmt 1              ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:87:139
+	s_waitcnt vmcnt(0)
+	v_cvt_f32_f16_sdwa v67, v47 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v47, v47
+	v_cvt_f32_f16_sdwa v68, v48 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	.loc	1 90 146                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:90:146
+	v_cvt_f32_f16_sdwa v72, v43 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v43, v43
+	v_cvt_f32_f16_sdwa v73, v44 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	.loc	1 87 139                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:87:139
+	v_cvt_f32_f16_sdwa v0, v45 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v45, v45
+	v_cvt_f32_f16_sdwa v50, v46 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v46, v46
+	.loc	1 90 146                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:90:146
+	v_cvt_f32_f16_sdwa v70, v41 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v41, v41
+	v_cvt_f32_f16_sdwa v71, v42 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v42, v42
+	.loc	1 89 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:89:20
+	s_waitcnt lgkmcnt(3)
+	v_mul_f32_e32 v47, v64, v47
+	s_waitcnt lgkmcnt(0)
+	v_mul_f32_e32 v68, v60, v68
+	.loc	1 92 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:92:20
+	v_add_f32_e32 v43, 1.0, v43
+	v_add_f32_e32 v73, 1.0, v73
+	.loc	1 87 139                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:87:139
+	v_cvt_f32_f16_e32 v48, v48
+	.loc	1 90 146                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:90:146
+	v_cvt_f32_f16_e32 v44, v44
+	.loc	1 89 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:89:20
+	v_mul_f32_e32 v45, v63, v45
+	v_mul_f32_e32 v50, v59, v50
+	v_mul_f32_e32 v46, v61, v46
+	v_mul_f32_e32 v67, v66, v67
+	.loc	1 92 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:92:20
+	v_add_f32_e32 v41, 1.0, v41
+	v_add_f32_e32 v71, 1.0, v71
+	v_add_f32_e32 v42, 1.0, v42
+	v_add_f32_e32 v72, 1.0, v72
+	.loc	1 93 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:93:20
+	v_mul_f32_e32 v43, v47, v43
+	v_mul_f32_e32 v47, v68, v73
+	.loc	1 70 139                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:70:139
+	v_cvt_f32_f16_sdwa v68, v32 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v32, v32
+	.loc	1 89 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:89:20
+	v_mul_f32_e32 v48, v62, v48
+	.loc	1 92 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:92:20
+	v_add_f32_e32 v44, 1.0, v44
+	.loc	1 93 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:93:20
+	v_mul_f32_e32 v41, v45, v41
+	v_mul_f32_e32 v42, v46, v42
+	v_mul_f32_e32 v45, v50, v71
+	v_mul_f32_e32 v46, v67, v72
+	.loc	1 70 139                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:70:139
+	v_cvt_f32_f16_sdwa v50, v30 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v30, v30
+	v_cvt_f32_f16_sdwa v67, v31 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v31, v31
+	.loc	1 78 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:78:20
+	v_mul_f32_e32 v32, v62, v32
+	.loc	1 79 153                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:79:153
+	v_cvt_f32_f16_e32 v62, v38
+	v_cvt_f32_f16_sdwa v38, v38 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	.loc	1 93 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:93:20
+	v_mul_f32_e32 v44, v48, v44
+	.loc	1 70 139                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:70:139
+	v_cvt_f32_f16_sdwa v48, v29 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v29, v29
+	.loc	1 78 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:78:20
+	v_mul_f32_e32 v30, v61, v30
+	v_mul_f32_e32 v50, v59, v50
+	v_mul_f32_e32 v31, v64, v31
+	.loc	1 79 153                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:79:153
+	v_cvt_f32_f16_e32 v61, v37
+	v_cvt_f32_f16_sdwa v37, v37 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	.loc	1 82 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:82:20
+	v_add_f32_e32 v62, 1.0, v62
+	.loc	1 79 153                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:79:153
+	v_cvt_f32_f16_e32 v64, v40
+	v_cvt_f32_f16_sdwa v40, v40 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	.loc	1 82 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:82:20
+	v_add_f32_e32 v38, 1.0, v38
+	.loc	1 78 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:78:20
+	v_mul_f32_e32 v29, v63, v29
+	v_mul_f32_e32 v48, v65, v48
+	v_mul_f32_e32 v60, v60, v68
+	.loc	1 82 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:82:20
+	v_add_f32_e32 v61, 1.0, v61
+	v_add_f32_e32 v37, 1.0, v37
+	v_add_f32_e32 v64, 1.0, v64
+	v_add_f32_e32 v40, 1.0, v40
+	.loc	1 83 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:83:20
+	v_mul_f32_e32 v38, v50, v38
+	v_mul_f32_e32 v30, v30, v62
+	.loc	1 53 130                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:53:130
+	v_cvt_f32_f16_sdwa v50, v22 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v22, v22
+	.loc	1 56 144                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:56:144
+	v_cvt_f32_f16_sdwa v62, v18 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v18, v18
+	.loc	1 83 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:83:20
+	v_mul_f32_e32 v37, v48, v37
+	v_mul_f32_e32 v29, v29, v61
+	v_mul_f32_e32 v40, v60, v40
+	v_mul_f32_e32 v32, v32, v64
+	.loc	1 53 130                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:53:130
+	v_cvt_f32_f16_sdwa v48, v21 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v21, v21
+	v_cvt_f32_f16_sdwa v60, v24 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v24, v24
+	.loc	1 55 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:55:20
+	v_mul_f32_e32 v50, v51, v50
+	v_mul_f32_e32 v22, v53, v22
+	.loc	1 56 144                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:56:144
+	v_cvt_f32_f16_sdwa v61, v17 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v17, v17
+	.loc	1 58 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:58:20
+	v_add_f32_e32 v62, 1.0, v62
+	.loc	1 56 144                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:56:144
+	v_cvt_f32_f16_sdwa v64, v20 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v20, v20
+	.loc	1 58 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:58:20
+	v_add_f32_e32 v18, 1.0, v18
+	.loc	1 79 153                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:79:153
+	v_cvt_f32_f16_e32 v63, v39
+	v_cvt_f32_f16_sdwa v39, v39 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	.loc	1 55 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:55:20
+	v_mul_f32_e32 v48, v57, v48
+	v_mul_f32_e32 v21, v55, v21
+	v_mul_f32_e32 v60, v52, v60
+	v_mul_f32_e32 v24, v54, v24
+	.loc	1 58 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:58:20
+	v_add_f32_e32 v61, 1.0, v61
+	v_add_f32_e32 v17, 1.0, v17
+	v_add_f32_e32 v64, 1.0, v64
+	v_add_f32_e32 v20, 1.0, v20
+	.loc	1 59 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:59:20
+	v_mul_f32_e32 v18, v22, v18
+	v_mul_f32_e32 v22, v50, v62
+	.loc	1 36 129                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:36:129
+	v_cvt_f32_f16_sdwa v50, v2 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v2, v2
+	.loc	1 78 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:78:20
+	v_mul_f32_e32 v59, v66, v67
+	.loc	1 82 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:82:20
+	v_add_f32_e32 v63, 1.0, v63
+	v_add_f32_e32 v39, 1.0, v39
+	.loc	1 59 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:59:20
+	v_mul_f32_e32 v17, v21, v17
+	v_mul_f32_e32 v21, v48, v61
+	v_mul_f32_e32 v20, v24, v20
+	v_mul_f32_e32 v24, v60, v64
+	.loc	1 36 129                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:36:129
+	v_cvt_f32_f16_sdwa v48, v1 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_sdwa v60, v4 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v4, v4
+	.loc	1 44 19                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:44:19
+	v_mul_f32_e32 v2, v53, v2
+	.loc	1 45 137                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:45:137
+	v_cvt_f32_f16_e32 v53, v9
+	v_cvt_f32_f16_sdwa v9, v9 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	.loc	1 83 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:83:20
+	v_mul_f32_e32 v39, v59, v39
+	v_mul_f32_e32 v31, v31, v63
+	.loc	1 53 130                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:53:130
+	v_cvt_f32_f16_sdwa v59, v23 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v23, v23
+	.loc	1 56 144                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:56:144
+	v_cvt_f32_f16_sdwa v63, v19 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v19, v19
+	.loc	1 36 129                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:36:129
+	v_cvt_f32_f16_e32 v1, v1
+	.loc	1 44 19                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:44:19
+	v_mul_f32_e32 v48, v57, v48
+	v_mul_f32_e32 v4, v54, v4
+	.loc	1 45 137                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:45:137
+	v_cvt_f32_f16_e32 v54, v10
+	.loc	1 48 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:48:20
+	v_add_f32_e32 v9, 1.0, v9
+	.loc	1 45 137                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:45:137
+	v_cvt_f32_f16_sdwa v10, v10 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	.loc	1 55 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:55:20
+	v_mul_f32_e32 v59, v58, v59
+	v_mul_f32_e32 v23, v56, v23
+	.loc	1 58 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:58:20
+	v_add_f32_e32 v63, 1.0, v63
+	v_add_f32_e32 v19, 1.0, v19
+	.loc	1 44 19                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:44:19
+	v_mul_f32_e32 v1, v55, v1
+	v_mul_f32_e32 v50, v51, v50
+	.loc	1 48 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:48:20
+	v_add_f32_e32 v53, 1.0, v53
+	v_add_f32_e32 v10, 1.0, v10
+	.loc	1 49 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:49:20
+	v_mul_f32_e32 v9, v48, v9
+	.loc	1 61 112                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:61:112
+	v_cvt_f32_f16_sdwa v48, v13 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v13, v13
+	.loc	1 89 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:89:20
+	v_mul_f32_e32 v0, v65, v0
+	.loc	1 92 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:92:20
+	v_add_f32_e32 v70, 1.0, v70
+	.loc	1 59 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:59:20
+	v_mul_f32_e32 v19, v23, v19
+	v_mul_f32_e32 v23, v59, v63
+	.loc	1 36 129                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:36:129
+	v_cvt_f32_f16_sdwa v59, v3 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v3, v3
+	.loc	1 48 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:48:20
+	v_add_f32_e32 v54, 1.0, v54
+	.loc	1 45 137                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:45:137
+	v_cvt_f32_f16_e32 v55, v11
+	v_cvt_f32_f16_sdwa v11, v11 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	.loc	1 49 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:49:20
+	v_mul_f32_e32 v1, v1, v53
+	v_mul_f32_e32 v10, v50, v10
+	.loc	1 61 112                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:61:112
+	v_cvt_f32_f16_sdwa v50, v14 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	.loc	1 62 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:62:20
+	v_mul_f32_e32 v21, v21, v48
+	v_mul_f32_e32 v13, v17, v13
+	.loc	1 61 112                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:61:112
+	v_cvt_f32_f16_e32 v14, v14
+	.loc	1 93 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:93:20
+	v_mul_f32_e32 v0, v0, v70
+	.loc	1 44 19                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:44:19
+	v_mul_f32_e32 v3, v56, v3
+	v_mul_f32_e32 v51, v58, v59
+	.loc	1 48 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:48:20
+	v_add_f32_e32 v55, 1.0, v55
+	v_add_f32_e32 v11, 1.0, v11
+	.loc	1 49 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:49:20
+	v_mul_f32_e32 v2, v2, v54
+	.loc	1 62 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:62:20
+	v_mul_f32_e32 v17, v22, v50
+	.loc	1 61 112                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:61:112
+	v_cvt_f32_f16_sdwa v22, v15 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v15, v15
+	.loc	1 62 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:62:20
+	v_mul_f32_e32 v14, v18, v14
+	.loc	1 63 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:63:20
+	v_fma_mix_f32 v1, v1, v5, -v13 op_sel_hi:[0,1,0]
+	.loc	1 95 121                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:95:121
+	v_cvt_f32_f16_e32 v13, v33
+	.loc	1 63 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:63:20
+	v_fma_mix_f32 v5, v9, v5, -v21 op_sel:[0,1,0] op_sel_hi:[0,1,0]
+	.loc	1 95 121                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:95:121
+	v_cvt_f32_f16_sdwa v9, v33 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	.loc	1 49 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:49:20
+	v_mul_f32_e32 v11, v51, v11
+	v_mul_f32_e32 v3, v3, v55
+	.loc	1 62 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:62:20
+	v_mul_f32_e32 v18, v23, v22
+	v_mul_f32_e32 v15, v19, v15
+	.loc	1 63 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:63:20
+	v_fma_mix_f32 v2, v2, v6, -v14 op_sel_hi:[0,1,0]
+	v_fma_mix_f32 v6, v10, v6, -v17 op_sel:[0,1,0] op_sel_hi:[0,1,0]
+	.loc	1 96 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:96:20
+	v_mul_f32_e32 v10, v41, v13
+	v_mul_f32_e32 v0, v0, v9
+	.loc	1 95 121                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:95:121
+	v_cvt_f32_f16_sdwa v9, v34 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	.loc	1 45 137                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:45:137
+	v_cvt_f32_f16_e32 v56, v12
+	v_cvt_f32_f16_sdwa v12, v12 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	.loc	1 63 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:63:20
+	v_fma_mix_f32 v3, v3, v7, -v15 op_sel_hi:[0,1,0]
+	v_fma_mix_f32 v7, v11, v7, -v18 op_sel:[0,1,0] op_sel_hi:[0,1,0]
+	.loc	1 97 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:97:20
+	v_fma_mix_f32 v10, v29, v25, v10 op_sel_hi:[0,1,0]
+	.loc	1 95 121                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:95:121
+	v_cvt_f32_f16_e32 v11, v34
+	.loc	1 97 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:97:20
+	v_fma_mix_f32 v0, v37, v25, v0 op_sel:[0,1,0] op_sel_hi:[0,1,0]
+	.loc	1 96 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:96:20
+	v_mul_f32_e32 v9, v45, v9
+	.loc	1 44 19                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:44:19
+	v_mul_f32_e32 v52, v52, v60
+	.loc	1 48 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:48:20
+	v_add_f32_e32 v56, 1.0, v56
+	v_add_f32_e32 v12, 1.0, v12
+	.loc	1 61 112                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:61:112
+	v_cvt_f32_f16_sdwa v48, v16 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	v_cvt_f32_f16_e32 v16, v16
+	.loc	1 0 0 is_stmt 0                 ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0
+	v_cndmask_b32_e32 v1, v10, v1, vcc_lo
+	.loc	1 96 20 is_stmt 1               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:96:20
+	v_mul_f32_e32 v10, v42, v11
+	.loc	1 0 0 is_stmt 0                 ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0
+	v_cndmask_b32_e32 v5, v0, v5, vcc_lo
+	.loc	1 97 20 is_stmt 1               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:97:20
+	v_fma_mix_f32 v0, v38, v26, v9 op_sel:[0,1,0] op_sel_hi:[0,1,0]
+	.loc	1 49 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:49:20
+	v_mul_f32_e32 v12, v52, v12
+	v_mul_f32_e32 v4, v4, v56
+	.loc	1 62 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:62:20
+	v_mul_f32_e32 v19, v24, v48
+	v_mul_f32_e32 v16, v20, v16
+	.loc	1 101 46                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:101:46
+	v_cvt_f16_f32_e32 v9, v1
+	.loc	1 97 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:97:20
+	v_fma_mix_f32 v1, v30, v26, v10 op_sel_hi:[0,1,0]
+	.loc	1 95 121                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:95:121
+	v_cvt_f32_f16_e32 v10, v35
+	v_cvt_f32_f16_e32 v11, v36
+	.loc	1 0 0 is_stmt 0                 ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0
+	v_cndmask_b32_e32 v6, v0, v6, vcc_lo
+	.loc	1 95 121                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:95:121
+	v_cvt_f32_f16_sdwa v0, v36 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	.loc	1 63 20 is_stmt 1               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:63:20
+	v_fma_mix_f32 v4, v4, v8, -v16 op_sel_hi:[0,1,0]
+	v_fma_mix_f32 v8, v12, v8, -v19 op_sel:[0,1,0] op_sel_hi:[0,1,0]
+	.loc	1 95 121                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:95:121
+	v_cvt_f32_f16_sdwa v12, v35 dst_sel:DWORD dst_unused:UNUSED_PAD src0_sel:WORD_1
+	.loc	1 96 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:96:20
+	v_mul_f32_e32 v10, v43, v10
+	v_mul_f32_e32 v11, v44, v11
+	.loc	1 0 0 is_stmt 0                 ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0
+	v_cndmask_b32_e32 v1, v1, v2, vcc_lo
+	.loc	1 96 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:96:20
+	v_mul_f32_e32 v0, v47, v0
+	s_load_dwordx2 s[0:1], s[4:5], 0x28
+	v_mul_f32_e32 v2, v46, v12
+	.loc	1 97 20 is_stmt 1               ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:97:20
+	v_fma_mix_f32 v10, v31, v27, v10 op_sel_hi:[0,1,0]
+	v_fma_mix_f32 v11, v32, v28, v11 op_sel_hi:[0,1,0]
+	.loc	1 101 46                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:101:46
+	v_cvt_f16_f32_e32 v12, v1
+	.loc	1 97 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:97:20
+	v_fma_mix_f32 v1, v40, v28, v0 op_sel:[0,1,0] op_sel_hi:[0,1,0]
+	.loc	1 101 30                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:101:30
+	v_lshl_add_u32 v0, v69, 8, v49
+	.loc	1 97 20                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:97:20
+	v_fma_mix_f32 v2, v39, v27, v2 op_sel:[0,1,0] op_sel_hi:[0,1,0]
+	.loc	1 0 0 is_stmt 0                 ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0
+	v_cndmask_b32_e32 v3, v10, v3, vcc_lo
+	v_cndmask_b32_e32 v4, v11, v4, vcc_lo
+	v_cndmask_b32_e32 v8, v1, v8, vcc_lo
+	.loc	1 101 25 is_stmt 1              ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:101:25
+	v_ashrrev_i32_e32 v1, 31, v0
+	.loc	1 0 0 is_stmt 0                 ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:0
+	v_cndmask_b32_e32 v2, v2, v7, vcc_lo
+	.loc	1 101 46                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:101:46
+	v_cvt_f16_f32_e32 v7, v3
+	v_cvt_f16_f32_e32 v3, v4
+	v_cvt_f16_f32_e32 v10, v5
+	.loc	1 101 25                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:101:25
+	v_lshlrev_b64 v[4:5], 1, v[0:1]
+	.loc	1 101 46                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:101:46
+	v_cvt_f16_f32_e32 v8, v8
+	v_cvt_f16_f32_e32 v2, v2
+	v_cvt_f16_f32_e32 v6, v6
+	v_pack_b32_f16 v0, v9, v10
+	.loc	1 101 25                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:101:25
+	s_waitcnt lgkmcnt(0)
+	v_add_co_u32 v4, vcc_lo, s0, v4
+	.loc	1 101 46                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:101:46
+	v_pack_b32_f16 v3, v3, v8
+	v_pack_b32_f16 v2, v7, v2
+	v_pack_b32_f16 v1, v12, v6
+	.loc	1 101 25                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:101:25
+	v_add_co_ci_u32_e64 v5, null, s1, v5, vcc_lo
+	.loc	1 101 46                        ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:101:46
+	global_store_dwordx4 v[4:5], v[0:3], off
+.LBB0_58:
+	.loc	1 101 4                         ; c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py:101:4
+	s_endpgm
+.Ltmp0:
+	.section	.rodata,"a",@progbits
+	.p2align	6, 0x0
+	.amdhsa_kernel triton_poi_fused__to_copy_add_cat_mul_rms_norm_slice_split_split_with_sizes_sub_unsqueeze_view_8
+		.amdhsa_group_segment_fixed_size 0
+		.amdhsa_private_segment_fixed_size 0
+		.amdhsa_kernarg_size 328
+		.amdhsa_user_sgpr_count 6
+		.amdhsa_user_sgpr_private_segment_buffer 1
+		.amdhsa_user_sgpr_dispatch_ptr 0
+		.amdhsa_user_sgpr_queue_ptr 0
+		.amdhsa_user_sgpr_kernarg_segment_ptr 1
+		.amdhsa_user_sgpr_dispatch_id 0
+		.amdhsa_user_sgpr_flat_scratch_init 0
+		.amdhsa_user_sgpr_private_segment_size 0
+		.amdhsa_wavefront_size32 1
+		.amdhsa_uses_dynamic_stack 0
+		.amdhsa_system_sgpr_private_segment_wavefront_offset 0
+		.amdhsa_system_sgpr_workgroup_id_x 1
+		.amdhsa_system_sgpr_workgroup_id_y 1
+		.amdhsa_system_sgpr_workgroup_id_z 1
+		.amdhsa_system_sgpr_workgroup_info 0
+		.amdhsa_system_vgpr_workitem_id 0
+		.amdhsa_next_free_vgpr 74
+		.amdhsa_next_free_sgpr 19
+		.amdhsa_reserve_vcc 1
+		.amdhsa_reserve_flat_scratch 0
+		.amdhsa_float_round_mode_32 0
+		.amdhsa_float_round_mode_16_64 0
+		.amdhsa_float_denorm_mode_32 3
+		.amdhsa_float_denorm_mode_16_64 3
+		.amdhsa_dx10_clamp 1
+		.amdhsa_ieee_mode 1
+		.amdhsa_fp16_overflow 0
+		.amdhsa_workgroup_processor_mode 1
+		.amdhsa_memory_ordered 1
+		.amdhsa_forward_progress 1
+		.amdhsa_shared_vgpr_count 0
+		.amdhsa_exception_fp_ieee_invalid_op 0
+		.amdhsa_exception_fp_denorm_src 0
+		.amdhsa_exception_fp_ieee_div_zero 0
+		.amdhsa_exception_fp_ieee_overflow 0
+		.amdhsa_exception_fp_ieee_underflow 0
+		.amdhsa_exception_fp_ieee_inexact 0
+		.amdhsa_exception_int_div_zero 0
+	.end_amdhsa_kernel
+	.text
+.Lfunc_end0:
+	.size	triton_poi_fused__to_copy_add_cat_mul_rms_norm_slice_split_split_with_sizes_sub_unsqueeze_view_8, .Lfunc_end0-triton_poi_fused__to_copy_add_cat_mul_rms_norm_slice_split_split_with_sizes_sub_unsqueeze_view_8
+	.cfi_endproc
+                                        ; -- End function
+	.set triton_poi_fused__to_copy_add_cat_mul_rms_norm_slice_split_split_with_sizes_sub_unsqueeze_view_8.num_vgpr, 74
+	.set triton_poi_fused__to_copy_add_cat_mul_rms_norm_slice_split_split_with_sizes_sub_unsqueeze_view_8.num_agpr, 0
+	.set triton_poi_fused__to_copy_add_cat_mul_rms_norm_slice_split_split_with_sizes_sub_unsqueeze_view_8.numbered_sgpr, 19
+	.set triton_poi_fused__to_copy_add_cat_mul_rms_norm_slice_split_split_with_sizes_sub_unsqueeze_view_8.num_named_barrier, 0
+	.set triton_poi_fused__to_copy_add_cat_mul_rms_norm_slice_split_split_with_sizes_sub_unsqueeze_view_8.private_seg_size, 0
+	.set triton_poi_fused__to_copy_add_cat_mul_rms_norm_slice_split_split_with_sizes_sub_unsqueeze_view_8.uses_vcc, 1
+	.set triton_poi_fused__to_copy_add_cat_mul_rms_norm_slice_split_split_with_sizes_sub_unsqueeze_view_8.uses_flat_scratch, 0
+	.set triton_poi_fused__to_copy_add_cat_mul_rms_norm_slice_split_split_with_sizes_sub_unsqueeze_view_8.has_dyn_sized_stack, 0
+	.set triton_poi_fused__to_copy_add_cat_mul_rms_norm_slice_split_split_with_sizes_sub_unsqueeze_view_8.has_recursion, 0
+	.set triton_poi_fused__to_copy_add_cat_mul_rms_norm_slice_split_split_with_sizes_sub_unsqueeze_view_8.has_indirect_call, 0
+	.section	.AMDGPU.csdata,"",@progbits
+; Kernel info:
+; codeLenInByte = 3396
+; TotalNumSgprs: 21
+; NumVgprs: 74
+; ScratchSize: 0
+; MemoryBound: 1
+; FloatMode: 240
+; IeeeMode: 1
+; LDSByteSize: 0 bytes/workgroup (compile time only)
+; SGPRBlocks: 0
+; VGPRBlocks: 9
+; NumSGPRsForWavesPerEU: 21
+; NumVGPRsForWavesPerEU: 74
+; Occupancy: 12
+; WaveLimiterHint : 0
+; COMPUTE_PGM_RSRC2:SCRATCH_EN: 0
+; COMPUTE_PGM_RSRC2:USER_SGPR: 6
+; COMPUTE_PGM_RSRC2:TRAP_HANDLER: 0
+; COMPUTE_PGM_RSRC2:TGID_X_EN: 1
+; COMPUTE_PGM_RSRC2:TGID_Y_EN: 1
+; COMPUTE_PGM_RSRC2:TGID_Z_EN: 1
+; COMPUTE_PGM_RSRC2:TIDIG_COMP_CNT: 0
+	.text
+	.p2alignl 6, 3214868480
+	.fill 48, 4, 3214868480
+	.section	.AMDGPU.gpr_maximums,"",@progbits
+	.set amdgpu.max_num_vgpr, 0
+	.set amdgpu.max_num_agpr, 0
+	.set amdgpu.max_num_sgpr, 0
+	.text
+	.section	.debug_abbrev,"",@progbits
+	.byte	1                               ; Abbreviation Code
+	.byte	17                              ; DW_TAG_compile_unit
+	.byte	0                               ; DW_CHILDREN_no
+	.byte	37                              ; DW_AT_producer
+	.byte	14                              ; DW_FORM_strp
+	.byte	19                              ; DW_AT_language
+	.byte	5                               ; DW_FORM_data2
+	.byte	3                               ; DW_AT_name
+	.byte	14                              ; DW_FORM_strp
+	.byte	16                              ; DW_AT_stmt_list
+	.byte	23                              ; DW_FORM_sec_offset
+	.byte	27                              ; DW_AT_comp_dir
+	.byte	14                              ; DW_FORM_strp
+	.byte	17                              ; DW_AT_low_pc
+	.byte	1                               ; DW_FORM_addr
+	.byte	18                              ; DW_AT_high_pc
+	.byte	6                               ; DW_FORM_data4
+	.byte	0                               ; EOM(1)
+	.byte	0                               ; EOM(2)
+	.byte	0                               ; EOM(3)
+	.section	.debug_info,"",@progbits
+.Lcu_begin0:
+	.long	.Ldebug_info_end0-.Ldebug_info_start0 ; Length of Unit
+.Ldebug_info_start0:
+	.short	4                               ; DWARF version number
+	.long	.debug_abbrev                   ; Offset Into Abbrev. Section
+	.byte	8                               ; Address Size (in bytes)
+	.byte	1                               ; Abbrev [1] 0xb:0x1f DW_TAG_compile_unit
+	.long	.Linfo_string0                  ; DW_AT_producer
+	.short	2                               ; DW_AT_language
+	.long	.Linfo_string1                  ; DW_AT_name
+	.long	.Lline_table_start0             ; DW_AT_stmt_list
+	.long	.Linfo_string2                  ; DW_AT_comp_dir
+	.quad	.Lfunc_begin0                   ; DW_AT_low_pc
+	.long	.Lfunc_end0-.Lfunc_begin0       ; DW_AT_high_pc
+.Ldebug_info_end0:
+	.section	.debug_str,"MS",@progbits,1
+.Linfo_string0:
+	.asciz	"triton"                        ; string offset=0
+.Linfo_string1:
+	.asciz	"c53g2w2ksbxlj6eke5zwkjpbs2ohdoelkfnfsutl47rjwmbyh7dw.py" ; string offset=7
+.Linfo_string2:
+	.asciz	"/compile-cache/torch_compile_cache/torch_aot_compile/6379be49ccdb67dae640f3eaf41ad59637be7747ac8f3ded8a3430d4d1ef17a8/inductor_cache/53" ; string offset=63
+	.section	".note.GNU-stack","",@progbits
+	.amdgpu_metadata
+---
+amdhsa.kernels:
+  - .args:
+      - .address_space:  global
+        .offset:         0
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         8
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         16
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         24
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         32
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         40
+        .size:           8
+        .value_kind:     global_buffer
+      - .offset:         48
+        .size:           4
+        .value_kind:     by_value
+      - .offset:         52
+        .size:           4
+        .value_kind:     by_value
+      - .address_space:  global
+        .offset:         56
+        .size:           8
+        .value_kind:     global_buffer
+      - .address_space:  global
+        .offset:         64
+        .size:           8
+        .value_kind:     global_buffer
+      - .offset:         72
+        .size:           4
+        .value_kind:     hidden_block_count_x
+      - .offset:         76
+        .size:           4
+        .value_kind:     hidden_block_count_y
+      - .offset:         80
+        .size:           4
+        .value_kind:     hidden_block_count_z
+      - .offset:         84
+        .size:           2
+        .value_kind:     hidden_group_size_x
+      - .offset:         86
+        .size:           2
+        .value_kind:     hidden_group_size_y
+      - .offset:         88
+        .size:           2
+        .value_kind:     hidden_group_size_z
+      - .offset:         90
+        .size:           2
+        .value_kind:     hidden_remainder_x
+      - .offset:         92
+        .size:           2
+        .value_kind:     hidden_remainder_y
+      - .offset:         94
+        .size:           2
+        .value_kind:     hidden_remainder_z
+      - .offset:         112
+        .size:           8
+        .value_kind:     hidden_global_offset_x
+      - .offset:         120
+        .size:           8
+        .value_kind:     hidden_global_offset_y
+      - .offset:         128
+        .size:           8
+        .value_kind:     hidden_global_offset_z
+      - .offset:         136
+        .size:           2
+        .value_kind:     hidden_grid_dims
+      - .offset:         192
+        .size:           4
+        .value_kind:     hidden_dynamic_lds_size
+    .group_segment_fixed_size: 0
+    .kernarg_segment_align: 8
+    .kernarg_segment_size: 328
+    .max_flat_workgroup_size: 128
+    .name:           triton_poi_fused__to_copy_add_cat_mul_rms_norm_slice_split_split_with_sizes_sub_unsqueeze_view_8
+    .private_segment_fixed_size: 0
+    .sgpr_count:     21
+    .sgpr_spill_count: 0
+    .symbol:         triton_poi_fused__to_copy_add_cat_mul_rms_norm_slice_split_split_with_sizes_sub_unsqueeze_view_8.kd
+    .uniform_work_group_size: 1
+    .uses_dynamic_stack: false
+    .vgpr_count:     74
+    .vgpr_spill_count: 0
+    .wavefront_size: 32
+    .workgroup_processor_mode: 1
+amdhsa.target:   amdgcn-amd-amdhsa--gfx1030
+amdhsa.version:
+  - 1
+  - 2
+...
+
+	.end_amdgpu_metadata
+	.section	.debug_line,"",@progbits
+.Lline_table_start0:

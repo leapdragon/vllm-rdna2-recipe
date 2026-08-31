@@ -249,6 +249,23 @@ All from https://github.com/leapdragon/vllm-rdna2-qwen; each cost at least one 1
   under 16 MB sit in the Infinity Cache in a timing loop and read as 800 GB/s. Warm the card;
   believe the DRAM-streaming number.
 
+## 5b. Aperture violation on boot after changing which GPUs you serve on (2026-08-31)
+
+**Symptom:** the engine dies ~2 min into boot — `HSA_STATUS_ERROR_MEMORY_APERTURE_VIOLATION`,
+kernel log shows `[gfxhub] page fault` (client UTCL2) on the rank-0 card at user-space addresses,
+right as `Directly load AOT compilation from path /compile-cache/...` lines appear. No bus drop;
+the cards are healthy.
+
+**Cause:** the vLLM torch.compile/AOT cache is device-set-specific in practice. A cache populated
+while serving on one pair of cards (`ROCR_VISIBLE_DEVICES=1,3`) crashes the worker when its AOT
+artifacts are loaded on a different pair (`2,4`) — first observed on the MTP drafter's
+(`eagle_head`) artifacts.
+
+**Fix:** never share a compile cache across device sets. `config/serve-rdna2-tp2.sh` now scopes it
+automatically (`$STATE_DIR/compile-cache-<devices>`); if you mount `VLLM_CACHE_ROOT` yourself, key
+the host directory by the device list, or wipe it when you change `DEVICES`. (The container writes
+as root: wipe with `docker run --rm -v <dir>:/wipe --entrypoint sh <image> -c 'rm -rf /wipe/*'`.)
+
 ## 6. Meta-lessons (the generalizable part)
 
 - **Keep the KFD homogeneous.** Only put GPUs in the machine that your

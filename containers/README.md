@@ -78,7 +78,9 @@ TunableOp, the all-reduce/attention plugin knobs, MTP, and the model flags are d
 ```bash
 IMG=ghcr.io/leapdragon/vllm-rdna2-recipe:0.27.1-rocm7.2.3-gfx1030
 docker run --rm --entrypoint cat "$IMG" /app/versions.txt
-# With devices attached — without them torch reports an EMPTY arch list and no error:
+# No devices needed: the arch list torch was compiled for (this is what the build-time check uses)
+docker run --rm --entrypoint python3 "$IMG" -c "import torch; print(torch._C._cuda_getArchFlags())"   # -> gfx1030
+# With devices attached — without them torch.cuda.get_arch_list() is an EMPTY list and no error:
 docker run --rm --device /dev/kfd --device /dev/dri \
   --group-add "$(getent group render | cut -d: -f3)" --group-add "$(getent group video | cut -d: -f3)" \
   --entrypoint python3 "$IMG" -c "import torch; print(torch.cuda.get_arch_list(), torch.cuda.get_device_name(0))"
@@ -103,8 +105,8 @@ Then the recipe's own checks against a running server: [`verify/validate.py`](..
   `MAX_JOBS`: expect all cores for the duration — don't benchmark on the same box meanwhile.
 - `Dockerfile` pins the vLLM tag **and** its commit (`6e448d0ea9…`): a moved tag fails the build
   instead of silently changing what the patches apply to. Every extension is checked at build
-  time for gfx1030 code objects, for the patch-0007/0008 ops, the patch-0009 relay, and a stock
-  (not binary-patched) HSA runtime — no GPU needed for any of it.
+  time for gfx1030 code objects (torch via its compiled-in arch flags), for the patch-0007/0008 ops,
+  the patch-0009 relay, and a stock (not binary-patched) HSA runtime — no GPU needed for any of it.
 - `pip` resolves vLLM's requirements under a constraints file generated from the base, so it can
   never replace the source-built torch/torchvision/torchaudio/triton with PyPI wheels.
 - Knobs: `REGISTRY_REPO`, `VERSION`, `BASE_TAG`, `BASE_IMAGE`, `PYTORCH_ROCM_ARCH`, `MAX_JOBS`

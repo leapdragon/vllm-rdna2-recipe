@@ -39,8 +39,9 @@ runs it from scratch with `PYTORCH_ROCM_ARCH=gfx1030`. The outcome, and how long
 [containers/README.md](containers/README.md) "Build status" — until that table shows a pass, budget for
 being an early runner. If it diverges, check the torch build arch list — `torch.cuda.get_arch_list()`
 must include `gfx1030` **with GPU devices attached to the container**, or it returns an empty list with
-no error and tells you nothing (the Dockerfile instead checks the code-object target IDs inside the
-binaries, which needs no GPU).
+no error and tells you nothing. Without a device, `torch._C._cuda_getArchFlags()` still returns the list
+torch was compiled for — that, plus the code-object target IDs inside vLLM's extensions, is what
+`containers/Dockerfile` checks at build time.
 
 ## Runtime configuration and what each setting is worth
 

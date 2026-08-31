@@ -77,10 +77,11 @@ RUN cd /app/vllm-src \
     >> /app/versions.txt
 
 # 5. Build-time verification — the checks the recipe's build phases asserted, consolidated. None of
-#    them needs a GPU. The arch check reads the code-object target IDs out of the binaries, because
-#    torch.cuda.get_arch_list() returns [] with no device attached and tells you nothing.
+#    them needs a GPU: the arch checks read the code-object target IDs out of vLLM's extensions and
+#    torch's compiled-in arch flags, because torch.cuda.get_arch_list() returns [] with no device
+#    attached and tells you nothing.
 RUN cd /app/vllm-src && python3 - <<'EOF'
-import ctypes, glob, os, pathlib, subprocess
+import ctypes, glob, os, pathlib
 import torch, vllm, vllm._custom_ops  # noqa: F401  (loads _C, _C_stable_libtorch, _moe_C_stable_libtorch, _rocm_C)
 
 src = pathlib.Path("/app/vllm-src")
@@ -106,9 +107,10 @@ for f in ("vllm/v1/worker/gpu/pp_utils.py", "vllm/v1/worker/gpu/model_runner.py"
 assert vllm.__version__ == os.environ["VLLM_VERSION"], vllm.__version__
 assert torch.__version__.startswith("2.11"), torch.__version__
 assert (torch.version.hip or "").startswith("7.2"), torch.version.hip
-libtorch_hip = pathlib.Path(torch.__file__).parent / "lib" / "libtorch_hip.so"
-assert subprocess.run(["grep", "-q", target_id.decode(), str(libtorch_hip)]).returncode == 0, \
-    f"{libtorch_hip} was not built for {arch} (base image built with the wrong PYTORCH_ROCM_ARCH?)"
+# torch.cuda.get_arch_list() is [] without a device; the compiled-in flag list needs none. (torch's
+# own .hip_fatbin bundles are compressed, so the target-ID string scan above cannot be applied to it.)
+flags = (torch._C._cuda_getArchFlags() or "").split()
+assert arch in flags, f"torch was compiled for {flags}, not {arch} (base image built with the wrong PYTORCH_ROCM_ARCH?)"
 
 # Stock HSA runtime: earlier hand-built images carried a binary-patched libhsa; this one must not.
 hsa = sorted(glob.glob("/opt/rocm-*/lib/libhsa-runtime64.so.1.*"))
@@ -122,7 +124,7 @@ if hsa[-1].endswith("1.18.70203"):
     assert b == b"\x00", f"libhsa is binary-patched (byte 0x1ffb0 = {b.hex()}), expected stock"
 
 print(f"verified: vllm {vllm.__version__} on torch {torch.__version__} (HIP {torch.version.hip}); "
-      f"extensions + libtorch_hip carry {arch} code; patches 0001/0007/0008/0009 present; stock libhsa")
+      f"extensions carry {arch} code objects, torch arch flags {flags}; patches 0001/0007/0008/0009 present; stock libhsa")
 EOF
 
 # 6. The two plugins (vllm.general_plugins entry points). ar_rdna2 JIT-compiles its HIP source into

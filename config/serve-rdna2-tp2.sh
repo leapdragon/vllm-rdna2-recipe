@@ -55,7 +55,9 @@ PP="${PP:-1}"                             # pipeline-parallel stages (layer spli
 # draft model lives entirely on the last PP rank.
 PP_PART_ENV=()
 [ -n "${PP_PARTITION:-}" ] && PP_PART_ENV=(-e VLLM_PP_LAYER_PARTITION="${PP_PARTITION}")
-DEVICES="${DEVICES:-1,3}"                 # the two x16-rooted V620s
+DEVICES="${DEVICES:-1,3}"                 # default V620 pair (2026-08-31 chain-walk: these root at
+                                          # x8 Gen3; the 2,4 pair at x16 Gen3 — decode measured the
+                                          # same on both, so the width does not matter for TP=2)
 # The torch.compile/AOT cache is device-set-specific in practice: reusing a cache written on one
 # pair from another pair crashed the worker with HSA_STATUS_ERROR_MEMORY_APERTURE_VIOLATION as the
 # MTP drafter's AOT artifacts loaded (2026-08-31, TROUBLESHOOTING 5b). Scope it by DEVICES.

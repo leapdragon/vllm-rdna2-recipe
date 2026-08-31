@@ -9,8 +9,8 @@ pins, produced by two Dockerfiles in this directory instead of by hand.
 
 | Image | Tag | What |
 |---|---|---|
-| `ghcr.io/leapdragon/vllm-rdna2-recipe` | `0.27.1-rocm7.2.3-gfx1030`, `latest` | Runtime image — [`Dockerfile`](Dockerfile). ~28 GB. |
-| `ghcr.io/leapdragon/vllm-rdna2-recipe-base` | `rocm7.2.3-torch2.11.0-gfx1030` | PyTorch/ROCm base — [`Dockerfile.rocm_base`](Dockerfile.rocm_base). ~27 GB. Only needed to rebuild the runtime image. |
+| `ghcr.io/leapdragon/vllm-rdna2-recipe` | `0.27.1-rocm7.2.3-gfx1030`, `latest` | Runtime image — [`Dockerfile`](Dockerfile). 26.9 GB. |
+| `ghcr.io/leapdragon/vllm-rdna2-recipe-base` | `rocm7.2.3-torch2.11.0-gfx1030` | PyTorch/ROCm base — [`Dockerfile.rocm_base`](Dockerfile.rocm_base). 24.2 GB. Only needed to rebuild the runtime image. |
 | `ghcr.io/leapdragon/vllm-rdna2-recipe` | `0.27.1-rocm7.2.3-gfx1030-asbuilt` | Optional: a snapshot of the hand-built image every number in this repo was measured on. Not reproducible from the Dockerfiles; published only as a reference point. |
 
 Tags are immutable in intent: a rebuild of the same stack gets a new suffix, not a moved tag.
@@ -95,7 +95,7 @@ Then the recipe's own checks against a running server: [`verify/validate.py`](..
 ## Build it yourself
 
 ```bash
-./containers/build.sh --base     # 1. base: PyTorch/Triton/FA/AITER/MORI from source — HOURS, every core, ~60 GB of layers
+./containers/build.sh --base     # 1. base: PyTorch/Triton (+FA/AITER/MORI only for CDNA arch lists) from source — ~65 min on 32 cores, every core
                                  # 2. runtime: clone v0.27.1, apply patches, compile vLLM for gfx1030 — 15–30 min
 ./containers/build.sh            # runtime only, FROM the published base (or BASE_IMAGE=… for a local one)
 ```
@@ -124,7 +124,7 @@ Then the recipe's own checks against a running server: [`verify/validate.py`](..
 | Date | What | Result |
 |---|---|---|
 | 2026-08-31 | Runtime `Dockerfile` against the pre-existing hand-built base (the one 02-VERSIONS warned about) | **PASS.** Clone+patches+deps+compile 4.7 min at `MAX_JOBS=16` (32-core host), whole build ~5.5 min; image 27.5 GB (vs 34 GB hand-built). All build-time checks green. GPU smoke test: `torch.cuda.get_arch_list()` → `['gfx1030']`, fp16 matmul, `_rocm_C` bound, Triton 3.6.0 — on an RX 6700 XT (gfx1031) through the baked `HSA_OVERRIDE_GFX_VERSION`. |
-| 2026-08-31 | `Dockerfile.rocm_base` from scratch (`--base`), then the runtime image FROM it | Attempt 1: PyTorch (45 min), Triton, amdsmi stages built; **failed at flash-attention** after 57 min — `setup.py` rejects `['gfx1030']` (upstream's RDNA strip assumes a CDNA-led list). Fix: patch 0005 now skips FA/AITER/MORI for RDNA-only arch lists. Attempt 2 in progress (cached PyTorch stage). |
+| 2026-08-31 | `Dockerfile.rocm_base` from scratch (`--base`), then the runtime image FROM it | **PASS** (attempt 2). Attempt 1 died at flash-attention after 57 min — `setup.py` rejects `['gfx1030']`, upstream's RDNA strip assumes a CDNA-led list — so patch 0005 now skips FA/AITER/MORI for RDNA-only arch lists. Base: PyTorch stage 45 min, Triton 16 min, ~65 min total on 32 cores, **24.2 GB**, package-for-package identical to the hand-built base (torch `2.11.0+gitd0c8b1f`, torchvision `0.24.1+d801a34`, torchaudio `2.9.0+eaa9e4e`, Triton 3.6.0, amdsmi 26.2.2; no FA/AITER/MORI). Runtime FROM it: compile 5.8 min, **26.9 GB**, all build-time checks green, GPU smoke test passed (arch list, fp16 matmul, `_rocm_C`, `moe_wna16_gemm`, plugins import). |
 
 (Updated by the maintainer after each build.)
 

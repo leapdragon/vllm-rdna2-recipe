@@ -71,9 +71,9 @@ from source for gfx1030. Point the wrapper at it and skip the build:
 
 The two Dockerfiles that produce it (and its base image, `…-recipe-base`) live in [containers/](containers/),
 with a [README](containers/README.md) covering run flags, what is baked in, verification, publishing, and
-building it yourself. ~28 GB. The base is built from scratch by `containers/build.sh --base`, which is the
-step [02-VERSIONS.md](02-VERSIONS.md) long warned nobody had run end to end — its build status is recorded
-in the containers README.
+building it yourself. 26.9 GB. The base is built from scratch by `containers/build.sh --base`, which is the
+step [02-VERSIONS.md](02-VERSIONS.md) long warned nobody had run end to end — done and verified 2026-08-31
+(status table in the containers README).
 
 ## Qwen3.8-Flash-Next at ~100 t/s — the successor repo (2026-08-30)
 

@@ -31,17 +31,19 @@ Step by step, for doing it by hand:
    already-optimized path), else `config/serve-rdna2-tp2.sh` directly with `MODEL=`/`SERVED=`/
    `QUANT=` set.
 
-⚠️ **Step 1 is being verified end to end (started 2026-08-31).** Our working base was built by hand
-before this recipe existed; we later identified vLLM's own `rocm_base` recipe plus the one-line arch
-change as what produces it. That recipe is now vendored verbatim, with patch 0005 applied, as
-[`containers/Dockerfile.rocm_base`](containers/Dockerfile.rocm_base), and `containers/build.sh --base`
-runs it from scratch with `PYTORCH_ROCM_ARCH=gfx1030`. The outcome, and how long it took, is recorded in
-[containers/README.md](containers/README.md) "Build status" — until that table shows a pass, budget for
-being an early runner. If it diverges, check the torch build arch list — `torch.cuda.get_arch_list()`
-must include `gfx1030` **with GPU devices attached to the container**, or it returns an empty list with
-no error and tells you nothing. Without a device, `torch._C._cuda_getArchFlags()` still returns the list
-torch was compiled for — that, plus the code-object target IDs inside vLLM's extensions, is what
-`containers/Dockerfile` checks at build time.
+✅ **Step 1 has been run end to end (2026-08-31).** Until then this paragraph warned that our base was
+built by hand before the recipe existed and that vLLM's own `rocm_base` recipe plus the arch change had
+never been executed from scratch. It has now: [`containers/Dockerfile.rocm_base`](containers/Dockerfile.rocm_base)
+— upstream's file with patch 0005 — built with `PYTORCH_ROCM_ARCH=gfx1030` in ~65 minutes on 32 cores
+and produced, package for package, the stack in the table above (torch `2.11.0+gitd0c8b1f`, torchvision
+`0.24.1+d801a34`, torchaudio `2.9.0+eaa9e4e`, Triton 3.6.0, amdsmi 26.2.2 — and, like the hand-built base,
+no flash-attention/AITER/MORI: patch 0005 skips those CDNA-only stages, without which flash-attention's
+`setup.py` rejects `gfx1030` 57 minutes in). The runtime image built on it passes the same checks and a
+GPU smoke test; details in [containers/README.md](containers/README.md) "Build status". The arch-list trap
+stands: `torch.cuda.get_arch_list()` must include `gfx1030` **with GPU devices attached to the container**,
+or it returns an empty list with no error and tells you nothing. Without a device,
+`torch._C._cuda_getArchFlags()` still returns the list torch was compiled for — that, plus the code-object
+target IDs inside vLLM's extensions, is what `containers/Dockerfile` checks at build time.
 
 ## Runtime configuration and what each setting is worth
 

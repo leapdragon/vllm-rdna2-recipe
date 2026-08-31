@@ -20,6 +20,9 @@ GPU smoke test OK — on the RX 6700 XT through the baked `HSA_OVERRIDE_GFX_VERS
 from-scratch base attempt died 57 min in at flash-attention (`['gfx1030']` unsupported): **patch 0005
 grew** — it now also skips the CDNA-only flash-attention/AITER/MORI stages when the arch list has no
 `gfx9xx`, which is what the measured base always was (torch/vision/audio/triton/amdsmi, nothing else).
+Attempt 2 passed: base 24.2 GB (~65 min on 32 cores), package-for-package identical to the hand-built
+one; runtime image 26.9 GB on it, all checks and the GPU smoke test green. The 02-VERSIONS warning that
+nobody had rebuilt the base from scratch is retired.
 
 **2026-08-30 (later) — the ~100 t/s was measured with a handshake that never waited.** On
 this ROCm, `hipStreamWaitValue32` is accepted during stream capture but not recorded into the

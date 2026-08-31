@@ -57,8 +57,9 @@ EOF
 RUN cat /tmp/constraints.txt && grep -q '^torch==' /tmp/constraints.txt
 
 # 4. Dependencies, then every vLLM extension compiled for gfx1030 (~10–20 min at MAX_JOBS=16).
-#    vLLM takes its version from setuptools-scm; with the patches applied the tree is "dirty", so
-#    the version is pinned explicitly — a clean "0.27.1" is also part of the compile-cache key.
+#    vLLM takes its version from setuptools-scm; with the patches applied the tree is "dirty" and
+#    would report 0.27.2.dev0+g…d<date>.rocm723 — a version that changes daily and is part of the
+#    torch.compile cache key. VLLM_VERSION_OVERRIDE (setup.py's own hook) pins it to exactly 0.27.1.
 ENV VLLM_TARGET_DEVICE=rocm \
     PYTORCH_ROCM_ARCH=${PYTORCH_ROCM_ARCH} \
     ROCM_HOME=/opt/rocm \
@@ -67,7 +68,7 @@ ENV VLLM_TARGET_DEVICE=rocm \
 RUN cd /app/vllm-src \
  && (pip uninstall -y vllm >/dev/null 2>&1 || true) \
  && pip install -c /tmp/constraints.txt -r requirements/rocm.txt \
- && MAX_JOBS="${MAX_JOBS}" SETUPTOOLS_SCM_PRETEND_VERSION_FOR_VLLM="${VLLM_VERSION}" \
+ && MAX_JOBS="${MAX_JOBS}" VLLM_VERSION_OVERRIDE="${VLLM_VERSION}" \
     pip install -c /tmp/constraints.txt --no-build-isolation -e . \
  && { echo "vllm=$(python3 -c 'import vllm; print(vllm.__version__)')"; \
       echo "vllm_commit=${VLLM_COMMIT}"; \

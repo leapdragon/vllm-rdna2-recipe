@@ -27,6 +27,39 @@ IMG=ghcr.io/leapdragon/vllm-rdna2-recipe:0.27.1-rocm7.2.3-gfx1030 \
   ./builds/btbtyler09-Qwen3.8-27B-GPTQ-4bit/serve.sh      # or any builds/*/serve.sh
 ```
 
+### Presets — one line, no repo clone
+
+The image carries each build's tuned configuration and its load-bearing TunableOp rows
+(`/app/recipe/builds/*/preset.env`), driven by the entrypoint:
+
+```bash
+docker run --rm IMAGE list-presets                # what <name> can be
+docker run -d --name vllm-rdna2 --network=host \
+  --device /dev/kfd --device /dev/dri \
+  --group-add "$(getent group render | cut -d: -f3)" --group-add "$(getent group video | cut -d: -f3)" \
+  --ipc=host --ulimit memlock=-1 --security-opt seccomp=unconfined \
+  -e ROCR_VISIBLE_DEVICES=1,3 \
+  -v "$HOME/.cache/huggingface:/root/.cache/huggingface" \
+  IMAGE preset:qwen38-27b-gptq
+```
+
+- **Model**: `preset:<name>` picks a supported build (`qwen38-27b-gptq` is the reference; the AWQ
+  and MixedInt4 27B siblings are presets too; the 122B refuses with instructions — it needs
+  one-time weight conversions and the repo wrapper).
+- **Devices**: `-e ROCR_VISIBLE_DEVICES=<i,j>` — standard ROCm device selection; TP=2 presets want
+  exactly two.
+- **Knobs**: `-e MTP=0..3` (speculative depth; default 2), `-e PORT=<n>` (add
+  `-e HEALTHCHECK_PORT=<n>` so the container healthcheck follows), `-e DRYRUN=1` (print the
+  resolved env + full `vllm serve` command and exit), extra vLLM flags appended after the preset
+  name override the preset's (`… preset:qwen38-27b-gptq --max-model-len 32768`).
+- **TunableOp seeding**: with no `/tuning` mount the shipped per-rank CSVs are seeded
+  automatically (the rows worth ~1.7× decode — [TROUBLESHOOTING 5c](../TROUBLESHOOTING.md));
+  mount `-v vllm-rdna2-tuning:/tuning` to persist, and the same automatic seeding fills an empty
+  mount. Mounted `/compile-cache`, `/triton-cache`, `/ext-cache` are picked up when present —
+  without them the first boot cold-compiles (~12 min) every time.
+- A plain model tag instead of `preset:` behaves exactly as before: the arguments go verbatim to
+  `vllm serve`.
+
 The minimal bare invocation, for when you want to see every moving part:
 
 ```bash
@@ -46,7 +79,8 @@ docker run -d --name vllm-rdna2 --network=host \
     --enable-chunked-prefill --enable-prefix-caching --language-model-only --skip-mm-profiling
 ```
 
-- The entrypoint is `vllm serve`; everything after the image name is its arguments
+- The entrypoint is a thin shim over `vllm serve` (`preset:<name>` expands a build's tuned
+  configuration; anything else passes through verbatim); everything after the image name is its arguments
   (`docker run --rm --device /dev/kfd --device /dev/dri IMAGE --help` — upstream vLLM infers the
   device while parsing arguments, so even `--help` wants `/dev/kfd`). `--entrypoint bash` gets you a shell.
 - The three named volumes persist the JIT-built all-reduce extension, the torch.compile cache
@@ -64,7 +98,7 @@ docker run -d --name vllm-rdna2 --network=host \
 |---|---|
 | `/app/vllm-src` | The patched vLLM tree, installed editable. `git -C /app/vllm-src diff --stat` is exactly the nine patches against tag `v0.27.1`; `config/serve-rdna2-tp2.sh`'s `VLLM_SRC=` overlay mounts land here. |
 | `/app/plugins/{fd_rdna2,ar_rdna2}` | The plugin sources as installed (`vllm.general_plugins` entry points). Switched on by `FD_RDNA2=1` / `AR_RDNA2=1`; knobs in [02-VERSIONS.md](../02-VERSIONS.md). |
-| `/app/recipe/{patches,verify,…}` | The patches, the verification clients (`verify/validate.py`, `decode-rate.py`, …) and the key docs, for reference from inside the container. |
+| `/app/recipe/{patches,verify,builds,…}` | The patches, the verification clients (`verify/validate.py`, `decode-rate.py`, …), the key docs, and the per-build presets (`builds/*/preset.env` + their TunableOp CSVs) used by `preset:<name>`. |
 | `/app/versions.txt` | Provenance: base image pins (every upstream repo + commit the base was built from), `vllm=`, `vllm_commit=`, `recipe_patches=`, `torch=`. |
 | `HSA_OVERRIDE_GFX_VERSION=10.3.0` | Lets the gfx1030 code objects run on the rest of Navi 2x (gfx1031/1032/…). No-op on a real gfx1030. |
 | `FLASH_ATTENTION_TRITON_AMD_ENABLE=TRUE`, `VLLM_ROCM_USE_AITER=0`, `VLLM_ROCM_USE_AITER_MOE=0`, `TORCH_BLAS_PREFER_HIPBLASLT=0` | Triton attention is the only attention path on this chip; AITER and hipBLASLt have no gfx1030 kernels. |
@@ -131,6 +165,8 @@ Then the recipe's own checks against a running server: [`verify/validate.py`](..
 | 2026-08-31 | Pair test: same serve on the other V620 pair (`DEVICES=2,4`, x16 Gen3 root links vs the default pair's x8 Gen3) | **PASS after one real finding.** First boot crashed with an aperture violation — the shared compile cache from the 1,3 runs is device-set-specific (now [TROUBLESHOOTING 5b](../TROUBLESHOOTING.md), and the wrapper scopes the cache per `DEVICES`). With fresh caches: 8/8 outputs identical, decode 22–28 t/s — same as the x8 pair within noise, so link width is not the decode bottleneck. |
 | 2026-08-31 | Cap test (170 W → 220 W) and provenance test (v3, the exact image behind BUILD.md's numbers) | Decode unchanged at 220 W (cards draw 208–214 W for the same 25–28 t/s — bandwidth-bound, exactly as 02-VERSIONS says: the cap is NOT the delta). v3 on today's host: 27–31 t/s, outputs identical. Both hypotheses died the same day; see the next row. Prefill unaffected (759 t/s @7.5k). |
 | 2026-08-31 | **Regression found and fixed: the tuned TunableOp lm_head rows had been lost.** A torch profile showed three ~10.5 ms full-shard lm_head GEMMs per MTP step (`[1..3,5120]×[5120,124160]` fp16 at 115 GB/s — rocBLAS's heuristic tile); a micro-benchmark reproduced it exactly and TunableOp tuning recovered 2.9–3.5 ms (360–430 GB/s). After an offline tuning session (17 min warmup + decode traffic), lookup-only from the published image measures **49.0 / 45.3 / 41.8 t/s** at 3.5k/13k/42k — the recorded table, reproduced, outputs 8/8 identical. CSVs now shipped in `builds/btbtyler09-…/tunableop/`; symptom documented as TROUBLESHOOTING 5c. The Aug-25 stability cmdline, caps, links and queues were all exonerated. |
+
+| 2026-08-31 | Preset acceptance: bare `docker run … preset:qwen38-27b-gptq` with `ROCR_VISIBLE_DEVICES=1,3` and only the HF-cache mount (no repo clone, no `/tuning`, no compile caches) | **PASS.** The shim resolved the tuned configuration (verified against `/proc/1/environ`), auto-seeded the shipped TunableOp rows into `/tuning`, cold boot 813 s, outputs 8/8 byte-identical, decode 36.5–48.5 t/s across 3.4k–41k — single-boot spread around the recorded band, clearly the tuned signature (untuned reads a flat ~27). |
 
 (Updated by the maintainer after each build.)
 

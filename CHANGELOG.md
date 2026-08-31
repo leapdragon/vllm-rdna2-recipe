@@ -45,6 +45,17 @@ cmdline, power caps, link width, HW queues, P2P latency and the checkpoint were 
 by direct A/B along the way. `GPU_MAX_HW_QUEUES=4` is restored in the wrapper (dropped in the
 Aug-22 refactor; measured as a no-op — the container default is already 4).
 
+**2026-08-31 (later) — the image became self-configuring.** New entrypoint shim (`recipe-serve`):
+`docker run … IMAGE preset:<name>` serves a build's tuned configuration — flags, kernel disable
+list, plugin knobs, MTP default, and the shipped TunableOp lm_head rows auto-seeded into `/tuning`
+— with no repo clone; `list-presets` enumerates, `DRYRUN=1` prints the resolved command,
+`MTP=`/`PORT=` and appended vLLM flags override, plain arguments pass through to `vllm serve`
+unchanged, and device choice stays standard `ROCR_VISIBLE_DEVICES`. Presets ship for the three
+27B builds; the 122B preset refuses with instructions (it needs one-time weight conversions and
+the repo wrapper). `builds/*/preset.env` is the format; verified end to end with a bare
+`docker run` (no mounts beyond the HF cache): tuned rows auto-seeded, outputs 8/8 identical,
+decode 36.5–48.5 t/s — the tuned band, from one command.
+
 **2026-08-30 (later) — the ~100 t/s was measured with a handshake that never waited.** On
 this ROCm, `hipStreamWaitValue32` is accepted during stream capture but not recorded into the
 HIP graph, so the n-gram (PLE) offload's in-graph wait was a no-op on every CUDA-graph decode

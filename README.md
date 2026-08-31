@@ -69,7 +69,10 @@ from source for gfx1030. Point the wrapper at it and skip the build:
 
     IMG=ghcr.io/leapdragon/vllm-rdna2-recipe:0.27.1-rocm7.2.3-gfx1030 ./builds/<model>/serve.sh
 
-The two Dockerfiles that produce it (and its base image, `…-recipe-base`) live in [containers/](containers/),
+The image is self-configuring for the supported models — `docker run … IMAGE preset:qwen38-27b-gptq`
+serves a build's full tuned configuration (TunableOp rows included) with device choice via
+`ROCR_VISIBLE_DEVICES`; `list-presets` enumerates. The two Dockerfiles that produce it (and its base
+image, `…-recipe-base`) live in [containers/](containers/),
 with a [README](containers/README.md) covering run flags, what is baked in, verification, publishing, and
 building it yourself. 26.9 GB. The base is built from scratch by `containers/build.sh --base`, which is the
 step [02-VERSIONS.md](02-VERSIONS.md) long warned nobody had run end to end — done and verified 2026-08-31

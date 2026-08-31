@@ -142,9 +142,18 @@ assert (pathlib.Path(ar_rdna2.__file__).parent / "csrc" / "ar_ext.hip").exists()
 print("plugins registered:", sorted({"fd_rdna2", "ar_rdna2"} & eps))
 EOF
 
-# 7. Reference material shipped with the image (small): the recipe's verification clients and docs.
+# 7. Reference material shipped with the image (small): the verification clients, the docs, and
+#    the per-model presets — tuned configurations plus their load-bearing TunableOp CSVs — driven
+#    by the entrypoint (`preset:<name>`, `list-presets`; containers/README.md "Presets").
 COPY verify/ /app/recipe/verify/
 COPY LICENSE README.md 02-VERSIONS.md TROUBLESHOOTING.md /app/recipe/
+COPY builds/ /app/recipe/builds/
+COPY containers/entrypoint.sh /usr/local/bin/recipe-serve
+RUN chmod +x /usr/local/bin/recipe-serve \
+ && rm -rf /app/recipe/builds/shared/plugins \
+ && test -s /app/recipe/builds/btbtyler09-Qwen3.8-27B-GPTQ-4bit/tunableop/tunableop_results0.csv \
+ && DRYRUN=1 /usr/local/bin/recipe-serve preset:qwen38-27b-gptq | grep -q 'vllm serve btbtyler09/' \
+ && /usr/local/bin/recipe-serve list-presets
 
 # 8. Runtime defaults for Navi 2x; every one is overridable with `docker run -e`.
 #    HSA_OVERRIDE_GFX_VERSION lets the gfx1030 code objects run on the rest of the family
@@ -185,5 +194,6 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30m --retries=3 \
   CMD python3 -c 'import os, urllib.request as u; u.urlopen("http://127.0.0.1:%s/health" % os.environ.get("HEALTHCHECK_PORT", "8000"), timeout=5)' || exit 1
 
 WORKDIR /app
-ENTRYPOINT ["vllm", "serve"]
+# The shim passes plain arguments straight to `vllm serve`; `preset:<name>` selects a build.
+ENTRYPOINT ["recipe-serve"]
 CMD ["--help"]

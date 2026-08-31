@@ -65,7 +65,16 @@ an active community. See [RDNA2-RESOURCES.md](RDNA2-RESOURCES.md) for links.
 
 The whole stack, prebuilt: `ghcr.io/leapdragon/vllm-rdna2-recipe:0.27.1-rocm7.2.3-gfx1030` — pristine
 vLLM 0.27.1 + the nine patches compiled for gfx1030 + both plugins, on ROCm 7.2.3 with a PyTorch built
-from source for gfx1030. Point the wrapper at it and skip the build:
+from source for gfx1030. **This is the fastest path to a running server** — a host needs only the
+`amdgpu` kernel driver and Docker (no ROCm install; the image carries the userspace):
+
+    docker run -d --name vllm-rdna2 --network=host --device /dev/kfd --device /dev/dri \
+      --group-add "$(getent group render | cut -d: -f3)" --group-add "$(getent group video | cut -d: -f3)" \
+      --ipc=host -e ROCR_VISIBLE_DEVICES=0,1 -v "$HOME/.cache/huggingface:/root/.cache/huggingface" \
+      ghcr.io/leapdragon/vllm-rdna2-recipe:0.27.1-rocm7.2.3-gfx1030 preset:qwen38-27b-gptq
+
+Full walkthrough (prerequisites, first-boot expectations, querying, every knob):
+[containers/README.md](containers/README.md). Repo users can instead point the tuned wrapper at it:
 
     IMG=ghcr.io/leapdragon/vllm-rdna2-recipe:0.27.1-rocm7.2.3-gfx1030 ./builds/<model>/serve.sh
 
@@ -103,7 +112,8 @@ This repo remains the recipe for the 27B and 122B builds on vLLM 0.27.1 and the 
 
 | | |
 |---|---|
-| **[00-HARDWARE.md](00-HARDWARE.md)** | The machine, the model, the measured silicon facts, and the performance targets. **Start here — the numbers are meaningless without it.** |
+| **[containers/README.md](containers/README.md)** | **Just want a running server?** The prebuilt image: pull → `preset:<model>` → query. Prerequisites, knobs, verification, and building the image yourself. |
+| **[00-HARDWARE.md](00-HARDWARE.md)** | The machine, the model, the measured silicon facts, and the performance targets. **Start here if you're here for the recipe — the numbers are meaningless without it.** |
 | **[01-PATCHES.md](01-PATCHES.md)** | What each patch does and why, how to apply and verify, then the pitfalls and the measured dead ends. |
 | **[02-VERSIONS.md](02-VERSIONS.md)** | Exact pins, build order, every runtime setting and what it's worth, and what to do when the pins don't hold. |
 | **[ADAPTING-PROCESS.md](ADAPTING-PROCESS.md)** | **Instructions for adapting this recipe** — the optimisation loop as working directions for an ingesting LLM (and its human), with PROFILE-NAVI21.md as the rosetta stone. Read when your model, card, or vLLM version differs from ours. |

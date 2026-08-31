@@ -16,6 +16,48 @@ pins, produced by two Dockerfiles in this directory instead of by hand.
 Tags are immutable in intent: a rebuild of the same stack gets a new suffix, not a moved tag.
 `latest` follows the newest runtime tag.
 
+## Getting started — pull, serve, query
+
+What the host needs — and, deliberately, what it does not:
+
+- A **Navi 2x GPU** with enough VRAM for the model (the TP=2 27B presets want two 32 GB V620s;
+  the baked `HSA_OVERRIDE_GFX_VERSION=10.3.0` lets the rest of the family — RX 6700/6800/6900
+  class — run the same code objects). The `amdgpu` kernel driver (in any recent mainline kernel)
+  and Docker. **No ROCm install on the host** — the image carries the entire userspace, and
+  mounting a host ROCm into it is the #1 way to break it ([TROUBLESHOOTING](../TROUBLESHOOTING.md)).
+- Disk: ~27 GB for the image, ~15 GB for the reference model's weights (downloaded into the
+  mounted Hugging Face cache on first run).
+
+```bash
+docker pull ghcr.io/leapdragon/vllm-rdna2-recipe:0.27.1-rocm7.2.3-gfx1030
+docker run --rm ghcr.io/leapdragon/vllm-rdna2-recipe:0.27.1-rocm7.2.3-gfx1030 list-presets
+
+docker run -d --name vllm-rdna2 --network=host \
+  --device /dev/kfd --device /dev/dri \
+  --group-add "$(getent group render | cut -d: -f3)" --group-add "$(getent group video | cut -d: -f3)" \
+  --ipc=host --ulimit memlock=-1 --security-opt seccomp=unconfined \
+  -e ROCR_VISIBLE_DEVICES=0,1 \
+  -v "$HOME/.cache/huggingface:/root/.cache/huggingface" \
+  ghcr.io/leapdragon/vllm-rdna2-recipe:0.27.1-rocm7.2.3-gfx1030 preset:qwen38-27b-gptq
+```
+
+First boot is the slow one: the weights download (~15 GB), then vLLM cold-compiles for **10–15
+minutes** before the server answers — watch `docker logs -f vllm-rdna2`, wait for
+`docker inspect --format '{{.State.Health.Status}}' vllm-rdna2` to say `healthy`, or poll
+`curl -s localhost:8000/health`. (Persist `/compile-cache` as shown under Presets and the next
+boot takes ~3 minutes.) Then it is a standard OpenAI-compatible server:
+
+```bash
+curl -s http://localhost:8000/v1/chat/completions -H 'Content-Type: application/json' -d '{
+  "model": "qwen38-27b-gptq",
+  "messages": [{"role": "user", "content": "Say hello in five words."}],
+  "max_tokens": 50}'
+```
+
+Set `ROCR_VISIBLE_DEVICES` to the two cards you want (indices as `rocm-smi` lists them). Expect
+~40–49 tokens/s decode at temperature-0 quality identical to the recorded baseline; if you see a
+flat ~27 t/s instead, read [TROUBLESHOOTING 5c](../TROUBLESHOOTING.md).
+
 ## Run it
 
 The recommended path is the recipe's own wrapper, which carries the tuned flags, mounts, and

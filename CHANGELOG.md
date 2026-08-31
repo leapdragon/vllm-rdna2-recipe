@@ -29,7 +29,12 @@ BUILD.md's table tracked to the host itself (170 W power caps, TP pair root link
 the image. A pair test on the x16-Gen3-rooted pair (`DEVICES=2,4`) decoded the same within noise —
 link width is not the bottleneck — and surfaced a real trap: the torch.compile/AOT cache is
 device-set-specific, and reusing one across pairs crashes boot with an aperture violation
-(TROUBLESHOOTING 5b; the wrapper now scopes `compile-cache-<devices>` per device set).
+(TROUBLESHOOTING 5b; the wrapper now scopes `compile-cache-<devices>` per device set). Follow-up
+tests killed the remaining environmental hypotheses one by one: raising the cap 170→220 W changed
+nothing (cards draw 208–214 W for the same decode — bandwidth-bound, as documented), and **v3 — the
+exact image BUILD.md's numbers came from — measures 27–31 t/s on today's host** with identical
+outputs. The recorded 41–51 t/s predates the 2026-08-25 platform-stability cmdline; its measured
+cost is now noted in the stability table, and BUILD.md carries a dated caveat.
 
 **2026-08-30 (later) — the ~100 t/s was measured with a handshake that never waited.** On
 this ROCm, `hipStreamWaitValue32` is accepted during stream capture but not recorded into the

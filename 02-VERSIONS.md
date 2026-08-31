@@ -148,3 +148,9 @@ events; treat as all-load-bearing until noted otherwise):
 | env | `NCCL_P2P_LEVEL=PXB` | RCCL P2P within a root complex, SHM across. |
 | vLLM | `--max-num-batched-tokens 2048` | Batch size is a TIMING knob: unpreemptible dispatch length, scratch-crossing odds, DMA burst duration, power-ramp width all scale with it. Keep work items frame-sized. |
 | per boot | power caps at 232 W | Gentler transients (TP=4 decode only draws ~180 W anyway — bandwidth-bound). |
+
+**Measured cost of this stack (2026-08-31):** the 27B TP=2 build decodes 27–31 t/s on the hardened
+platform vs the 41–51 t/s recorded before it existed — same image, same outputs; power cap and link
+width individually ruled out by A/B, so the cost sits somewhere in the cmdline set above (untangling
+which flag means reboot-bisection). Prefill is unaffected. The stack stays: it is what stopped the
+card-drop crashes ([TROUBLESHOOTING §4](TROUBLESHOOTING.md)).

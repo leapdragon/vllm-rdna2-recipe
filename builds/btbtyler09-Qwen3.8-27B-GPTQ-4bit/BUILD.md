@@ -40,6 +40,14 @@ K-strips suit 72 CUs at these shapes.
 Decode without MTP: 33.5 t/s @41k (~61% of the bandwidth ceiling). Beats llama.cpp's
 31–40 t/s @45k on the same cards. Point estimates; ±5% run-to-run/boot-to-boot spread.
 
+> **2026-08-31:** the decode rows above no longer reproduce on the machine that produced them —
+> re-measured at 27–31 t/s with the *same* image (v3), same wrapper, plugins live, acceptance
+> healthy, outputs byte-identical. Power cap (170→220 W: no change) and TP-pair link width
+> (x8 vs x16 Gen3: no change) were ruled out by direct A/B; what changed in between is the
+> 2026-08-25 platform-stability kernel cmdline (02-VERSIONS "stability" table), adopted to stop
+> cards dropping off the bus. Prefill still reproduces (759 t/s @7.5k). Treat 27–31 t/s as the
+> expected decode on a hardened platform; the table reflects the pre-hardening host.
+
 ## Working configuration, item by item, with the why
 
 - **Image**: patches 0001–0005 applied per 01-PATCHES (0006 is harmless here — it only

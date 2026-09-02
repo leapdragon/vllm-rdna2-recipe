@@ -60,8 +60,16 @@ def register():
                 1 <= (kw.get("max_seqlen_q") or 0) <= MAXQ
                 and kw.get("kv_quant_mode") == KVQuantMode.INT8_PER_TOKEN_HEAD
                 and q is not None and q.dim() == 3
-                and q.shape[0] == kw.get("max_seqlen_q")          # single sequence
-                and q.shape[0] <= MAXQ
+                and (
+                    # single sequence, OR uniform multi-sequence speculative
+                    # verification: every scheduled seq drafts the same length,
+                    # so q rows = max_seqlen_q * n_seqs exactly.
+                    q.shape[0] == kw.get("max_seqlen_q")
+                    or (kw.get("max_seqlen_q", 0) > 1
+                        and kw.get("block_table") is not None
+                        and q.shape[0] % kw["max_seqlen_q"] == 0
+                        and q.shape[0] // kw["max_seqlen_q"] == kw["block_table"].shape[0])
+                )
                 and q.shape[2] == 256                             # head_size
                 and bool(kw.get("causal"))
                 and kw.get("sinks") is None
@@ -136,6 +144,31 @@ def register():
                         max_ctx, gchunks, CHUNK, PAD)
         m, l, a, out_buf, qbuf, qbuf_mq16, qbuf_mq32 = buf
 
+        msq = kw.get("max_seqlen_q") or 0
+        if msq > 1 and q.shape[0] > msq:
+            # Multi-sequence speculative verification: every scheduled sequence
+            # drafts the same length (msq rows each), so run the proven batched-mq
+            # kernel once per sequence on its own block-table row. The loop count is
+            # constant per captured shape and grid_chunks never changes -> graph-safe.
+            nseq = q.shape[0] // msq
+            NQP = 16 if msq * PAD <= 16 else 32
+            for s in range(nseq):
+                q_s = q[s * msq:(s + 1) * msq]
+                qs = (q_s * kw["softmax_scale"]).to(torch.float16)
+                qp = permute_q_mq(qs, msq, GQA=GQA, KVH=n_kv, PAD=PAD,
+                                  out=(qbuf_mq16 if NQP == 16 else qbuf_mq32), NQP=NQP)
+                fd2_decode_mq(qp, i32, f32, bt_all[s], kw["seqused_k"][s:s + 1],
+                              gchunks, (m, l, a), out_buf, msq, BS=bs, CHUNK=CHUNK,
+                              TILE=TILE, GQA=GQA, KVH=n_kv, PAD=PAD, NQP=NQP,
+                              num_warps=WARPS, strides=(s_blk, s_kvh, s_tok))
+                kw["out"][s * msq:(s + 1) * msq].copy_(
+                    out_buf[: msq * q_s.shape[1]].view(msq, q_s.shape[1], 256))
+            _stats["fast"] += 1
+            key = f"fast multiseq s={nseq} q={msq}"
+            _stats["reason"][key] = _stats["reason"].get(key, 0) + 1
+            if _log is not None and _stats["reason"][key] == 1:
+                _log.info("fd_rdna2: multi-seq fast path (%d seqs x q=%d)", nseq, msq)
+            return None
         nq = q.shape[0]
         if nq > 1 and nq * PAD <= 32:
             # Batched verification: every position rides in the dot's column dimension,

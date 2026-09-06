@@ -9,7 +9,9 @@ int8-per-token-head KV in the exact 260-byte row layout the kernel addresses
 
 Covers the 27B geometry (GQA 6 / KVH 4, PAD 8 — regression guard) and the
 122B geometry (GQA 16 / KVH 2, PAD 16 — the generalization), q positions 1,
-2 (batched single-pass) and 3 (per-position loop, exercised via seq_delta).
+2 (batched single-pass) and 3 (per-position loop, exercised via seq_delta),
+plus multi-sequence verification: per-seq batched-mq (msq*PAD <= 32) and the
+per-seq per-position fallback when msq*PAD > 32 (GQA 16, msq >= 3).
 
 Run inside the serving container (needs triton + one GPU):
   docker run --rm --entrypoint python3 --device /dev/kfd --device /dev/dri \
@@ -143,6 +145,89 @@ def run_case(gqa, kvh, nq, ctx, bs=1552, chunk=512, tile=32, warps=8, seed=0):
           f"rel_err={rel:.4f} {'OK ' if ok else 'FAIL'} {ms:7.3f} ms/layer-pass")
     return ok
 
+def run_mq_case(gqa, kvh, nseq, msq, ctx, bs=1552, chunk=512, tile=32,
+                 warps=8, seed=0):
+    """Multi-sequence speculative verification, mirroring the plugin:
+    one kernel pass per sequence on its own block-table row. Covers
+    both paths: per-seq batched-mq (msq*PAD <= 32) and, at GQA 16 with
+    msq >= 3 (msq*PAD = 48/64 > 32), the per-seq per-position fallback.
+    Each sequence gets its own KV length; the reference runs per seq."""
+    pad = 8 if gqa <= 8 else 16
+    bpr = (ctx + bs - 1) // bs + 1                 # blocks per row
+    nblocks = nseq * bpr
+    kv, kb, vb, ks, vs = build_kv2(nblocks, bs, kvh, seed)
+    st = kv.untyped_storage()
+    f8 = torch.empty(0, dtype=torch.int8, device=DEV)
+    f8.set_(st, 0, (st.nbytes(),))
+    i32 = f8.view(torch.int32)
+    f32 = f8.view(torch.float32)
+    s_blk = kv.stride(0) // 4
+    s_tok = kv.stride(1) // 4
+    s_kvh = kv.stride(2) // 4
+    bt = torch.stack([torch.randperm(bpr, device=DEV) + s * bpr
+                      for s in range(nseq)]).to(torch.int32)
+    ctxs = [ctx - s * 1513 for s in range(nseq)]   # distinct lengths per seq
+    su = torch.tensor(ctxs, dtype=torch.int32, device=DEV)
+    scale = HS ** -0.5
+    q = (torch.randn(nseq * msq, kvh * gqa, HS, device=DEV) * 0.3).to(torch.float16)
+    gchunks = (bpr * bs + chunk - 1) // chunk
+    m = torch.empty(gchunks * kvh * 32, dtype=torch.float32, device=DEV)
+    ws = (m, torch.empty_like(m),
+          torch.empty(gchunks * kvh * 32 * HS, dtype=torch.float32, device=DEV))
+    out_buf = torch.empty(4 * kvh * gqa, HS, dtype=torch.float16, device=DEV)
+    qbuf = torch.zeros(kvh, 4, 64, pad, dtype=torch.float16, device=DEV)
+    qbuf16 = torch.zeros(kvh, 4, 64, 16, dtype=torch.float16, device=DEV)
+    qbuf32 = torch.zeros(kvh, 4, 64, 32, dtype=torch.float16, device=DEV)
+
+    def kernel_pass():
+        got = torch.empty(nseq * msq, kvh * gqa, HS, dtype=torch.float16, device=DEV)
+        for s in range(nseq):
+            q_s = q[s * msq:(s + 1) * msq]
+            if msq * pad <= 32:
+                nqp = 16 if msq * pad <= 16 else 32
+                qp = permute_q_mq((q_s * scale).to(torch.float16), msq, GQA=gqa,
+                                  KVH=kvh, PAD=pad,
+                                  out=(qbuf16 if nqp == 16 else qbuf32), NQP=nqp)
+                fd2_decode_mq(qp, i32, f32, bt[s], su[s:s + 1], gchunks, ws,
+                              out_buf, msq, BS=bs, CHUNK=chunk, TILE=tile,
+                              GQA=gqa, KVH=kvh, PAD=pad, NQP=nqp,
+                              num_warps=warps, strides=(s_blk, s_kvh, s_tok))
+                got[s * msq:(s + 1) * msq].copy_(
+                    out_buf[: msq * kvh * gqa].view(msq, kvh * gqa, HS))
+            else:
+                for qi in range(msq):
+                    qp = permute_q((q_s[qi] * scale).to(torch.float16), GQA=gqa,
+                                   KVH=kvh, out=qbuf, PAD=pad)
+                    fd2_decode(qp, i32, f32, bt[s], 0, BS=bs, CHUNK=chunk,
+                               TILE=tile, GQA=gqa, KVH=kvh, num_warps=warps,
+                               workspace=ws, strides=(s_blk, s_kvh, s_tok),
+                               seq_ptr=su[s:s + 1], grid_chunks=gchunks,
+                               out=out_buf, seq_delta=qi - (msq - 1), PAD=pad)
+                    got[s * msq + qi].copy_(out_buf[: kvh * gqa])
+        return got
+
+    got = kernel_pass()
+    refs = []
+    for s in range(nseq):
+        refs.append(reference((q[s * msq:(s + 1) * msq] * scale).to(torch.float16),
+                              kb, vb, ks, vs, bt[s], ctxs[s], msq, gqa, kvh))
+    ref = torch.cat(refs)
+    err = (got.float() - ref).abs()
+    denom = ref.abs().max().clamp_min(1e-6)
+    rel = (err.max() / denom).item()
+    torch.cuda.synchronize()
+    t0 = time.perf_counter()
+    REPS = 50
+    for _ in range(REPS):
+        kernel_pass()
+    torch.cuda.synchronize()
+    ms = (time.perf_counter() - t0) / REPS * 1e3
+    mode = "mq" if msq * pad <= 32 else "mq-loop"
+    ok = rel < 0.03
+    print(f"GQA={gqa:2d} KVH={kvh} nseq={nseq} msq={msq} ctx={ctx:6d} [{mode:7s}] "
+          f"rel_err={rel:.4f} {'OK ' if ok else 'FAIL'} {ms:7.3f} ms/layer-pass")
+    return ok
+
 
 def main():
     torch.set_grad_enabled(False)
@@ -151,6 +236,10 @@ def main():
         for nq in (1, 2, 3, 4):
             for ctx in (4096, 40960):
                 all_ok &= run_case(gqa, kvh, nq, ctx)
+    # multi-sequence verify: per-seq batched-mq and the >32 fallback
+    for gqa, kvh in ((6, 4), (16, 2)):
+        for nseq, msq in ((2, 2), (2, 3), (3, 4)):
+            all_ok &= run_mq_case(gqa, kvh, nseq, msq, 8192)
     print("ALL OK" if all_ok else "FAILURES PRESENT")
     sys.exit(0 if all_ok else 1)
 

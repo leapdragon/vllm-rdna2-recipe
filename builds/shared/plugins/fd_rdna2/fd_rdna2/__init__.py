@@ -151,23 +151,41 @@ def register():
             # kernel once per sequence on its own block-table row. The loop count is
             # constant per captured shape and grid_chunks never changes -> graph-safe.
             nseq = q.shape[0] // msq
-            NQP = 16 if msq * PAD <= 16 else 32
-            for s in range(nseq):
-                q_s = q[s * msq:(s + 1) * msq]
-                qs = (q_s * kw["softmax_scale"]).to(torch.float16)
-                qp = permute_q_mq(qs, msq, GQA=GQA, KVH=n_kv, PAD=PAD,
-                                  out=(qbuf_mq16 if NQP == 16 else qbuf_mq32), NQP=NQP)
-                fd2_decode_mq(qp, i32, f32, bt_all[s], kw["seqused_k"][s:s + 1],
-                              gchunks, (m, l, a), out_buf, msq, BS=bs, CHUNK=CHUNK,
-                              TILE=TILE, GQA=GQA, KVH=n_kv, PAD=PAD, NQP=NQP,
-                              num_warps=WARPS, strides=(s_blk, s_kvh, s_tok))
-                kw["out"][s * msq:(s + 1) * msq].copy_(
-                    out_buf[: msq * q_s.shape[1]].view(msq, q_s.shape[1], 256))
+            if msq * PAD <= 32:
+                NQP = 16 if msq * PAD <= 16 else 32
+                for s in range(nseq):
+                    q_s = q[s * msq:(s + 1) * msq]
+                    qs = (q_s * kw["softmax_scale"]).to(torch.float16)
+                    qp = permute_q_mq(qs, msq, GQA=GQA, KVH=n_kv, PAD=PAD,
+                                      out=(qbuf_mq16 if NQP == 16 else qbuf_mq32), NQP=NQP)
+                    fd2_decode_mq(qp, i32, f32, bt_all[s], kw["seqused_k"][s:s + 1],
+                                  gchunks, (m, l, a), out_buf, msq, BS=bs, CHUNK=CHUNK,
+                                  TILE=TILE, GQA=GQA, KVH=n_kv, PAD=PAD, NQP=NQP,
+                                  num_warps=WARPS, strides=(s_blk, s_kvh, s_tok))
+                    kw["out"][s * msq:(s + 1) * msq].copy_(
+                        out_buf[: msq * q_s.shape[1]].view(msq, q_s.shape[1], 256))
+                key = f"fast multiseq s={nseq} q={msq}"
+            else:
+                # Draft blocks wider than the 32-column accumulator (MTP maxes at
+                # 4 positions; DFlash2 drafts 8): per-seq, per-position passes of
+                # the single-row kernel. ponytail: msq KV passes instead of 1; a
+                # wider qbuf (NQP=64) is the upgrade if wide blocks dominate.
+                for s in range(nseq):
+                    q_s = q[s * msq:(s + 1) * msq]
+                    for qi in range(msq):
+                        qs = (q_s[qi] * kw["softmax_scale"]).to(torch.float16)
+                        qp = permute_q(qs, GQA=GQA, KVH=n_kv, out=qbuf, PAD=PAD)
+                        fd2_decode(qp, i32, f32, bt_all[s], 0, BS=bs, CHUNK=CHUNK,
+                                   TILE=TILE, GQA=GQA, KVH=n_kv, num_warps=WARPS,
+                                   workspace=(m, l, a), strides=(s_blk, s_kvh, s_tok),
+                                   seq_ptr=kw["seqused_k"][s:s + 1], grid_chunks=gchunks,
+                                   out=out_buf, seq_delta=qi - (msq - 1), PAD=PAD)
+                        kw["out"][s * msq + qi].copy_(out_buf[: q_s.shape[1]])
+                key = f"fast multiseq perpos s={nseq} q={msq}"
             _stats["fast"] += 1
-            key = f"fast multiseq s={nseq} q={msq}"
             _stats["reason"][key] = _stats["reason"].get(key, 0) + 1
             if _log is not None and _stats["reason"][key] == 1:
-                _log.info("fd_rdna2: multi-seq fast path (%d seqs x q=%d)", nseq, msq)
+                _log.info("fd_rdna2: %s", key)
             return None
         nq = q.shape[0]
         if nq > 1 and nq * PAD <= 32:

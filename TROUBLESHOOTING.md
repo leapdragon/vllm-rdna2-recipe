@@ -160,7 +160,7 @@ pair; the other pair (running the identical machinery as pipeline stage 2)
 survived. What kills is the *cadence* — paired collective kernels in
 lockstep, hundreds of times a second, for minutes — not the transport.
 Corroborating: the llama.cpp-rdna2 fork above runs the same 4×V620 daily
-with RCCL P2P *enabled* (`NCCL_P2P_LEVEL=PXB`) and no drops — because
+with RCCL P2P *enabled* (`NCCL_P2P_LEVEL=PXB` at the time; the recipe no longer pins it — see 02-VERSIONS) and no drops — because
 llama's CPU-orchestrated cadence never holds communication kernels open.
 
 **Mitigations.**
@@ -168,7 +168,7 @@ llama's CPU-orchestrated cadence never holds communication kernels open.
   update): flat TP=4 ran ~2.5 h sustained with zero events, and at +43–124%
   over PP, once ALL of the following were in place: kernel line
   `amdgpu.pcie_gen_cap=0x00070007` (Gen3 link cap) + `aspm=0` + `runpm=0`
-  + `gpu_recovery=1`; `HSA_NO_SCRATCH_RECLAIM=1`; `NCCL_P2P_LEVEL=PXB`;
+  + `gpu_recovery=1`; `HSA_NO_SCRATCH_RECLAIM=1`; `NCCL_P2P_LEVEL=PXB` (historical — now left unset, topology-dependent);
   `--max-num-batched-tokens 2048`; moderate power caps. Which subset is
   load-bearing is not yet isolated — apply the whole stack. Without it,
   every TP attempt (flat ×3, 2+2 ×2) lost cards, including with P2P fully

@@ -18,7 +18,9 @@
 #   POWER (prerequisite, per boot): 232 W caps —
 #     sudo rocm-smi -d <your V620 indices> --setpoweroverdrive 232
 #   RUNTIME (below): HSA_NO_SCRATCH_RECLAIM=1 (no mid-flight scratch regrow),
-#     NCCL_P2P_LEVEL=PXB (P2P within root complex, SHM across).
+#     NCCL_P2P_LEVEL: NOT set — leave it to RCCL's autodetection. The right value is topology-
+#     dependent: PXB halved all-reduce bandwidth on a one-GPU-per-switch host (#2) and SYS beat it by
+#     +8% prefill on a 2+2 host. Check `rocm-smi --showtopo` before pinning; add it via EXTRA_ENV.
 #   WORKLOAD (below): BATCHTOK=2048 — shortens every hazard window at once
 #     (unpreemptible dispatch time, scratch crossing, DMA burst, power ramp).
 #     These are GRAPHICS cards; keep work items frame-sized.
@@ -34,7 +36,7 @@ SERVED="qwen35-122b-autoround" \
 QUANT="gptq" \
 TP=4 PP=1 DEVICES="${DEVICES:-1,2,3,4}" \
 MTP="${MTP:-2}" BATCHTOK="${BATCHTOK:-2048}" \
-EXTRA_ENV="${EXTRA_ENV-VLLM_USE_V2_MODEL_RUNNER=1,HSA_NO_SCRATCH_RECLAIM=1,NCCL_P2P_LEVEL=PXB}" \
+EXTRA_ENV="${EXTRA_ENV-VLLM_USE_V2_MODEL_RUNNER=1,HSA_NO_SCRATCH_RECLAIM=1}" \
 FD_RDNA2="${FD_RDNA2:-1}" AR_RDNA2=0 CUSTOM_AR=0 \
 GPUUTIL="${GPUUTIL:-0.9}" MAXSEQS="${MAXSEQS:-4}" \
 KVDTYPE="${KVDTYPE:-int8_per_token_head}" \

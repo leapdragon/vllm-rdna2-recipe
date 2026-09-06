@@ -145,7 +145,7 @@ events; treat as all-load-bearing until noted otherwise):
 | kernel cmdline | `amdgpu.aspm=0 amdgpu.runpm=0` | No link/device low-power exits racing an idle→full-burst transition (where the drops clustered). |
 | kernel cmdline | `amdgpu.gpu_recovery=1` | A wedge becomes a GPU reset instead of a card lost until reboot. |
 | env | `HSA_NO_SCRATCH_RECLAIM=1` | No mid-flight scratch reclaim/regrow (queue surgery at dispatch time of the largest kernels — also the likely truth behind llama.cpp's classic "batch 4096+ is crashy" lore). |
-| env | `NCCL_P2P_LEVEL=PXB` | RCCL P2P within a root complex, SHM across. |
+| env | `NCCL_P2P_LEVEL` **unset** (was `PXB` until 2026-09-06) | Topology-dependent, so leave it to RCCL's autodetection. Measured: on a host with one V620 per PCIe switch (every pair PHB-class) `PXB` matched no pair and silently disabled peer access — `rccl-tests` all_reduce 8.0 GB/s vs 21.0 unset ([#2](https://github.com/leapdragon/vllm-rdna2-recipe/pull/2), Waldecir Santos); on the 2+2 development host `SYS` gave +8 % prefill over `PXB`. Check `rocm-smi --showtopo` before pinning anything. |
 | vLLM | `--max-num-batched-tokens 2048` | Batch size is a TIMING knob: unpreemptible dispatch length, scratch-crossing odds, DMA burst duration, power-ramp width all scale with it. Keep work items frame-sized. |
 | per boot | power caps at 232 W | Gentler transients (TP=4 decode only draws ~180 W anyway — bandwidth-bound). |
 

@@ -285,6 +285,16 @@ MTP pays the head three times per step, so the loss is ~40% of decode.
 `tunableop/` dir, or retune (offline procedure in the build's BUILD.md). The live dir is
 gitignored — treat the CSVs like weights, not like scratch.
 
+## 5d. Large prompts fail or the server misbehaves on the V2 model runner — set `VLLM_USE_V2_MODEL_RUNNER=0` (2026-09-06)
+
+Reported by **CorbinD** (gfx1030 club Discord), running the recipe with the int8-KV flash-decode
+plugin and the custom all-reduce on 4× V620: setting `VLLM_USE_V2_MODEL_RUNNER=0` "fixed all my
+problems" — large prompts included — and gave a stable 68 tok/s decode. The runner is V1 by default for the hybrid Qwen3-Next architecture in 0.27.1 (only the 122B-under-PP scripts force V2, which MTP under PP requires); the
+serve log prints which one is active (`Using V1 Model Runner` / `Using V2 Model Runner`). This recipe only
+needs V2 for MTP under pipeline parallelism (patch 0009, the 122B build); on every other configuration,
+leave the variable unset or set it to `0`. Not reproduced by the maintainers; if you hit it on V2, the
+exact error and the prompt length that triggered it would make it chaseable rather than routed around.
+
 ## 6. Meta-lessons (the generalizable part)
 
 - **Keep the KFD homogeneous.** Only put GPUs in the machine that your

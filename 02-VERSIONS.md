@@ -72,7 +72,7 @@ All in `config/serve-rdna2-tp2.sh`. Each is individually reversible.
 |---|---|---|
 | `PP` | 3 | `--pipeline-parallel-size` (layer split). TP=3 is arithmetically impossible on this model (2 KV heads). |
 | `PP_PARTITION` | `17,17,14` | Uneven layer split (`VLLM_PP_LAYER_PARTITION`); unloads the last stage, which hosts the MTP draft model. |
-| `EXTRA_ENV` | `VLLM_USE_V2_MODEL_RUNNER=1` | **MTP under PP requires the V2 model runner** — the V1 drafter path page-faults under PP (patch 0009's section in 01-PATCHES). Comma-separated `NAME=VALUE` passthrough. |
+| `EXTRA_ENV` | `VLLM_USE_V2_MODEL_RUNNER=1` (122B under PP only; elsewhere leave unset or `0` — TROUBLESHOOTING.md §5d) | **MTP under PP requires the V2 model runner** — the V1 drafter path page-faults under PP (patch 0009's section in 01-PATCHES). Comma-separated `NAME=VALUE` passthrough. |
 | `ASYNC_SCHED` | leave default | `0` forces sync scheduling — needed only for MTP-under-PP experiments on the V1 runner (its async PP broadcast assumes width-1 samples). Unnecessary on V2. |
 | `SPEC_EAGER` | leave default | `1` runs only the drafter eager (diagnostic; isolates drafter-cudagraph interplay). |
 | `MOE_CFG` | build-provided | Mounts a tuned fused-MoE config JSON into vLLM's configs dir. |

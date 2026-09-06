@@ -5,6 +5,8 @@
 Newest first. Companion to [README.md](README.md); per-model detail lives in each
 `builds/*/BUILD.md`, and measured configs in [02-VERSIONS.md](02-VERSIONS.md).
 
+**2026-09-06 — V2 model runner workaround documented.** CorbinD (gfx1030 club Discord) reports that `VLLM_USE_V2_MODEL_RUNNER=0` fixed large-prompt failures on the V2 runner with the int8-KV flash-decode plugin and the custom all-reduce, at a stable 68 tok/s. [TROUBLESHOOTING.md §5d](TROUBLESHOOTING.md); the 02-VERSIONS env table now says V2 is for the 122B-under-PP build only.
+
 **2026-09-06 — `NCCL_P2P_LEVEL` is no longer pinned.** Waldecir Santos (@wsantos, [#2](https://github.com/leapdragon/vllm-rdna2-recipe/pull/2)) measured that the recipe's `PXB` setting silently disabled peer access on a host with one V620 per PCIe switch (`rccl-tests` all_reduce 8.0 GB/s vs 21.0 unset), while the 2+2 development host prefers `SYS` (+8 % prefill). The 122B serve script leaves it unset and [02-VERSIONS.md](02-VERSIONS.md) says how to choose (`rocm-smi --showtopo`). Also from that review: the container Dockerfile's patch glob was `000?-*.patch`, which would have skipped a tenth patch; widened to `00??-*.patch`. #2 itself (fd_rdna2 multi-sequence MTP verification + gfx1030 decode backports) is under review.
 
 **2026-08-31 — the recipe ships as a container image.** New [containers/](containers/README.md):

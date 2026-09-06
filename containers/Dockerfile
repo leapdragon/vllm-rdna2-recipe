@@ -2,7 +2,7 @@
 # ---------------------------------------------------------------------------------------------
 # vllm-rdna2-recipe — runtime image
 #
-#   pristine vLLM 0.27.1  +  patches/0001–0009  +  plugins fd_rdna2 / ar_rdna2
+#   pristine vLLM 0.27.1  +  patches/ (in order)  +  plugins fd_rdna2 / ar_rdna2
 #   on the recipe's base (containers/Dockerfile.rocm_base: ROCm 7.2.3, PyTorch 2.11 built from
 #   source for gfx1030).  Everything compiled here is compiled for gfx1030 and verified at build.
 #
@@ -39,7 +39,7 @@ RUN git clone --depth 1 --branch "${VLLM_REF}" "${VLLM_REPO}" /app/vllm-src \
 #    the base image's own recipe — and is applied anyway so the tree equals the documented one.
 COPY patches/ /app/recipe/patches/
 RUN cd /app/vllm-src \
- && for p in /app/recipe/patches/000?-*.patch; do \
+ && for p in /app/recipe/patches/00??-*.patch; do \
         echo "==> $(basename "$p")"; git apply --whitespace=nowarn "$p" || exit 1; \
     done \
  && git diff --stat | tail -1

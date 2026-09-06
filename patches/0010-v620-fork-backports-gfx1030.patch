@@ -11,12 +11,16 @@
 #      specialization checks per launch (~600 launches/step at decode).
 #   2. models/qwen3_next.py: enable the fused qk-norm+rope+gate kernel on ROCm
 #      (is_cuda() -> is_cuda_alike()).
-#   3. mamba/gdn/qwen_gdn_linear_attn.py forward_cuda: persistent zeroed
-#      core_attn_out buffer (drops 48 torch.zeros per decode step) and removal
-#      of two no-op .contiguous() copies after split_ba.
+#
+#      Item 3 (persistent core_attn_out buffer) was dropped before merging:
+#      the zero-fill is load-bearing under CUDA graphs when the batch is
+#      padded (the core op writes only the unpadded rows) and the buffer
+#      reallocs whenever num_tokens changes, leaving captured graphs with
+#      stale addresses. See https://github.com/vllm-project/vllm/pull/28182.
 #
 # Measured (all_reduce PHB-class P2P, MTP=2, BATCHTOK=2048): +3-4% aggregate
-# decode across solo short / solo long / 2x-long-concurrent.
+# decode across solo short / solo long / 2x-long-concurrent, from
+# do_not_specialize alone.
 # Applies AFTER patches 0001-0009. Only 0002 overlaps a file
 # (vllm/v1/attention/ops/triton_unified_attention.py); this patch expects
 # 0002 already applied.
@@ -44,51 +48,10 @@
      Y,  # pointer to the output
 --- a/vllm/model_executor/layers/mamba/gdn/qwen_gdn_linear_attn.py
 +++ b/vllm/model_executor/layers/mamba/gdn/qwen_gdn_linear_attn.py
-@@ -859,19 +859,13 @@
-             mixed_qkv, z = mixed_qkvz.split([qkv_size, z_size], dim=-1)
-             z = z.reshape(z.size(0), -1, self.head_v_dim)
-             b, a = self.split_ba(ba)
--            b = b.contiguous()
--            a = a.contiguous()
- 
-         # ============================================================
-         # Part 2: Core Attention (Custom Op)
-         # ============================================================
-         # Note: we should not use torch.empty here like other attention backends,
-         # see discussions in https://github.com/vllm-project/vllm/pull/28182
--        core_attn_out = torch.zeros(
--            (num_tokens, self.num_v_heads // self.tp_size, self.head_v_dim),
--            dtype=hidden_states.dtype,
--            device=hidden_states.device,
--        )
-+        core_attn_out = self._get_core_attn_out(num_tokens, hidden_states)
- 
-         torch.ops.vllm.qwen_gdn_attention_core(
-             mixed_qkv,
-@@ -886,6 +880,22 @@
-         # ============================================================
-         return self._output_projection(core_attn_out, z)
- 
-+    def _get_core_attn_out(
-+        self, num_tokens: int, ref: torch.Tensor
-+    ) -> torch.Tensor:
-+        """Persistent zeroed output buffer for the GDN core op.
-+
-+        Replaces a per-call torch.zeros (one alloc per GDN layer per step,
-+        48x/step at decode). Zeroed on (re)allocation; the core op fully
-+        overwrites written lanes every call, so numerics are unchanged.
-+        """
-+        buf = getattr(self, "_core_attn_out", None)
-+        need = (num_tokens, self.num_v_heads // self.tp_size, self.head_v_dim)
-+        if buf is None or buf.shape != need or buf.dtype != ref.dtype:
-+            buf = torch.zeros(need, dtype=ref.dtype, device=ref.device)
-+            self._core_attn_out = buf
-+        return buf
-+
      def forward_xpu(
          self,
          hidden_states: torch.Tensor,
-@@ -1676,7 +1686,7 @@
+@@ -1676,7 +1676,7 @@
  )
  
  

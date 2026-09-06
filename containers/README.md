@@ -56,7 +56,7 @@ curl -s http://localhost:8000/v1/chat/completions -H 'Content-Type: application/
 
 Set `ROCR_VISIBLE_DEVICES` to the two cards you want (indices as `rocm-smi` lists them). Expect
 ~40–49 tokens/s decode at temperature-0 quality identical to the recorded baseline; if you see a
-flat ~27 t/s instead, read [TROUBLESHOOTING 5c](../TROUBLESHOOTING.md).
+flat ~27 t/s instead, read [TROUBLESHOOTING §1.2](../TROUBLESHOOTING.md).
 
 ## Run it
 
@@ -95,7 +95,7 @@ docker run -d --name vllm-rdna2 --network=host \
   resolved env + full `vllm serve` command and exit), extra vLLM flags appended after the preset
   name override the preset's (`… preset:qwen38-27b-gptq --max-model-len 32768`).
 - **TunableOp seeding**: with no `/tuning` mount the shipped per-rank CSVs are seeded
-  automatically (the rows worth ~1.7× decode — [TROUBLESHOOTING 5c](../TROUBLESHOOTING.md));
+  automatically (the rows worth ~1.7× decode — [TROUBLESHOOTING §1.2](../TROUBLESHOOTING.md));
   mount `-v vllm-rdna2-tuning:/tuning` to persist, and the same automatic seeding fills an empty
   mount. Mounted `/compile-cache`, `/triton-cache`, `/ext-cache` are picked up when present —
   without them the first boot cold-compiles (~12 min) every time.
@@ -204,9 +204,9 @@ Then the recipe's own checks against a running server: [`verify/validate.py`](..
 
 | 2026-08-31 | Serving test: `builds/btbtyler09-…/serve.sh` (TP=2, MTP=2, int8 KV) from the published image | **PASS.** Cold boot 703 s (warm 171 s); `verify/validate.py` 8/8 byte-identical to the recorded RCCL baseline, spot-checks pass; plugins engaged. Decode 27–29 t/s flat across 3.5k–42k ctx, prefill up to 759 t/s — below BUILD.md's decode table because the *host* changed after those numbers were recorded (cause found the same day — see the last row: the lost TunableOp lm_head rows). Same-day A/B: v7 hand-built = this image (24–29 t/s); v3 — the image the numbers were measured on — also 27–31 t/s; the pre-plugin Aug-18 image collapses to 3–17 t/s with the stock context slope. The published image reproduces the as-built stack faithfully. |
 
-| 2026-08-31 | Pair test: same serve on the other V620 pair (`DEVICES=2,4`, x16 Gen3 root links vs the default pair's x8 Gen3) | **PASS after one real finding.** First boot crashed with an aperture violation — the shared compile cache from the 1,3 runs is device-set-specific (now [TROUBLESHOOTING 5b](../TROUBLESHOOTING.md), and the wrapper scopes the cache per `DEVICES`). With fresh caches: 8/8 outputs identical, decode 22–28 t/s — same as the x8 pair within noise, so link width is not the decode bottleneck. |
+| 2026-08-31 | Pair test: same serve on the other V620 pair (`DEVICES=2,4`, x16 Gen3 root links vs the default pair's x8 Gen3) | **PASS after one real finding.** First boot crashed with an aperture violation — the shared compile cache from the 1,3 runs is device-set-specific (now [TROUBLESHOOTING §1.3 (formerly 5b)](../TROUBLESHOOTING.md), and the wrapper scopes the cache per `DEVICES`). With fresh caches: 8/8 outputs identical, decode 22–28 t/s — same as the x8 pair within noise, so link width is not the decode bottleneck. |
 | 2026-08-31 | Cap test (170 W → 220 W) and provenance test (v3, the exact image behind BUILD.md's numbers) | Decode unchanged at 220 W (cards draw 208–214 W for the same 25–28 t/s — bandwidth-bound, exactly as 02-VERSIONS says: the cap is NOT the delta). v3 on today's host: 27–31 t/s, outputs identical. Both hypotheses died the same day; see the next row. Prefill unaffected (759 t/s @7.5k). |
-| 2026-08-31 | **Regression found and fixed: the tuned TunableOp lm_head rows had been lost.** A torch profile showed three ~10.5 ms full-shard lm_head GEMMs per MTP step (`[1..3,5120]×[5120,124160]` fp16 at 115 GB/s — rocBLAS's heuristic tile); a micro-benchmark reproduced it exactly and TunableOp tuning recovered 2.9–3.5 ms (360–430 GB/s). After an offline tuning session (17 min warmup + decode traffic), lookup-only from the published image measures **49.0 / 45.3 / 41.8 t/s** at 3.5k/13k/42k — the recorded table, reproduced, outputs 8/8 identical. CSVs now shipped in `builds/btbtyler09-…/tunableop/`; symptom documented as TROUBLESHOOTING 5c. The Aug-25 stability cmdline, caps, links and queues were all exonerated. |
+| 2026-08-31 | **Regression found and fixed: the tuned TunableOp lm_head rows had been lost.** A torch profile showed three ~10.5 ms full-shard lm_head GEMMs per MTP step (`[1..3,5120]×[5120,124160]` fp16 at 115 GB/s — rocBLAS's heuristic tile); a micro-benchmark reproduced it exactly and TunableOp tuning recovered 2.9–3.5 ms (360–430 GB/s). After an offline tuning session (17 min warmup + decode traffic), lookup-only from the published image measures **49.0 / 45.3 / 41.8 t/s** at 3.5k/13k/42k — the recorded table, reproduced, outputs 8/8 identical. CSVs now shipped in `builds/btbtyler09-…/tunableop/`; symptom documented as TROUBLESHOOTING §1.2 (formerly 5c). The Aug-25 stability cmdline, caps, links and queues were all exonerated. |
 
 | 2026-08-31 | Preset acceptance: bare `docker run … preset:qwen38-27b-gptq` with `ROCR_VISIBLE_DEVICES=1,3` and only the HF-cache mount (no repo clone, no `/tuning`, no compile caches) | **PASS.** The shim resolved the tuned configuration (verified against `/proc/1/environ`), auto-seeded the shipped TunableOp rows into `/tuning`, cold boot 813 s, outputs 8/8 byte-identical, decode 36.5–48.5 t/s across 3.4k–41k — single-boot spread around the recorded band, clearly the tuned signature (untuned reads a flat ~27). |
 

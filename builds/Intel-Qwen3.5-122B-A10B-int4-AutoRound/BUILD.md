@@ -131,7 +131,7 @@ zero GPU events.
 **Prerequisites are non-optional.** Every earlier TP attempt on this class
 of platform dropped cards off the PCIe bus. The script header lists the
 required kernel line, per-boot power caps, and runtime env; the rationale
-lives in TROUBLESHOOTING.md §4 and 02-VERSIONS.md's platform-stability
+lives in TROUBLESHOOTING.md §2.1 and 02-VERSIONS.md's platform-stability
 table. Apply the whole stack — the load-bearing subset has not been
 isolated.
 

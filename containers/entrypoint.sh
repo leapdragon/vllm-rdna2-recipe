@@ -12,7 +12,7 @@
 #
 # Device selection is standard ROCm: -e ROCR_VISIBLE_DEVICES=1,3 (plus the /dev/kfd + /dev/dri
 # mounts). Mounted cache dirs are picked up when present: /tuning (TunableOp CSVs — seeded from
-# the preset's shipped rows if empty; see TROUBLESHOOTING 5c), /compile-cache, /triton-cache,
+# the preset's shipped rows if empty; see TROUBLESHOOTING §1.2), /compile-cache, /triton-cache,
 # /ext-cache.
 set -euo pipefail
 BUILDS=/app/recipe/builds
@@ -55,9 +55,9 @@ fi
 mkdir -p /tuning
 if [ -n "${CSV_DIR:-}" ] && ! ls /tuning/tunableop_results*.csv >/dev/null 2>&1; then
   if ls "$CSV_DIR"/tunableop_results*.csv >/dev/null 2>&1; then
-    cp "$CSV_DIR"/tunableop_results*.csv /tuning/ && echo "recipe-serve: seeded /tuning from $CSV_DIR (load-bearing lm_head rows — TROUBLESHOOTING 5c)" >&2
+    cp "$CSV_DIR"/tunableop_results*.csv /tuning/ && echo "recipe-serve: seeded /tuning from $CSV_DIR (load-bearing lm_head rows — TROUBLESHOOTING §1.2)" >&2
   else
-    echo "recipe-serve: WARNING: no TunableOp CSVs shipped for this preset and /tuning is empty — decode will run ~40% slow (TROUBLESHOOTING 5c)" >&2
+    echo "recipe-serve: WARNING: no TunableOp CSVs shipped for this preset and /tuning is empty — decode will run ~40% slow (TROUBLESHOOTING §1.2)" >&2
   fi
 fi
 export PYTORCH_TUNABLEOP_ENABLED=1

@@ -59,7 +59,7 @@ All in `config/serve-rdna2-tp2.sh`. Each is individually reversible.
 | `--kv-cache-dtype` | `int8_per_token_head` | large at long context | |
 | `VLLM_DISABLED_KERNELS` | forces Exllama | ~4 t/s → ~10 t/s class | See pitfalls in 01. |
 | `MTP` | **2** | 27B: +24% @41k, +36% @14k · 122B: +47% @3.5k, +30% @13k, parity @40k | Speculative decoding via the checkpoint's own MTP head; output-lossless. **Requires the shipped `fd_rdna2`** (batched verification) or it becomes a large regression, and **under PP it additionally requires the V2 runner + TunableOp lm_head rows** (Intel BUILD.md). `MTP=0` disables. |
-| `TUNEOP_TUNING` | **0** | prevents minutes-long prefill stalls | TunableOp lookup-only; `1` re-enables autotuning for deliberate offline sessions only (see pitfalls in 01). The results CSV itself is **load-bearing**: the tuned lm_head rows are worth ~1.7× decode under MTP, and a missing/validator-mismatched CSV silently reverts to the ~115 GB/s heuristic pick (27B BUILD.md, TROUBLESHOOTING 5c). Per-build reference CSVs are shipped in `builds/*/tunableop/`. |
+| `TUNEOP_TUNING` | **0** | prevents minutes-long prefill stalls | TunableOp lookup-only; `1` re-enables autotuning for deliberate offline sessions only (see pitfalls in 01). The results CSV itself is **load-bearing**: the tuned lm_head rows are worth ~1.7× decode under MTP, and a missing/validator-mismatched CSV silently reverts to the ~115 GB/s heuristic pick (27B BUILD.md, TROUBLESHOOTING §1.2 (formerly 5c)). Per-build reference CSVs are shipped in `builds/*/tunableop/`. |
 | `FD_MAXQ` | 4 | — | Widest verification batch the attention plugin takes. The one-KV-pass batched kernel covers `nq × PAD ≤ 32` columns (PAD 8 at GQA ≤ 8, 16 at GQA ≤ 16); wider cases run per-position passes of the same kernel. |
 | `--max-num-batched-tokens` (`BATCHTOK`) | **8192** | swept optimum | 4096 and 16384 both measure worse at mid/long context. |
 
@@ -72,7 +72,7 @@ All in `config/serve-rdna2-tp2.sh`. Each is individually reversible.
 |---|---|---|
 | `PP` | 3 | `--pipeline-parallel-size` (layer split). TP=3 is arithmetically impossible on this model (2 KV heads). |
 | `PP_PARTITION` | `17,17,14` | Uneven layer split (`VLLM_PP_LAYER_PARTITION`); unloads the last stage, which hosts the MTP draft model. |
-| `EXTRA_ENV` | `VLLM_USE_V2_MODEL_RUNNER=1` (122B under PP only; elsewhere leave unset or `0` — TROUBLESHOOTING.md §5d) | **MTP under PP requires the V2 model runner** — the V1 drafter path page-faults under PP (patch 0009's section in 01-PATCHES). Comma-separated `NAME=VALUE` passthrough. |
+| `EXTRA_ENV` | `VLLM_USE_V2_MODEL_RUNNER=1` (122B under PP only; elsewhere leave unset or `0` — TROUBLESHOOTING.md §1.1) | **MTP under PP requires the V2 model runner** — the V1 drafter path page-faults under PP (patch 0009's section in 01-PATCHES). Comma-separated `NAME=VALUE` passthrough. |
 | `ASYNC_SCHED` | leave default | `0` forces sync scheduling — needed only for MTP-under-PP experiments on the V1 runner (its async PP broadcast assumes width-1 samples). Unnecessary on V2. |
 | `SPEC_EAGER` | leave default | `1` runs only the drafter eager (diagnostic; isolates drafter-cudagraph interplay). |
 | `MOE_CFG` | build-provided | Mounts a tuned fused-MoE config JSON into vLLM's configs dir. |
@@ -153,4 +153,4 @@ events; treat as all-load-bearing until noted otherwise):
 cmdline for a 27-vs-50 t/s decode gap; the true cause was the lost TunableOp lm_head rows (the 27B
 BUILD.md's "load-bearing rows" section), and with them restored the recorded numbers reproduce on the
 fully hardened platform. The stack stays: it is what stopped the card-drop crashes
-([TROUBLESHOOTING §4](TROUBLESHOOTING.md)) and it costs nothing.
+([TROUBLESHOOTING §2.1](TROUBLESHOOTING.md)) and it costs nothing.

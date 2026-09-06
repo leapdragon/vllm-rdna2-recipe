@@ -1,320 +1,317 @@
-# TROUBLESHOOTING.md — failure modes that lie to you
+# TROUBLESHOOTING.md — vLLM on Radeon PRO V620 (gfx1030): symptom → cause → fix
 
 **Copyright © 2026 Aron Hsiao. Licensed under the GNU General Public License v3.0 or later.**
 
-This file documents a class of failures we hit on this platform whose error
-messages point *away* from their actual cause. Each entry is symptom-first.
-The common thread: on a mixed or unsupported-hardware system, the ROCm stack
-does not fence off what it can't handle — it lets one bad component silently
-poison the healthy ones, at three different layers, with three different
-misleading symptoms.
+Symptom-first. Every entry has the same shape — **Symptom / Cause / Fix / Verify** — so you (or
+your assistant) can match what you see, apply the fix, and confirm it took. Most reports end in
+§0 or §1. Sections are numbered by problem area; the old section numbers are kept in the headings.
 
-The concrete trigger for all of section 1–3 on our rig was adding an ancient
-**Polaris (gfx803, pre-Vega) display card** alongside four supported RDNA2
-cards. One day of debugging later: **do not put pre-Vega silicon in a ROCm
-compute machine, even display-only.** Both ROCm userspace and the kernel KFD
-assume it doesn't exist, and neither isolates it. But the diagnostic lessons
-generalize beyond that one card, so they're written up here.
-
----
-
-## 1. "No ROCm-capable devices" — but every card is healthy
-
-**Symptom.** `rocminfo`, llama.cpp, vLLM, PyTorch: all report zero GPUs (or
-`HSA_STATUS_ERROR: A generic error has occurred`). rocm-smi and the amdgpu
-kernel driver see every card fine.
-
-**Cause.** ROCR-Runtime's device discovery is **all-or-nothing**: agent
-creation walks every KFD node, and an unhandled property on *any* node —
-in our case a pre-Vega doorbell type — throws `HSA_STATUS_ERROR`, which
-aborts enumeration of *every* GPU. One obsolete display card ⇒ four
-supported cards vanish.
-
-**`ROCR_VISIBLE_DEVICES` cannot save you.** The filter is applied *after*
-the crash point. Masking the sysfs topology node fails too (the runtime
-cross-checks KFD ioctls).
-
-**Fixes, best first:**
-1. **Remove the offending card.** (See §3 for why software workarounds are
-   not enough anyway.)
-2. If you must coexist temporarily: the throw site is one token. In
-   `runtime/hsa-runtime/core/runtime/amd_gpu_agent.cpp`, the deprecated-
-   doorbell check throws `HSA_STATUS_ERROR`; change it to
-   `HSA_STATUS_ERROR_INVALID_ISA` and the caller's existing catch skips the
-   node like any other unrecognized GPU. Rather than rebuilding ROCR (a
-   from-source rebuild of this library was itself implicated in instability
-   for us — build fidelity matters in the runtime that owns the GPU trap
-   handler), **binary-patch the vendor's shipped library**: in AMD's
-   `libhsa-runtime64.so` the throw compiles to `mov esi, 0x1000` right
-   after the `lea` that loads the "deprecated doorbell type" string; flip
-   the immediate's low byte `0x00 → 0x0F` (`0x1000 HSA_STATUS_ERROR` →
-   `0x100F HSA_STATUS_ERROR_INVALID_ISA`). One byte, vendor binary
-   otherwise untouched. (In ROCm 7.2.3's `.so.1.18.70203` that byte sits at
-   file offset `0x1ffb0`; locate it by string-xref on other versions.)
+| You see… | Go to |
+|---|---|
+| Large prompts fail, the server misbehaves or hangs, short-prompt decode is fine | §1.1 |
+| Decode is a flat ~30 ms/token at every context length; prefill fine; outputs correct | §1.2 |
+| Boot dies ~2 min in with `MEMORY_APERTURE_VIOLATION` after changing which GPUs you serve on | §1.3 |
+| Your change "did nothing"; the kernel is correct; the profile shows no new launches | §1.4 |
+| Collectives or prefill slow after copying someone else's `NCCL_P2P_LEVEL` | §1.5 |
+| `qcm fence timeout` → `device lost from bus` under tensor parallelism | §2.1 |
+| GPU lost after a stream wait; `unsuccessful queues preemption` in the kernel log | §2.2 |
+| `rocminfo` / vLLM see zero GPUs, `rocm-smi` sees them all | §3.1 |
+| vLLM names the wrong GPU; tuned config filenames name the wrong card | §3.2 |
+| `hipErrorOutOfMemory` during CUDA-graph capture with gigabytes free | §3.3 |
+| Build/install errors (CUDA torch from PyPI, Triton cmake, `libcuda.so.1`, peer access) | §4 |
+| Numbers that look too good or too bad to be true | §5 |
 
 ---
 
-## 2. Wrong device identity: your GPU is suddenly a different card
+## 0. First things to try
 
-**Symptom.** vLLM logs name the wrong GPU (ours claimed to be the display
-card), tuned fused-MoE config filenames stop matching
-(`device_name=<wrong card>` in the expected filename), and anything that
-asks the platform layer for device name / total memory / topology can get
-another card's answer.
-
-**Cause.** `amdsmi` enumerates **physical** devices and **ignores
-`ROCR_VISIBLE_DEVICES`/`HIP_VISIBLE_DEVICES` entirely.** vLLM's ROCm
-platform layer indexes raw amdsmi handles with *logical* device ids in
-several places (`get_device_name`, `get_device_total_memory`,
-`is_fully_connected`, NUMA queries). Any GPU that HIP hides but amdsmi
-lists — a display card first on the bus — shifts every lookup onto the
-wrong device.
-
-**Fix.** Route every amdsmi lookup through a handle list filtered to
-compute-capable devices (gfx9+), so amdsmi's index space matches what HIP
-actually exposes. A few lines in `vllm/platforms/rocm.py`; audit any *new*
-amdsmi call site for the same bug. (Homogeneous rigs never notice this —
-which is why it survives upstream.)
+1. **`VLLM_USE_V2_MODEL_RUNNER=0`** if large prompts fail or the server misbehaves (§1.1). The
+   most likely fix, costs nothing, reported as curing "all my problems".
+2. **Check that the TunableOp rows loaded** if decode is slow but correct (§1.2): ~40 % of decode
+   rides on them and they fail silently.
+3. **Scope or wipe the compile cache** when you change `DEVICES` (§1.3).
+4. **Read four lines of the serve log** before assuming anything else: which model runner
+   (`Using V1 Model Runner` / `Using V2 Model Runner`), the TunableOp CSV read,
+   `fd_rdna2: flash-decode override active`, and the patch markers. The full arrival checklist is
+   [02-VERSIONS.md → Verifying you arrived](02-VERSIONS.md).
+5. **Stop containers with `docker stop`, never `rm -f`.** TunableOp writes its CSV at exit; SIGKILL
+   eats it.
+6. **Never mount a host ROCm into the container.** The image carries its own; a host ROCm on top
+   is the most common way to break it.
 
 ---
 
-## 3. Phantom OOM: "CUDA error: out of memory" with gigabytes free
+## 1. Runtime configuration (env, caches, tuned rows)
 
-The expensive one. Read this before you touch a single memory knob.
+### 1.1 Large prompts fail or the server misbehaves — use the V1 model runner (formerly §5d)
 
-**Symptom.** Server dies during **CUDA-graph capture** (`_warmup_and_capture`
-/ `capture_model`) with `hipErrorOutOfMemory` — while `rocm-smi` and the
-arithmetic say many GiB are free. In the worst version, the failing
-operation is a **64-byte `torch.arange`**. Normal (eager) serving of the
-same model is perfectly healthy. `expandable_segments` may also throw
-`ExpandableSegment` exceptions from `HIPCachingAllocator`.
+**Symptom.** Short-prompt decode works; large prompts fail or hang, or the server misbehaves.
 
-**First rule: do the arithmetic.** Weights + KV + activations vs. VRAM. If
-the "OOM" is arithmetically impossible — a tiny allocation failing with
-GiBs free — **it is not a memory problem, and no amount of
-`gpu_memory_utilization` / batch-size / allocator tuning will fix it.** We
-burned a dozen boots proving that so you don't have to.
+**Cause.** vLLM's V2 model runner. This recipe's vLLM (0.27.1) selects V1 by default for the hybrid
+Qwen3-Next architecture; V2 is *required* only for MTP under pipeline parallelism (patch 0009, the
+122B build), and the 122B scripts and the 02-VERSIONS env table set it for that reason. Anyone who
+copied `VLLM_USE_V2_MODEL_RUNNER=1` onto another configuration is on V2 without needing it.
 
-**What it actually was.** HIP reports many failures as `hipErrorOutOfMemory`,
-and errors can surface at the *next* API call rather than the faulting one
-(the runtime even hints: "CUDA kernel errors might be asynchronously
-reported at some other API call"). Our real cause: the unsupported display
-card's **kernel-side KFD node** — which userspace patching (§1) cannot
-reach — poisoned system-scoped **memory-mapping (VMM) paths**: exactly the
-substrate under `expandable_segments` and CUDA-graph **memory pools**.
-Hence the signature: eager compute fine (plain allocations), graph capture
-dead (pool allocations), `expandable_segments:False` sometimes dodging it
-(plain `hipMalloc` path). Kernels ≥6.14 are known-hostile to Polaris KFD
-(lockups/doorbell resets; AMD closes these as unsupported-kernel), and no
-kernel new enough for RDNA2 work is old enough for gfx803.
+**Fix.** `VLLM_USE_V2_MODEL_RUNNER=0` (or leave it unset) on every configuration that is not the
+122B under PP. Reported by **CorbinD** (gfx1030 club Discord, 2026-09-06), running the recipe with
+the int8-KV flash-decode plugin and the custom all-reduce on 4× V620: it "fixed all my problems",
+large prompts included, at a stable 68 tok/s decode.
 
-**Diagnostic ladder** (each step is cheap and discriminates):
-1. Arithmetic check (above). Impossible ⇒ stop tuning memory.
-2. `CGMODE=NONE` (no capture): serves fine ⇒ the fault lives in the
-   capture/VMM path, not the model.
-3. Trivial capture in a bare container (`torch.cuda.graph` around `x+1`):
-   isolates capture machinery from vLLM.
-4. Allocation *inside* the capture region (exercises graph memory pools /
-   VMM): the layer that was broken for us.
-5. `HIP_LAUNCH_BLOCKING=1` for one boot: if the failing frame doesn't move,
-   it's a real allocation-API failure, not an async kernel fault.
-6. If any of 2–5 implicate capture/VMM on a mixed-GPU system: **pull the
-   unsupported card.** Ours went from ten consecutive capture failures to
-   3-second capture success, and full recorded performance, with *zero*
-   config changes — the moment the card left.
+**Verify.** The serve log prints `Using V1 Model Runner`. Not reproduced by the maintainers: if you
+hit the failure on V2, the exact error text and the prompt length are the missing data — please
+report them.
 
-**Related upstream defect (same pathology, different trigger).** An open,
-upstream-confirmed ROCm runtime bug produces the same "async fault surfacing
-on a later, unrelated HIP call" signature *without* any mixed-GPU setup:
-large **pageable host-memory transfers on multi-GPU** can fault with
-`illegal memory access ... current device: -1`, surfacing at a later
-`hipHostFree` or teardown call — see
-[ROCm/rocm-systems#4817](https://github.com/ROCm/rocm-systems/issues/4817).
-The proven workaround (from the llama.cpp side of this hardware community:
-[edwinbrowwn/llama.cpp-rdna2](https://github.com/edwinbrowwn/llama.cpp-rdna2))
-is to temporarily `hipHostRegister` the pageable buffer around the transfer.
-If you hit sticky async faults around big host transfers on a *clean* rig,
-suspect this before anything exotic.
+### 1.2 Decode at 55–65 % of the recorded numbers, context-flat; prefill and correctness fine (formerly §5c)
 
----
+**Symptom.** Decode is a flat ~30 ms/token at every context length instead of ~20–24. Prefill is
+normal, greedy outputs are byte-identical, MTP acceptance is healthy, nothing in the logs complains.
 
-## 4. Cards drop off the PCIe bus under multi-GPU vLLM (but llama.cpp is fine)
+**Cause.** The TunableOp results CSV is missing, or its `Validator` lines no longer match the stack
+(torch / ROCm / rocBLAS / arch). `PYTORCH_TUNABLEOP_ENABLED=1` with `TUNING=0` then falls back
+silently to rocBLAS's heuristic, which picks a large-M tile for the fp16 lm_head's skinny decode
+GEMMs (~115 GB/s instead of the tuned 360–430). MTP pays the head three times per step, so the
+loss is ~40 % of decode.
 
-**Symptom.** Under flat TP across 4 cards, GPUs die mid-boot or at the first
-heavy request: kernel log shows `qcm fence timeout` then `device lost from
-bus`; with `amdgpu.gpu_recovery=0` the card is gone until reboot. The same
-cards run multi-GPU llama.cpp tensor-split for hours.
+**Fix.** Copy the shipped per-build CSVs from `builds/<model>/tunableop/` into the live
+`tunableop/` directory (the container entrypoint seeds `/tuning` from them when it is empty), or
+retune offline per the build's BUILD.md. The live directory is gitignored — treat the CSVs like
+weights, not scratch.
 
-**Mechanism (our best-evidenced account).** GPU-resident, tightly
-synchronized per-layer collective kernels wedge the command processor;
-recovery-off turns that into a bus drop. llama.cpp is immune because its
-multi-GPU path is CPU-coordinated copies — no GPU-side communication
-kernels, no lockstep cadence.
+**Verify.** `grep tn_124160 tunableop/tunableop_results0.csv` (27B; the 122B head rows are
+`tn_151936_*`). No rows, no file, or mismatched `Validator` stamps → this is the problem.
 
-**It is NOT peer-to-peer DMA.** Our cleanest incident (no unsupported GPU
-in the system, vendor-stock runtime): a TP=2 pair died together ~20 min
-into sustained decode with `NCCL_P2P_DISABLE=1`, vLLM's custom all-reduce
-disabled, and small all-reduces on a host-coherent-memory plugin — every
-byte host-mediated. The victims were exactly the two cards forming one TP
-pair; the other pair (running the identical machinery as pipeline stage 2)
-survived. What kills is the *cadence* — paired collective kernels in
-lockstep, hundreds of times a second, for minutes — not the transport.
-Corroborating: the llama.cpp-rdna2 fork above runs the same 4×V620 daily
-with RCCL P2P *enabled* (`NCCL_P2P_LEVEL=PXB` at the time; the recipe no longer pins it — see 02-VERSIONS) and no drops — because
-llama's CPU-orchestrated cadence never holds communication kernels open.
+### 1.3 `MEMORY_APERTURE_VIOLATION` on boot after changing which GPUs you serve on (formerly §5b)
 
-**Mitigations.**
-- **TP is achievable — with the full mitigation stack** (2026-08-25
-  update): flat TP=4 ran ~2.5 h sustained with zero events, and at +43–124%
-  over PP, once ALL of the following were in place: kernel line
-  `amdgpu.pcie_gen_cap=0x00070007` (Gen3 link cap) + `aspm=0` + `runpm=0`
-  + `gpu_recovery=1`; `HSA_NO_SCRATCH_RECLAIM=1`; `NCCL_P2P_LEVEL=PXB` (historical — now left unset, topology-dependent);
-  `--max-num-batched-tokens 2048`; moderate power caps. Which subset is
-  load-bearing is not yet isolated — apply the whole stack. Without it,
-  every TP attempt (flat ×3, 2+2 ×2) lost cards, including with P2P fully
-  disabled.
-- **PP remains the zero-kludge fallback**: sparse host-paced send/recv
-  never held collective kernels open; our PP=3 config ran for days with no
-  special measures.
-- Keep a **persistent Triton cache** volume — for boot time (~480 s of
-  one-time compile freight per topology's shape set). A deliberate
-  cold-cache control run under the full stack survived, so warm caches are
-  a convenience here, not a stability requirement.
-- If you do run TP, warm everything before real load.
+**Symptom.** The engine dies ~2 min into boot with `HSA_STATUS_ERROR_MEMORY_APERTURE_VIOLATION`;
+the kernel log shows a `[gfxhub] page fault` (client UTCL2) on the rank-0 card at user-space
+addresses, right as `Directly load AOT compilation from path /compile-cache/...` appears. No bus
+drop; the cards are healthy.
+
+**Cause.** The torch.compile/AOT cache is device-set-specific in practice. A cache populated on one
+pair of cards (`DEVICES=1,3`) crashes the worker when its artifacts load on another (`2,4`);
+first seen on the MTP drafter's `eagle_head` artifacts.
+
+**Fix.** Never share a compile cache across device sets. `config/serve-rdna2-tp2.sh` scopes it as
+`$STATE_DIR/compile-cache-<devices>`; if you mount `VLLM_CACHE_ROOT` yourself, key the directory by
+the device list or wipe it when `DEVICES` changes. The container writes as root:
+`docker run --rm -v <dir>:/wipe --entrypoint sh <image> -c 'rm -rf /wipe/*'`.
+
+**Verify.** A cold boot on the new device set (~8 min longer) completes; the AOT-load lines appear
+without the page fault.
+
+### 1.4 A change "did nothing" although the kernel is correct
+
+**Symptom.** You edited a kernel or a dispatch condition; the profile shows the same launches as
+before.
+
+**Cause, two variants.** (a) vLLM traces the model once for a dynamic token range: a Python
+`if 0 < n <= 8:` inside the traced region is decided on the tracing example and baked into the
+graph. (b) The torch.compile cache key does not cover edits to vLLM's own Python, so a changed
+hook is served from a stale compiled graph.
+
+**Fix.** Put decode/prefill choices inside an opaque custom op with a fake impl, not in traced
+Python. While iterating, boot with `VLLM_DISABLE_COMPILE_CACHE=1`.
+
+**Verify.** Count kernel *launches* in a profile after every change, not wall time.
+
+### 1.5 `NCCL_P2P_LEVEL` — do not copy it from another host
+
+**Symptom.** Collectives or prefill slower than the recorded numbers after adopting a pinned
+`NCCL_P2P_LEVEL`.
+
+**Cause.** The right RCCL peer-to-peer level depends on the PCIe topology. On a host with one V620
+per switch (every pair PHB-class), `PXB` matched no pair and silently disabled peer access:
+`rccl-tests` all_reduce 8.0 GB/s vs 21.0 unset (Waldecir Santos,
+[PR #2](https://github.com/leapdragon/vllm-rdna2-recipe/pull/2)). On the 2+2 host this recipe
+was developed on, `SYS` gave +8 % prefill over `PXB`.
+
+**Fix.** Leave it unset (RCCL autodetects) unless `rocm-smi --showtopo` tells you otherwise. The
+recipe no longer pins it (2026-09-06).
+
+**Verify.** `rccl-tests/all_reduce_perf` on 8–256 MB messages, unset vs your candidate.
 
 ---
 
-## 5. Other places to look
+## 2. Multi-GPU stability (cards dropping off the bus)
 
-This platform has an active community that has hit many of these walls independently — the
-[Wiki GFX1030](https://blivioniag.github.io/gfx1030-wiki/) is the best orientation point
-(power tuning, PCIe P2P readiness checks, env-var cheat sheets, its own troubleshooting pages),
-and [RDNA2-RESOURCES.md](RDNA2-RESOURCES.md)
-lists the forks, images and toolboxes worth knowing about. Notably, the wiki documents the same
-"no pre-gfx1030 GPU in the machine" rule as §1-3 above, reached independently — and its
-`v620_toolbox` unlocks a 120 W power floor on hardware that otherwise refuses anything under
-250 W, which is directly relevant to §4's power-transient story.
+### 2.1 Cards drop off the PCIe bus under tensor parallelism; llama.cpp is fine (formerly §4)
 
-## 5a. Traps found on the Flash-Next fork (2026-08-29/30)
+**Symptom.** Under TP across the cards, GPUs die mid-boot or at the first heavy request: kernel
+log `qcm fence timeout` then `device lost from bus`; with `amdgpu.gpu_recovery=0` the card is gone
+until reboot. The same cards run multi-GPU llama.cpp tensor-split for hours.
 
-- **A stream-memory wait inside a captured graph is silently dropped.** `hipStreamWaitValue32`
-  returns success during stream capture but the HIP graph replays without it. Anything that
-  synchronises GPU work against a CPU producer that way (vLLM's PLE offload did) never waits on
-  CUDA-graph steps and reads stale data; a per-step host round trip elsewhere (speculative
-  decoding) can hide it for days. Test it standalone before trusting it; synchronise on the host.
-- **A pending GPU stream wait can take the card off the bus.** KFD's queue eviction
-  (`svm_range_restore`, frequent with big mmaps / pinned buffers) cannot preempt a queue parked
-  in WAIT_REG_MEM: "unsuccessful queues preemption → GPU reset → device lost from bus". Reboot.
-- **Do not poll host memory from GPU kernels across PCIe.** A one-shot all-reduce whose barrier
-  flags lived in a host-coherent page had four GPUs spinning on system-memory reads through
-  both root complexes; the SAS HBA's tape drive re-initialised under load and two cards on
-  different root complexes dropped together. Posted writes are ordered per destination only, so
-  a payload to a peer's VRAM and a flag to host memory can also arrive out of order. Push flags
-  into each rank's own uncached VRAM and poll locally.
+**Cause (best-evidenced).** GPU-resident, tightly synchronized per-layer collective kernels wedge
+the command processor; recovery-off turns that into a bus drop. It is the *cadence*, not the
+transport: the cleanest incident killed exactly one TP pair with P2P disabled and every byte
+host-mediated, while the other pair (pipeline stage 2, identical machinery) survived. llama.cpp is
+immune because its multi-GPU path is CPU-coordinated copies with no lockstep communication
+kernels.
 
-All from https://github.com/leapdragon/vllm-rdna2-qwen; each cost at least one 15-minute boot.
+**Fix.** Flat TP=4 ran ~2.5 h sustained with zero events, at +43–124 % over PP, with the whole
+platform-stability stack in place ([02-VERSIONS.md → Platform-stability stack](02-VERSIONS.md)):
+kernel line `amdgpu.pcie_gen_cap=0x00070007 amdgpu.aspm=0 amdgpu.runpm=0 amdgpu.gpu_recovery=1`,
+`HSA_NO_SCRATCH_RECLAIM=1`, `--max-num-batched-tokens 2048`, moderate power caps. Which subset is
+load-bearing is not isolated — apply all of it. Without it every TP attempt lost cards, P2P on or
+off. **Pipeline parallelism is the zero-kludge fallback**: sparse host-paced send/recv never
+holds collective kernels open; the PP=3 config ran for days with no special measures. Keep a
+persistent Triton cache volume for boot time (~480 s of one-time compile per topology); a
+cold-cache control run survived, so it is convenience, not stability. Warm everything before
+real load.
 
-- **A lever "did nothing" although the kernel is correct.** vLLM compiles the model once for a
-  dynamic token range; a Python `if 0 < n <= 8:` inside the traced region is decided on the
-  tracing example and baked into the graph. Count kernel *launches* in a profile after every
-  change; put decode/prefill choices inside an opaque custom op with a fake impl.
-- **Same symptom, second cause: the torch.compile cache.** Its key does not cover edits to
-  vLLM's own Python, so a changed hook can be served from a stale compiled graph. Boot with
-  `VLLM_DISABLE_COMPILE_CACHE=1` while iterating.
-- **One card loads weights, three sit at 1 % VRAM.** A collective's init raised on one rank
-  inside an ordered barrier loop and that rank moved on; the others wait forever. vLLM builds
-  several `GroupCoordinator`s over the same ranks — never keep singleton state in a
-  communicator, and never let an init path skip a barrier the peers will hit.
-- **`Failed to dlopen libcuda.so.1` from the PLE offload connector on ROCm.** A full venv has
-  `cuda-bindings` as a transitive dependency, so "try cuda-python, else the HIP shim" picks
-  cuda-python. Select by platform (`torch.version.hip`), not by importability.
-- **Model inspection fails with `No module named 'torchvision'`** even for text-only serving:
-  `transformers`' Qwen2-VL image processor hard-imports it. Build torchvision (CPU ops) too.
-- **`pip install -r requirements/common.txt` installs the CUDA torch 2.13 from PyPI** on a box
-  where you built torch yourself (compressed-tensors, xgrammar depend on torch). Install your
-  wheels first.
-- **Triton's cmake: "imported targets are referenced, but are missing: LLVMNVPTX…".** With
-  `/opt/rocm` on `CMAKE_PREFIX_PATH`, `find_package(LLVM)` finds TheRock's LLVM (no NVPTX
-  target) while MLIR comes from Triton's own tarball. Keep ROCm out of Triton's configure.
-- **`hipErrorPeerAccessAlreadyEnabled` is sticky** — the second `hipDeviceEnablePeerAccess`
-  in a process returns it and torch's next launch check throws "peer access is already
-  enabled". Clear with `hipGetLastError()`.
-- **"Runlist is getting oversubscribed" in the kernel log during graph capture** — a side job
-  on a serving card. ROCR device numbering is not `/dev/dri/cardN` numbering; put harnesses on
-  the card the server does not use.
-- **Widening upstream's `__HIP__GFX1X__` macro to gfx10 builds, launches — and returns
-  garbage** (relerr 0.6–0.9 on every shape). "RDNA" in upstream ROCm code means gfx11/12.
-  Validate numerically before trusting a port.
-- **Timing a kernel on an idle card**: the first pass reads 5–10× slow (clock ramp); weights
-  under 16 MB sit in the Infinity Cache in a timing loop and read as 800 GB/s. Warm the card;
-  believe the DRAM-streaming number.
+**Verify.** `journalctl -k | grep amdgpu` shows nothing new after a sustained run;
+`verify/soak.py` for the long form.
 
-## 5b. Aperture violation on boot after changing which GPUs you serve on (2026-08-31)
+### 2.2 A pending GPU stream wait can take the card off the bus
 
-**Symptom:** the engine dies ~2 min into boot — `HSA_STATUS_ERROR_MEMORY_APERTURE_VIOLATION`,
-kernel log shows `[gfxhub] page fault` (client UTCL2) on the rank-0 card at user-space addresses,
-right as `Directly load AOT compilation from path /compile-cache/...` lines appear. No bus drop;
-the cards are healthy.
+**Symptom.** GPU reset or `device lost from bus`; the kernel log shows `unsuccessful queues
+preemption`, often near `svm_range_restore` activity (big mmaps, pinned buffers).
 
-**Cause:** the vLLM torch.compile/AOT cache is device-set-specific in practice. A cache populated
-while serving on one pair of cards (`ROCR_VISIBLE_DEVICES=1,3`) crashes the worker when its AOT
-artifacts are loaded on a different pair (`2,4`) — first observed on the MTP drafter's
-(`eagle_head`) artifacts.
+**Cause.** KFD's queue eviction cannot preempt a queue parked in `WAIT_REG_MEM`. Anything that
+leaves a `hipStreamWaitValue32` pending on a queue — a GPU-side wait on a CPU producer — is a
+reset waiting to happen. Also: `hipStreamWaitValue32` returns success during stream capture, but
+the HIP graph replays *without* it, so a captured wait silently reads stale data.
 
-**Fix:** never share a compile cache across device sets. `config/serve-rdna2-tp2.sh` now scopes it
-automatically (`$STATE_DIR/compile-cache-<devices>`); if you mount `VLLM_CACHE_ROOT` yourself, key
-the host directory by the device list, or wipe it when you change `DEVICES`. (The container writes
-as root: wipe with `docker run --rm -v <dir>:/wipe --entrypoint sh <image> -c 'rm -rf /wipe/*'`.)
+**Fix.** Synchronize GPU work against CPU producers on the host, never with a GPU-side stream
+wait; test any such primitive standalone before trusting it.
 
-## 5c. Decode at ~55–65% of the recorded numbers; context-flat; prefill fine (2026-08-31)
+### 2.3 Do not poll host memory from GPU kernels across PCIe
 
-**Symptom:** decode is a flat ~30 ms/token at every context length instead of ~20–24; prefill and
-correctness are untouched (greedy outputs byte-identical); MTP acceptance is healthy. Nothing in the
-logs complains.
+**Symptom.** Two cards on different root complexes drop together under load; other PCIe devices
+(an HBA, a tape drive) re-initialize at the same moment.
 
-**Cause:** the TunableOp results CSV is missing or its Validator lines no longer match the stack
-(torch/ROCm/rocBLAS/arch). `PYTORCH_TUNABLEOP_ENABLED=1` with `TUNING=0` then silently falls back to
-rocBLAS's heuristic for every shape — and for the unquantized fp16 lm_head's skinny decode GEMMs the
-heuristic picks a large-M macro-tile running at ~115 GB/s instead of the tuned ~360–430 GB/s.
-MTP pays the head three times per step, so the loss is ~40% of decode.
+**Cause.** GPU kernels spinning on system-memory reads through both root complexes saturate the
+fabric. Posted writes are ordered per destination only, so a payload to a peer's VRAM and a flag in
+host memory can also arrive out of order.
 
-**Check:** `grep tn_124160 tunableop/tunableop_results0.csv` (27B; the 122B head rows are
-`tn_151936_*`). No rows, no file, or mismatched `Validator` stamps → this is your problem.
+**Fix.** Put barrier flags in each rank's own uncached VRAM and poll locally.
 
-**Fix:** copy the shipped per-build CSVs from `builds/<model>/tunableop/` into the live
-`tunableop/` dir, or retune (offline procedure in the build's BUILD.md). The live dir is
-gitignored — treat the CSVs like weights, not like scratch.
+### 2.4 `Runlist is getting oversubscribed` in the kernel log during graph capture
 
-## 5d. Large prompts fail or the server misbehaves on the V2 model runner — set `VLLM_USE_V2_MODEL_RUNNER=0` (2026-09-06)
+**Cause.** A side job on a serving card. ROCR device numbering is not `/dev/dri/cardN` numbering.
 
-Reported by **CorbinD** (gfx1030 club Discord), running the recipe with the int8-KV flash-decode
-plugin and the custom all-reduce on 4× V620: setting `VLLM_USE_V2_MODEL_RUNNER=0` "fixed all my
-problems" — large prompts included — and gave a stable 68 tok/s decode. The runner is V1 by default for the hybrid Qwen3-Next architecture in 0.27.1 (only the 122B-under-PP scripts force V2, which MTP under PP requires); the
-serve log prints which one is active (`Using V1 Model Runner` / `Using V2 Model Runner`). This recipe only
-needs V2 for MTP under pipeline parallelism (patch 0009, the 122B build); on every other configuration,
-leave the variable unset or set it to `0`. Not reproduced by the maintainers; if you hit it on V2, the
-exact error and the prompt length that triggered it would make it chaseable rather than routed around.
+**Fix.** Put harnesses and tests on a card the server does not use; check with `rocm-smi --showpids`.
 
-## 6. Meta-lessons (the generalizable part)
+---
 
-- **Keep the KFD homogeneous.** Only put GPUs in the machine that your
-  ROCm + kernel combination actually supports. "Display-only" is not
-  isolation: enumeration (§1), management (§2), and kernel memory paths
-  (§3) all see the card.
-- **Distrust error strings; trust arithmetic.** `hipErrorOutOfMemory` is a
-  catch-all. An impossible OOM is a *different bug wearing an OOM's
-  clothes*.
-- **Bisect with controls, not theories.** What broke us loose each time was
-  a differential pair: TP=2 captures / PP=3 doesn't; trio A / trio B; same
-  config cold / warm; patched lib / vendor binary. One variable per boot.
-- **sysfs lies about link width** on some boards (claims x16 on x8 slots —
-  bridge hop, not end-to-end). Throughput-test your links before making
-  topology decisions.
-- **Never derive prefill claims from harness TTFT with prefix caching
-  on.** Repeated or nested benchmark prompts hit the cache: our repeated
-  44.5k prompt "prefilled" in 7.9 s (5,640 t/s) vs 83 s (537 t/s) fresh —
-  a 10× flattering artifact that survived into a results table before a
-  human said "those numbers seem suspicious." Measure prefill with unique
-  prompts and `max_tokens=1`.
-- **Stop containers gracefully** (`docker stop`, never `rm -f`) — TunableOp
-  writes its CSV at exit, and SIGKILL eats it.
+## 3. Mixed or unsupported GPUs in the machine
+
+The trigger for all three entries was one **pre-Vega (gfx803, Polaris) display card** alongside
+four supported RDNA2 cards. **Do not put pre-Vega silicon in a ROCm compute machine, even
+display-only.** ROCm userspace and the kernel KFD both assume it isn't there, and neither isolates
+it: enumeration (§3.1), management (§3.2) and kernel memory paths (§3.3) all see it. The
+[gfx1030 wiki](https://blivioniag.github.io/gfx1030-wiki/) reached the same rule independently.
+
+### 3.1 "No ROCm-capable devices" — but every card is healthy (formerly §1)
+
+**Symptom.** `rocminfo`, llama.cpp, vLLM, PyTorch all report zero GPUs (or
+`HSA_STATUS_ERROR: A generic error has occurred`); `rocm-smi` and the amdgpu driver see every card.
+
+**Cause.** ROCR-Runtime device discovery is all-or-nothing: an unhandled property on *any* KFD node
+(here a pre-Vega doorbell type) throws `HSA_STATUS_ERROR` and aborts enumeration of every GPU.
+`ROCR_VISIBLE_DEVICES` is applied after the crash point and cannot help; masking the sysfs node
+fails too (the runtime cross-checks KFD ioctls).
+
+**Fix.** Remove the card. If you must coexist temporarily: in
+`runtime/hsa-runtime/core/runtime/amd_gpu_agent.cpp` the deprecated-doorbell check throws
+`HSA_STATUS_ERROR`; make it `HSA_STATUS_ERROR_INVALID_ISA` and the caller skips the node like any
+unrecognized GPU. Rather than rebuilding ROCR (a from-source ROCR was itself implicated in
+instability — build fidelity matters in the library that owns the GPU trap handler), binary-patch
+the vendor library: the throw compiles to `mov esi, 0x1000` right after the `lea` of the
+"deprecated doorbell type" string; flip the immediate's low byte `0x00 → 0x0F`
+(`HSA_STATUS_ERROR` → `HSA_STATUS_ERROR_INVALID_ISA`). In ROCm 7.2.3's `libhsa-runtime64.so.1.18.70203`
+that byte is at file offset `0x1ffb0`; locate it by string xref on other versions.
+
+**Verify.** `rocminfo` lists the compute cards; the display card is skipped, not fatal.
+
+### 3.2 Wrong device identity (formerly §2)
+
+**Symptom.** vLLM logs name the wrong GPU; tuned fused-MoE config filenames stop matching
+(`device_name=<wrong card>`); device name, total memory or topology queries return another card's
+answer.
+
+**Cause.** `amdsmi` enumerates *physical* devices and ignores `ROCR_VISIBLE_DEVICES` /
+`HIP_VISIBLE_DEVICES`. vLLM's ROCm platform layer indexes amdsmi handles with *logical* ids in
+several places (`get_device_name`, `get_device_total_memory`, `is_fully_connected`, NUMA). Any GPU
+that HIP hides but amdsmi lists — a display card first on the bus — shifts every lookup.
+
+**Fix.** Route every amdsmi lookup through a handle list filtered to compute-capable devices (gfx9+)
+so amdsmi's index space matches what HIP exposes (a few lines in `vllm/platforms/rocm.py`); audit
+new amdsmi call sites for the same bug. Homogeneous rigs never notice, which is why it survives
+upstream.
+
+**Verify.** The boot log's device name matches `rocm-smi --showproductname` for the serving cards.
+
+### 3.3 Phantom OOM: `hipErrorOutOfMemory` during graph capture with gigabytes free (formerly §3)
+
+**Symptom.** The server dies in CUDA-graph capture (`capture_model`) with `hipErrorOutOfMemory`
+while `rocm-smi` and arithmetic say many GiB are free — in the worst case on a 64-byte
+`torch.arange`. Eager serving of the same model is healthy. `expandable_segments` may throw
+`ExpandableSegment` exceptions.
+
+**Cause.** HIP reports many failures as `hipErrorOutOfMemory`, and errors surface at the *next* API
+call. Here the unsupported card's kernel-side KFD node — unreachable by the userspace patch in
+§3.1 — poisoned system-scoped memory-mapping (VMM) paths, the substrate under `expandable_segments`
+and graph memory pools. Hence the signature: plain allocations fine, pool allocations dead. Kernels
+≥ 6.14 are hostile to Polaris KFD, and no kernel new enough for RDNA2 is old enough for gfx803.
+
+**Fix / diagnostic ladder** (each step cheap, each discriminates):
+1. Do the arithmetic (weights + KV + activations vs VRAM). An impossible OOM is not a memory
+   problem; no `gpu_memory_utilization`, batch-size or allocator knob will fix it.
+2. `CGMODE=NONE` (no capture) serves fine ⇒ the fault is in the capture/VMM path.
+3. A trivial `torch.cuda.graph` capture around `x+1` in a bare container isolates the capture
+   machinery from vLLM; an allocation *inside* the capture region exercises the pools.
+4. `HIP_LAUNCH_BLOCKING=1` for one boot: if the failing frame doesn't move, it is a real
+   allocation-API failure, not an async kernel fault.
+5. If 2–4 implicate capture/VMM on a mixed-GPU system: **pull the unsupported card.** Ten
+   consecutive capture failures became a 3-second capture with zero config changes.
+
+**Related, no mixed GPUs needed:** large pageable host-memory transfers on multi-GPU can fault with
+`illegal memory access ... current device: -1`, surfacing at a later `hipHostFree` or teardown
+([ROCm/rocm-systems#4817](https://github.com/ROCm/rocm-systems/issues/4817)). Workaround from
+[edwinbrowwn/llama.cpp-rdna2](https://github.com/edwinbrowwn/llama.cpp-rdna2): `hipHostRegister`
+the buffer around the transfer.
+
+---
+
+## 4. Building and installing on the host (the container avoids all of these)
+
+| Symptom | Cause | Fix |
+|---|---|---|
+| `pip install -r requirements/…` pulls the CUDA torch from PyPI over the torch you built | compressed-tensors, xgrammar depend on torch | Install your own wheels first; pin them |
+| Triton cmake: `imported targets are referenced, but are missing: LLVMNVPTX…` | `/opt/rocm` on `CMAKE_PREFIX_PATH` makes `find_package(LLVM)` pick ROCm's LLVM (no NVPTX) while MLIR comes from Triton's tarball | Keep ROCm out of Triton's configure |
+| `Failed to dlopen libcuda.so.1` from code that "tries cuda-python, else HIP" | a full venv carries `cuda-bindings` transitively, so importability picks cuda-python | Select by platform (`torch.version.hip`), not by importability |
+| `No module named 'torchvision'` for text-only serving | `transformers`' vision processors hard-import it when the checkpoint carries a vision config | Build torchvision (CPU ops) too |
+| `hipErrorPeerAccessAlreadyEnabled`, then torch throws "peer access is already enabled" | the error is sticky after a second `hipDeviceEnablePeerAccess` | `hipGetLastError()` to clear |
+| A port compiles, launches, and returns garbage (relerr 0.6–0.9 on every shape) | upstream's `__HIP__GFX1X__` means gfx11/12, not gfx10 | Validate numerically before trusting a "just widen the macro" port |
+| One card loads weights, three sit at 1 % VRAM forever | a collective's init raised on one rank inside an ordered barrier loop; that rank moved on, the others wait | Never keep singleton state in a communicator; never let an init path skip a barrier the peers will hit |
+
+---
+
+## 5. Measuring correctly
+
+- **Prefill numbers with prefix caching on are fiction.** A repeated 44.5k prompt "prefilled" at
+  5,640 tok/s vs 537 fresh. Use unique prompts and `max_tokens=1` (`verify/prefill-rate.py`).
+- **The first pass on an idle card reads 5–10× slow** (clock ramp), and weights under 16 MB sit in
+  the Infinity Cache in a timing loop and read as 800 GB/s. Warm the card; believe the
+  DRAM-streaming number.
+- **Distrust error strings; trust arithmetic.** `hipErrorOutOfMemory` is a catch-all (§3.3).
+- **One variable per boot.** What broke every case here loose was a differential pair: TP=2
+  captures / PP=3 doesn't; pair A / pair B; cold / warm; patched library / vendor binary.
+- **sysfs lies about link width** on some boards (x16 claimed on x8 slots — a bridge hop, not
+  end-to-end). Throughput-test links before topology decisions.
+- **Correctness after any kernel or communication change:** `verify/validate.py` (greedy
+  answers), `verify/fd_gqa_test.py` (the flash-decode plugin), and two identical greedy runs must
+  match byte for byte.
+
+---
+
+## 6. Where else to look
+
+- [Wiki GFX1030](https://blivioniag.github.io/gfx1030-wiki/) — power tuning, PCIe P2P readiness
+  checks, env-var cheat sheets, its own troubleshooting pages; its `v620_toolbox` unlocks a 120 W
+  power floor on cards that otherwise refuse anything under 250 W (relevant to §2.1's power
+  transients).
+- [RDNA2-RESOURCES.md](RDNA2-RESOURCES.md) — forks, images and toolboxes worth knowing.
+- [leapdragon/vllm-rdna2-qwen](https://github.com/leapdragon/vllm-rdna2-qwen) — the Flash-Next
+  successor fork; its `docs/rdna2/TROUBLESHOOTING.md` covers that model's own machinery (n-gram
+  sidecar, tuned MoE configs, TunableOp rows per rocBLAS build), several of which generalize.

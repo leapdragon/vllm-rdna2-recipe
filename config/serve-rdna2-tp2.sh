@@ -30,7 +30,7 @@ RECIPE_ROOT="${RECIPE_ROOT:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 VLLM_SRC="${VLLM_SRC:-}"
 HF_CACHE="${HF_CACHE:-$RECIPE_ROOT/hf-cache}"
 TUNEOP_DIR="${TUNEOP_DIR:-$RECIPE_ROOT/tunableop}"   # LOAD-BEARING: needs the tuned lm_head rows —
-                                          # seed from builds/<model>/tunableop/ (TROUBLESHOOTING 5c)
+                                          # seed from builds/<model>/tunableop/ (TROUBLESHOOTING §1.2)
 STATE_DIR="${STATE_DIR:-$RECIPE_ROOT/.state}"
 mkdir -p "$HF_CACHE" "$TUNEOP_DIR" \
          "$STATE_DIR/ext-cache" "$STATE_DIR/traces"
@@ -61,7 +61,7 @@ DEVICES="${DEVICES:-1,3}"                 # default V620 pair (2026-08-31 chain-
                                           # same on both, so the width does not matter for TP=2)
 # The torch.compile/AOT cache is device-set-specific in practice: reusing a cache written on one
 # pair from another pair crashed the worker with HSA_STATUS_ERROR_MEMORY_APERTURE_VIOLATION as the
-# MTP drafter's AOT artifacts loaded (2026-08-31, TROUBLESHOOTING 5b). Scope it by DEVICES.
+# MTP drafter's AOT artifacts loaded (2026-08-31, TROUBLESHOOTING §1.3). Scope it by DEVICES.
 COMPILE_CACHE_DIR="$STATE_DIR/compile-cache-${DEVICES//,/-}"
 mkdir -p "$COMPILE_CACHE_DIR"
 SERVE_EXTRA=""
